@@ -120,10 +120,21 @@
 
             <!-- БЛОКИ ИНПУТА ДЛЯ ДРУГИХ РЕЖИМОВ -->
             <div id="input-container" style="padding: 15px; border-top: 1px solid rgba(112, 132, 153, 0.3); display: none; flex-direction: column; gap: 12px; background-color: var(--bg-color);">
-                <div id="text-input-row" style="display: flex; gap: 10px;">
-                    <input type="text" id="user-input" placeholder="Напиши слово..." style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid rgba(112, 132, 153, 0.5); background: var(--secondary-bg-color); color: var(--text-color); font-size: 16px; outline: none;">
-                    <button class="btn-primary" id="btn-send" style="margin: 0; width: 50px; padding: 0; display: flex; justify-content: center; align-items: center; border-radius: 10px;">➡️</button>
+           <div id="text-input-row" style="display: flex; gap: 10px;">
+                <!-- 🔥 Обертка для поля ввода и микрофона -->
+                <div style="position: relative; display: flex; align-items: center; flex: 1;">
+                    <!-- Поле ввода (добавлен padding-right: 40px, чтобы текст не залезал под микрофон) -->
+                    <input type="text" id="user-input" placeholder="Напиши слово..." style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px; border: 1px solid rgba(112, 132, 153, 0.5); background: var(--secondary-bg-color); color: var(--text-color); font-size: 16px; outline: none; box-sizing: border-box;">
+
+                    <!-- 🔥 Кнопка микрофона внутри инпута -->
+                    <button id="mic-btn" onclick="startVoiceInput()" style="position: absolute; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer; padding: 0; outline: none;">
+                        🎙️
+                    </button>
                 </div>
+
+                <!-- Кнопка отправки текста -->
+                <button class="btn-primary" id="btn-send" style="margin: 0; width: 50px; padding: 0; display: flex; justify-content: center; align-items: center; border-radius: 10px;">➡️</button>
+            </div>
             </div>
 
             <!-- 🔥 ПЛАВАЮЩИЕ КНОПКИ (FAB) В САМОМ НИЗУ ЭКРАНА -->

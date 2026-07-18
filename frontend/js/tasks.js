@@ -9,10 +9,9 @@ let taskState = {
 };
 
 // 🎯 Функция для отрисовки карточки задания
+// 🎯 Функция для отрисовки карточки задания
 function showTaskCard(htmlContent, showHelpBtn = false) {
     const chatContainer = document.getElementById('chat-messages');
-
-
 
     let helpBtnHtml = '';
     // Показываем кнопку Help, если кликов меньше 2
@@ -25,7 +24,6 @@ function showTaskCard(htmlContent, showHelpBtn = false) {
             <button onclick="showTaskHelp()" style="margin-top: 20px; padding: 10px 20px; background: ${btnColor}; border: 1px solid rgba(112, 132, 153, 0.2); border-radius: 10px; color: ${textColor}; font-size: 14px; cursor: pointer; transition: 0.2s;">
                 ${helpText}
             </button>
-            
         `;
     }
 
@@ -35,11 +33,6 @@ function showTaskCard(htmlContent, showHelpBtn = false) {
                 ${htmlContent}
             </div>
             
-            <!-- 🔥 Кнопка микрофона -->
-            <button onclick="startVoiceInput()" style="margin-top: 15px; padding: 12px; border-radius: 50%; border: none; background: rgba(112, 132, 153, 0.1); cursor: pointer; font-size: 20px;">
-                🎙️
-            </button>
-
             ${helpBtnHtml}
         </div>`;
 }

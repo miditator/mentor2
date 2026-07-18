@@ -21,6 +21,101 @@ function speakWord(text, lang) {
     window.speechSynthesis.speak(utterance);
 }
 
+// ==========================================
+// 🔥 ГОЛОСОВОЙ ВВОД (Web Audio API)
+// ==========================================
+
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
+async function startVoiceInput() {
+    const micBtn = document.getElementById('mic-btn');
+    const wordInput = document.getElementById('user-input');
+
+    // 1. ЕСЛИ ЗАПИСЬ НЕ ИДЕТ -> НАЧИНАЕМ
+    if (!isRecording) {
+        try {
+            // Запрашиваем доступ к микрофону у браузера/Telegram
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            // Собираем кусочки аудио по мере записи
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) {
+                    audioChunks.push(event.data);
+                }
+            };
+
+            // Что делать, когда нажали "Стоп"
+            mediaRecorder.onstop = async () => {
+                micBtn.innerText = '⏳'; // Часики, пока ждем ответ от сервера
+                micBtn.classList.remove('mic-button-recording');
+                wordInput.placeholder = "Распознавание...";
+
+                // Формируем аудиофайл
+                const audioBlob = new Blob(audioChunks, { type: 'audio/ogg' });
+                const formData = new FormData();
+                formData.append('file', audioBlob, 'voice.ogg'); // Имя поля должно совпадать с тем, что ждет FastAPI
+
+                try {
+                    // Отправляем на твой бэкенд (Whisper)
+                    const response = await fetch(`/api/speech/recognize?chat_id=${user.id}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success && data.text) {
+                        // Вставляем распознанный текст в поле
+                        wordInput.value = data.text;
+
+                        // Если хочешь, чтобы текст отправлялся автоматически сразу после распознавания, раскомментируй строку ниже:
+                        // document.getElementById('btn-send').click();
+                    } else {
+                        console.error('Ошибка распознавания:', data.error);
+                        wordInput.placeholder = "Не удалось распознать";
+                    }
+                } catch (err) {
+                    console.error('Ошибка сети:', err);
+                    wordInput.placeholder = "Ошибка сервера";
+                } finally {
+                    // Возвращаем интерфейс в исходное состояние
+                    micBtn.innerText = '🎙️';
+                    setTimeout(() => {
+                        if (wordInput.placeholder !== "Напиши слово...") {
+                            wordInput.placeholder = "Напиши слово...";
+                        }
+                    }, 2000);
+                }
+            };
+
+            // Запускаем запись
+            mediaRecorder.start();
+            isRecording = true;
+
+            // Меняем визуал кнопки и поля
+            micBtn.innerText = '🛑';
+            micBtn.classList.add('mic-button-recording');
+            wordInput.value = ''; // Очищаем поле от старого текста
+            wordInput.placeholder = "Слушаю... (нажми стоп)";
+
+        } catch (err) {
+            console.error("Ошибка микрофона:", err);
+            alert("Пожалуйста, разрешите доступ к микрофону в настройках Telegram/телефона.");
+        }
+    }
+    // 2. ЕСЛИ ЗАПИСЬ УЖЕ ИДЕТ -> ОСТАНАВЛИВАЕМ
+    else {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+        isRecording = false;
+    }
+}
+
 // 🔥 Глобальная функция для смены заголовка и стрелочки "Назад"
 function setAppHeader(title, showBackBtn = true) {
     const titleEl = document.getElementById('top-bar-title');
@@ -190,8 +285,9 @@ function showFullDictionary() {
 
     // Прячем карточки меню
     document.getElementById('main-menu-cards').style.display = 'none';
-
+showFullDictionary
     document.getElementById('chat-messages').innerHTML = '<i>Загрузка словаря...</i>';
+  if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'none';
 
     if (document.getElementById('input-container')) document.getElementById('input-container').style.display = 'none';
 
@@ -240,6 +336,8 @@ function exitToMainMenu() {
     if (document.getElementById('btn-next-task')) document.getElementById('btn-next-task').style.display = 'none';
     if (document.getElementById('fab-next-task')) document.getElementById('fab-next-task').style.display = 'none';
     if (document.getElementById('fab-add-word')) document.getElementById('fab-add-word').style.display = 'none';
+
+
  
 
     document.getElementById('user-input').placeholder = "Напиши слово...";
