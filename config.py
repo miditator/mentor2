@@ -6,6 +6,7 @@ GEMINI_KEY = os.getenv("GOOGLE_API_KEY")
 GROQ_KEY = os.getenv("GROQ_API_KEY")
 #MODEL = 'gemini-2.5-flash'
 MODEL = "llama-3.3-70b-versatile"
+temperature=0.5
 VISION_MODEL = "gemini-2.5-flash"
 AUDIO_MODEL = "whisper-large-v3"
 TOKEN = os.getenv("TOKEN")

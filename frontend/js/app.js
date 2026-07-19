@@ -33,82 +33,64 @@ async function startVoiceInput() {
     const micBtn = document.getElementById('mic-btn');
     const wordInput = document.getElementById('user-input');
 
-    // 1. ЕСЛИ ЗАПИСЬ НЕ ИДЕТ -> НАЧИНАЕМ
     if (!isRecording) {
         try {
-            // Запрашиваем доступ к микрофону у браузера/Telegram
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
+            // Запрашиваем доступ
+            currentStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(currentStream, { mimeType: 'audio/webm' }); // Используем webm для лучшей совместимости
             audioChunks = [];
 
-            // Собираем кусочки аудио по мере записи
             mediaRecorder.ondataavailable = event => {
-                if (event.data.size > 0) {
-                    audioChunks.push(event.data);
-                }
+                if (event.data.size > 0) audioChunks.push(event.data);
             };
 
-            // Что делать, когда нажали "Стоп"
             mediaRecorder.onstop = async () => {
-                micBtn.innerText = '⏳'; // Часики, пока ждем ответ от сервера
+                // 🔥 ОЧИСТКА: Останавливаем все дорожки микрофона
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                }
+
+                micBtn.innerText = '⏳';
                 micBtn.classList.remove('mic-button-recording');
                 wordInput.placeholder = "Распознавание...";
 
-                // Формируем аудиофайл
-                const audioBlob = new Blob(audioChunks, { type: 'audio/ogg' });
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 const formData = new FormData();
-                formData.append('file', audioBlob, 'voice.ogg'); // Имя поля должно совпадать с тем, что ждет FastAPI
+                formData.append('file', audioBlob, 'voice.webm');
 
                 try {
-                    // Отправляем на твой бэкенд (Whisper)
-                    const response = await fetch(`/api/speech/recognize?chat_id=${user.id}`, {
+                    const response = await fetch(`/speech/recognize?chat_id=${user.id}`, {
                         method: 'POST',
                         body: formData
                     });
-
                     const data = await response.json();
 
                     if (data.success && data.text) {
-                        // Вставляем распознанный текст в поле
                         wordInput.value = data.text;
-
-                        // Если хочешь, чтобы текст отправлялся автоматически сразу после распознавания, раскомментируй строку ниже:
-                        // document.getElementById('btn-send').click();
                     } else {
-                        console.error('Ошибка распознавания:', data.error);
                         wordInput.placeholder = "Не удалось распознать";
                     }
                 } catch (err) {
-                    console.error('Ошибка сети:', err);
                     wordInput.placeholder = "Ошибка сервера";
                 } finally {
-                    // Возвращаем интерфейс в исходное состояние
                     micBtn.innerText = '🎙️';
-                    setTimeout(() => {
-                        if (wordInput.placeholder !== "Напиши слово...") {
-                            wordInput.placeholder = "Напиши слово...";
-                        }
-                    }, 2000);
+                    setTimeout(() => wordInput.placeholder = "Напиши слово...", 2000);
                 }
             };
 
-            // Запускаем запись
             mediaRecorder.start();
             isRecording = true;
-
-            // Меняем визуал кнопки и поля
             micBtn.innerText = '🛑';
             micBtn.classList.add('mic-button-recording');
-            wordInput.value = ''; // Очищаем поле от старого текста
-            wordInput.placeholder = "Слушаю... (нажми стоп)";
+            wordInput.value = '';
+            wordInput.placeholder = "Слушаю...";
 
         } catch (err) {
             console.error("Ошибка микрофона:", err);
-            alert("Пожалуйста, разрешите доступ к микрофону в настройках Telegram/телефона.");
+            alert("Пожалуйста, разрешите доступ к микрофону в настройках Telegram.");
         }
-    }
-    // 2. ЕСЛИ ЗАПИСЬ УЖЕ ИДЕТ -> ОСТАНАВЛИВАЕМ
-    else {
+    } else {
+        // Остановка
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
         }
@@ -117,12 +99,21 @@ async function startVoiceInput() {
 }
 
 // 🔥 Глобальная функция для смены заголовка и стрелочки "Назад"
+// 🔥 Глобальная функция для смены заголовка и стрелочки "Назад"
 function setAppHeader(title, showBackBtn = true) {
     const titleEl = document.getElementById('top-bar-title');
     const backBtnEl = document.getElementById('back-btn');
+    const settingsBtnEl = document.getElementById('settings-btn'); // Ищем нашу новую шестеренку
 
     if (titleEl) titleEl.innerText = title;
+
+    // Управляем кнопкой "Назад"
     if (backBtnEl) backBtnEl.style.display = showBackBtn ? 'flex' : 'none';
+
+    // 🔥 Управляем "Шестеренкой": показываем её ТОЛЬКО когда мы в главном меню (когда нет кнопки Назад)
+    if (settingsBtnEl) {
+        settingsBtnEl.style.display = showBackBtn ? 'none' : 'block';
+    }
 }
 
 function switchScreen(screenId) {
@@ -211,25 +202,32 @@ document.getElementById('btn-send').addEventListener('click', () => {
     const text = inputField.value.trim();
     if (!text) return;
 
-    addMessageToOutput(text, true);
+    // 🔥 ИНТЕГРАЦИЯ СТИЛЕЙ: Если мы в живом чате, рисуем телеграм-пузырь
+    if (window.currentAppMode === 'live_chat' && typeof addTelegramStyleMessage === 'function') {
+        addTelegramStyleMessage(text, true);
+    } else {
+        addMessageToOutput(text, true);
+    }
+
     inputField.value = '';
 
+    // МАРШРУТИЗАЦИЯ РЕЖИМОВ
     if (window.currentAppMode === 'add_word' && typeof handleAddWordInput === 'function') {
         handleAddWordInput(text);
     } else if (window.currentAppMode === 'task' && typeof handleTaskInput === 'function') {
         handleTaskInput(text);
-    }
-    else if (window.currentAppMode === 'training' && typeof handleTrainingInput === 'function') {
+    } else if (window.currentAppMode === 'training' && typeof handleTrainingInput === 'function') {
         handleTrainingInput(text);
-    }
-    else if (window.currentAppMode === 'intensity_setup') {
+    } else if (window.currentAppMode === 'intensity_setup') {
         startIntensity(text);
-    }
-    else if (window.currentAppMode === 'intensity_active') {
+    } else if (window.currentAppMode === 'intensity_active') {
         handleIntensityInput(text);
+    } else if (window.currentAppMode === 'grammar_training' && typeof handleGrammarInput === 'function') {
+        handleGrammarInput(text);
+    } else if (window.currentAppMode === 'live_chat' && typeof handleLiveChatInput === 'function') {
+        handleLiveChatInput(text);
     }
 });
-
 
 // Обработка нажатия Enter на стандартной клавиатуре
 document.getElementById('user-input').addEventListener('keypress', function (e) {
@@ -237,27 +235,31 @@ document.getElementById('user-input').addEventListener('keypress', function (e) 
         document.getElementById('btn-send').click();
     }
 });
-// 🔥 НОВОЕ: Обработка Enter в быстром переводчике
-document.getElementById('quick-translator-input').addEventListener('keypress', function (e) {
+
+// Обработка Enter в быстром переводчике
+document.getElementById('quick-translator-input')?.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
-        startQuickTranslation();
+        if (typeof startQuickTranslation === 'function') startQuickTranslation();
     }
 });
 
+// 🔥 НОВОЕ: Обработка Enter в строке живого чата на главном экране
+document.getElementById('live-chat-input')?.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        if (typeof startLiveChatFromMenu === 'function') startLiveChatFromMenu();
+    }
+});
 
-// 🔥 НОВОЕ: Запуск перевода с главного экрана
 function startQuickTranslation() {
     const input = document.getElementById('quick-translator-input');
-    const text = input.value.trim();
+    const text = input ? input.value.trim() : '';
     if (!text) return;
-    input.value = ''; // Очищаем поле
+    input.value = '';
 
-    // ПЕРЕДАЕМ true, чтобы система знала, что это "быстрый" режим
     enterAddWordMode(true);
-
     document.getElementById('user-input').value = text;
     hideTextInput();
-    handleAddWordInput(text);
+    if (typeof handleAddWordInput === 'function') handleAddWordInput(text);
 }
 
 // Запрос профиля
@@ -270,66 +272,24 @@ apiFetch(`/profile?chat_id=${user.id}`)
             switchScreen('screen-main');
         }
     })
-    .catch(err => {
-        console.error(err);
-    });
-
-// ==========================================
-// УПРАВЛЕНИЕ ИНТЕРФЕЙСАМИ (БЕЗ БЭКЕНДА)
-// ==========================================
-
-function showFullDictionary() {
-    window.currentAppMode = 'dictionary';
-
-    setAppHeader('📚 Мой словарь', true);
-
-    // Прячем карточки меню
-    document.getElementById('main-menu-cards').style.display = 'none';
-showFullDictionary
-    document.getElementById('chat-messages').innerHTML = '<i>Загрузка словаря...</i>';
-  if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'none';
-
-    if (document.getElementById('input-container')) document.getElementById('input-container').style.display = 'none';
-
-    document.getElementById('fab-add-word').style.display = 'flex';
-
-    apiFetch(`/words/all?chat_id=${user.id}`)
-        .then(data => {
-            document.getElementById('chat-messages').innerHTML = '';
-
-            if (data.success && data.words && data.words.length > 0) {
-                let html = '<b>Твои слова:</b><br><br>';
-
-                data.words.forEach(w => {
-                    let foreign = w.word_foreign || w.foreign || w[0];
-                    let ru = w.word_ru || w.ru || w[1];
-                    let score = w.score !== undefined ? w.score : (w[2] || 0);
-                    let percent = Math.round((score / 5) * 100);
-
-                    html += `• <b>${foreign}</b> — <i>${ru}</i> [${percent}%]<br>`;
-                });
-
-                addMessageToOutput(html);
-            } else {
-                addMessageToOutput("Словарь пока пуст. Самое время добавить новое слово! ✍️");
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            document.getElementById('chat-messages').innerHTML = '<i>❌ Ошибка при загрузке словаря.</i>';
-        });
-}
+    .catch(err => console.error(err));
 
 function exitToMainMenu() {
     window.currentAppMode = 'menu';
     setAppHeader('Главное меню', false);
-    document.getElementById('chat-messages').innerHTML = '';
+
+    const chatContainer = document.getElementById('chat-messages');
+    chatContainer.innerHTML = '';
+    // Сбрасываем Flex-настройки чата, чтобы они не ломали другие режимы
+    chatContainer.style.display = 'block';
 
     document.getElementById('mini-profile').style.display = 'flex';
     document.getElementById('main-menu-cards').style.display = 'grid';
 
-    // 🔥 Возвращаем быстрый переводчик
     if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'block';
+
+    // 🔥 Возвращаем поле живого чата
+    if (document.getElementById('live-chat-block')) document.getElementById('live-chat-block').style.display = 'block';
 
     if (document.getElementById('dictionary-keyboard')) document.getElementById('dictionary-keyboard').style.display = 'none';
     if (document.getElementById('input-container')) document.getElementById('input-container').style.display = 'none';
@@ -337,9 +297,5 @@ function exitToMainMenu() {
     if (document.getElementById('fab-next-task')) document.getElementById('fab-next-task').style.display = 'none';
     if (document.getElementById('fab-add-word')) document.getElementById('fab-add-word').style.display = 'none';
 
-
- 
-
     document.getElementById('user-input').placeholder = "Напиши слово...";
 }
-

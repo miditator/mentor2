@@ -65,7 +65,7 @@ def check_english_translation(message):
             response = ai_client.chat.completions.create(
                 model=config.MODEL,
                 messages=[{"role": "user", "content": prompt_text}],
-                temperature=0.7
+                temperature=config.temperature
             )
             ai_text = response.choices[0].message.content
 

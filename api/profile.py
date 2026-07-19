@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 import database
 import ai_service  # 🔥 ПОДКЛЮЧАЕМ НАШ НОВЫЙ ВЫДЕЛЕННЫЙ СЕРВИС ИИ
+import random
 
 router = APIRouter(
     prefix="/api",
@@ -38,6 +39,7 @@ class TaskHelpData(BaseModel):
 class TaskAnswerData(BaseModel):
     chat_id: int
     answer: str
+    rule: str = None
 
 
 class UpdateSettingData(BaseModel):
@@ -78,6 +80,29 @@ class AddMultipleWordsData(BaseModel):
     chat_id: int
     words: list[WordItem]
 
+class GrammarCheckData(BaseModel):
+    chat_id: int
+    original_phrase: str
+    answer: str
+    rule: str
+
+class GrammarHelpData(BaseModel):
+    chat_id: int
+    original_phrase: str
+    step: int
+
+class TrainingAnswerData(BaseModel):
+    chat_id: int
+    word_id: int
+    is_correct: bool
+
+class ChatMessageItem(BaseModel):
+    role: str
+    content: str
+
+class ChatMessageData(BaseModel):
+    chat_id: int
+    history: list[ChatMessageItem]
 
 # --- ЭНДПОИНТЫ ПРОФИЛЯ И НАСТРОЕК ---
 
@@ -172,6 +197,10 @@ def get_dictionary(chat_id: int):
 def get_new_task(chat_id: int, force: bool = False):
     try:
         if force:
+            # 🔥 1. ПЕРЕД удалением сохраняем надоевшую фразу в историю, чтобы ИИ ее больше не выдавал
+            active = database.get_active_task(chat_id)
+            if active:
+                database.add_to_history(chat_id, active["phrase"])
             database.delete_active_task(chat_id)
 
         active = database.get_active_task(chat_id)
@@ -179,7 +208,8 @@ def get_new_task(chat_id: int, force: bool = False):
             return {
                 "success": True,
                 "phrase": active["phrase"],
-                "rule": active.get("rule", "General Grammar")
+                "rule": active.get("rule", "General Grammar"),
+                "target_word": active.get("target_word", "базовое слово")
             }
 
         user_config = database.get_user_config(chat_id)
@@ -187,15 +217,23 @@ def get_new_task(chat_id: int, force: bool = False):
         lang_name = "английском" if target_lang == "en" else "немецком"
         difficulty = user_config.get("difficulty", "A1")
 
-        words = database.get_words_for_grammar_context(chat_id, limit=1)
-        target_word = f"«{words[0]['foreign']}» (перевод: {words[0]['ru']})" if words else "любое базовое слово"
+        # 🔥 2. Берем список из 10 слов и выбираем одно СЛУЧАЙНОЕ
+        # Это не даст боту застрять на одном слове при пропуске задания
+        words = database.get_words_for_grammar_context(chat_id, limit=10)
+        if words:
+            chosen_word = random.choice(words)
+            target_word = f"«{chosen_word['foreign']}» (перевод: {chosen_word['ru']})"
+        else:
+            target_word = "любое базовое слово"
 
+        # Теперь история будет содержать даже те фразы, которые ты пропустил
         history = database.get_today_phrases_list(chat_id)
 
         ru_phrase, rule = ai_service.generate_task_ai(lang_name, target_word, difficulty, history)
 
         database.save_active_task(chat_id, ru_phrase, rule)
-        return {"success": True, "phrase": ru_phrase, "rule": rule}
+
+        return {"success": True, "phrase": ru_phrase, "rule": rule, "target_word": target_word}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -214,6 +252,8 @@ def get_task_help(data: TaskHelpData):
         ai_feedback = ai_service.get_task_help_ai(active["phrase"], lang_name, data.step)
 
         if data.step == 2:
+            # 🔥 Сохраняем фразу в историю, чтобы не повторилась завтра
+            database.add_to_history(data.chat_id, active["phrase"])
             database.delete_active_task(data.chat_id)
 
         return {"success": True, "feedback": ai_feedback}
@@ -232,7 +272,7 @@ def check_task(data: TaskAnswerData):
         target_lang = user_config.get("source_lang", "en") if user_config else "en"
         lang_name = "английском" if target_lang == "en" else "немецком"
 
-        ai_feedback = ai_service.check_task_ai(active["phrase"], data.answer, lang_name)
+        ai_feedback = ai_service.check_task_ai(active["phrase"], data.answer, lang_name,data.rule)
 
         is_correct = ai_feedback.upper().startswith("ПРАВИЛЬНО")
 
@@ -371,3 +411,77 @@ async def recognize_speech(chat_id: int, file: UploadFile = File(...)):
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)  # Удаляем временный файл
+
+
+@router.get("/grammar/new")
+def get_grammar_task(chat_id: int, rule: str):
+    try:
+        user_config = database.get_user_config(chat_id)
+        target_lang = user_config.get("source_lang", "en") if user_config else "en"
+        lang_name = "английском" if target_lang == "en" else "немецком"
+        difficulty = user_config.get("difficulty", "A1")
+
+        # Берем случайное слово из словаря пользователя (или базовое)
+        words = database.get_words_for_grammar_context(chat_id, limit=10)
+        if words:
+            import random
+            chosen_word = random.choice(words)
+            target_word = f"«{chosen_word['foreign']}» (перевод: {chosen_word['ru']})"
+        else:
+            target_word = "любое базовое слово"
+
+        # 🔥 Используем отдельную функцию ИИ, чтобы не ломать логику обычных заданий
+        ru_phrase = ai_service.generate_strict_grammar_task_ai(lang_name, target_word, difficulty, rule)
+
+        # Мы НЕ сохраняем это в БД! Возвращаем сразу на фронт.
+        return {"success": True, "phrase": ru_phrase, "target_word": target_word}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@router.post("/grammar/check")
+def check_grammar_task(data: GrammarCheckData):
+    try:
+        user_config = database.get_user_config(data.chat_id)
+        target_lang = user_config.get("source_lang", "en") if user_config else "en"
+        lang_name = "английском" if target_lang == "en" else "немецком"
+
+        # Можно переиспользовать существующую функцию проверки, она универсальная
+        ai_feedback = ai_service.check_task_ai(data.original_phrase, data.answer, lang_name, data.rule)
+        is_correct = ai_feedback.upper().startswith("ПРАВИЛЬНО")
+
+        if is_correct:
+            return {"success": True, "is_correct": True, "feedback": "✅ <b>Отлично! Перевод верный.</b>"}
+        else:
+            return {"success": True, "is_correct": False, "feedback": f"❌ <b>Ошибка:</b>\n{ai_feedback}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@router.post("/grammar/help")
+def help_grammar_task(data: GrammarHelpData):
+    try:
+        user_config = database.get_user_config(data.chat_id)
+        target_lang = user_config.get("source_lang", "en") if user_config else "en"
+        lang_name = "английском" if target_lang == "en" else "немецком"
+
+        # Переиспользуем универсальную функцию подсказки
+        ai_feedback = ai_service.get_task_help_ai(data.original_phrase, lang_name, data.step)
+
+        return {"success": True, "feedback": ai_feedback}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@router.post("/chat/send")
+def send_chat_message(data: ChatMessageData):
+    try:
+        user_config = database.get_user_config(data.chat_id)
+        target_lang = user_config.get("source_lang", "en") if user_config else "en"
+        lang_name = "английском" if target_lang == "en" else "немецком"
+
+        # Передаем историю диалога в сервис
+        response_text = ai_service.free_chat_ai(data.history, lang_name)
+        return {"success": True, "response": response_text}
+    except Exception as e:
+        return {"success": False, "error": str(e)}

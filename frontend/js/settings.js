@@ -122,6 +122,7 @@ function showLimitSelector() {
 }
 
 // 🎯 Сохранение любой настройки
+// 🎯 Сохранение любой настройки
 function saveSetting(key, value) {
     const chatContainer = document.getElementById('chat-messages');
     chatContainer.innerHTML = `
@@ -137,16 +138,17 @@ function saveSetting(key, value) {
         body: JSON.stringify({ chat_id: user.id, setting_key: key, setting_value: String(value) })
     }).then(data => {
         if(data.success) {
-            // 🎯 Синхронизируем локальный стейт
-            if (key === 'source_lang') {
-                window.userProfile['language'] = value; // В UI профиля ключ называется language
-            } else {
-                window.userProfile[key] = value;
-            }
+            // 🔥 Запрашиваем свежие данные профиля с сервера, чтобы обновить счетчик слов!
+            apiFetch(`/profile?chat_id=${user.id}`).then(profileData => {
+                if (!profileData.is_new_user) {
+                    updateProfileUI(profileData); // Перерисовываем мини-профиль с правильными цифрами
+                }
+                renderSettingsMenu(); // Возвращаемся в меню настроек
+            }).catch(err => {
+                console.error("Ошибка при обновлении профиля:", err);
+                renderSettingsMenu(); // Если что-то пошло не так, все равно возвращаем меню
+            });
 
-            // Перерисовываем UI главного экрана и возвращаемся в меню настроек
-            updateProfileUI(window.userProfile);
-            renderSettingsMenu();
         } else {
             chatContainer.innerHTML = `<div style="text-align:center; padding: 20px;">❌ Ошибка: ${data.error}</div>`;
             setTimeout(renderSettingsMenu, 2000);

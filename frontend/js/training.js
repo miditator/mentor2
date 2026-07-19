@@ -56,7 +56,6 @@ function toggleSwap() {
         showCurrentWord();
     }
 }
-
 function startTraining(count) {
     document.getElementById('input-container').style.display = 'flex';
     document.getElementById('user-input').placeholder = "Перевод...";
@@ -66,6 +65,9 @@ function startTraining(count) {
 
     apiFetch(`/train/start?chat_id=${user.id}&count=${count}`)
         .then(data => {
+            // 🔥 ОХРАННИК: Если пользователь уже ушел из тренировки, обрываем!
+            if (window.currentAppMode !== 'training') return;
+
             if (data.success && data.words && data.words.length > 0) {
                 trainingState.activeRound = shuffleArray(data.words.map(w => ({ ...w, correctGuesses: 0 })));
                 trainingState.nextRound = [];
@@ -79,6 +81,7 @@ function startTraining(count) {
             }
         })
         .catch(err => {
+            if (window.currentAppMode !== 'training') return; // Защита для ошибки
             chatContainer.innerHTML = `<div style="text-align:center; padding: 20px;">⚠️ Ошибка сети при загрузке.</div>`;
         });
 }
@@ -91,6 +94,9 @@ function showFlashMessage(htmlContent, delay = 1000) {
         </div>`;
 
     setTimeout(() => {
+        // 🔥 ОХРАННИК: Если пока висело сообщение, юзер ушел в другое меню — останавливаем процесс!
+        if (window.currentAppMode !== 'training') return;
+
         trainingState.currentIndex++;
         showCurrentWord();
     }, delay);

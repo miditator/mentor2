@@ -9,17 +9,17 @@ let isQuickTranslation = false; // 🔥 Флажок для авто-возвр�
 
 function showAddCard(htmlContent) {
     const chatContainer = document.getElementById('chat-messages');
+    // 🔥 Очистили функцию от часиков. Теперь это просто аккуратный контейнер-карточка
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 250px; background-color: var(--secondary-bg-color); border-radius: 16px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; margin-top: 20px; text-align: center;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--secondary-bg-color); border-radius: 16px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; margin-top: 20px; text-align: center; width: 100%; box-sizing: border-box;">
             ${htmlContent}
         </div>`;
 }
 
-// 🔥 Принимаем параметр isQuick (по умолчанию false)
 function enterAddWordMode(isQuick = false) {
     window.currentAppMode = 'add_word';
     isWaitingForAi = false;
-    isQuickTranslation = isQuick; // Запоминаем, откуда пришли
+    isQuickTranslation = isQuick;
 
     setAppHeader('➕ Добавление слова', true);
 
@@ -49,13 +49,10 @@ function handleAddWordInput(text) {
     if (isWaitingForAi) return;
     isWaitingForAi = true;
 
+    // 🔥 1. Показываем часики ТОЛЬКО во время перевода
     showAddCard(`
-        <div style="font-size: 12px; color: var(--hint-color); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Значения:</div>
-                <div style="font-size: 26px; font-weight: bold; color: var(--text-color); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    ${pendingForeignWord}
-                    <!-- 🔥 Кнопка динамика -->
-                    <span onclick="speakWord('${pendingForeignWord}', '${window.userProfile?.language}')" style="cursor: pointer; font-size: 24px; padding: 5px; background: rgba(112, 132, 153, 0.1); border-radius: 50%;">🔊</span>
-                </div>
+        <div style="font-size: 40px; margin-bottom: 15px;">⏳</div>
+        <div style="font-size: 16px; color: var(--hint-color);">ИИ переводит...</div>
     `);
 
     apiFetch('/words/translate', {
@@ -103,14 +100,22 @@ function handleAddWordInput(text) {
                 `;
             }
 
-            // Настраиваем кнопку отмены. Если быстрый перевод — пишем "Отмена", если обычный — "Дальше"
             let rejectBtnText = isQuickTranslation ? "❌ Отмена" : "🔄 Дальше";
 
+            // 🔥 2. Финальная карточка: Добавлена кнопка озвучки (динамик) рядом со словом!
             showAddCard(`
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
                     ${typoNotice}
                     <div style="font-size: 12px; color: var(--hint-color); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Значения:</div>
-                    <div style="font-size: 26px; font-weight: bold; color: var(--text-color); margin-bottom: 20px;">${pendingForeignWord}</div>
+                    
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <div style="font-size: 26px; font-weight: bold; color: var(--text-color);">
+                            ${pendingForeignWord}
+                        </div>
+                        <button onclick="speakWord('${pendingForeignWord}', '${window.userProfile?.language || 'en'}')" style="background: rgba(112, 132, 153, 0.1); border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform='scale(1)'">
+                            🔊
+                        </button>
+                    </div>
                     
                     <div id="meanings-container" style="width: 100%; display: flex; flex-direction: column; margin-bottom: ${examples.length > 0 ? '10px' : '20px'};">
                         ${checkboxesHtml}
@@ -153,14 +158,12 @@ function handleAddWordInput(text) {
 }
 
 function rejectAddWord() {
-    // 🔥 Если мы в быстром режиме и нажали отмену — возвращаемся в меню сразу
     if (isQuickTranslation) {
         exitAddWordMode();
         return;
     }
 
     showAddCard(`
-
         <div style="font-size: 40px; margin-bottom: 15px;">🔄</div>
         <div style="font-size: 18px; font-weight: bold; color: var(--text-color); margin-bottom: 10px;">Пропущено</div>
         <div style="font-size: 14px; color: var(--hint-color);">Введи другое слово 👇</div>
@@ -190,7 +193,6 @@ function confirmAddWord() {
     })
     .then(data => {
         if(data.success) {
-            // 🔥 Выбираем текст в зависимости от режима
             let nextStepText = isQuickTranslation ? "Возвращаемся в меню... ⏳" : "Введи следующее слово 👇";
 
             showAddCard(`
@@ -200,17 +202,15 @@ function confirmAddWord() {
                 <div style="font-size: 14px; color: var(--hint-color);">${nextStepText}</div>
             `);
 
-            // 🔥 Логика авто-возврата
             if (isQuickTranslation) {
                 setTimeout(() => {
                     exitAddWordMode();
-                }, 1200); // Возвращаемся в меню ровно через 1.2 сек
+                }, 1200);
             } else {
                 showTextInput();
                 document.getElementById('user-input').value = '';
                 document.getElementById('user-input').focus();
             }
-
         } else {
             showAddCard(`❌ Ошибка сохранения: ${data.error}`);
             showTextInput();

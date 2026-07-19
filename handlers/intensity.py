@@ -142,7 +142,7 @@ def start_word_intensity(chat_id, word, target_lang=None):
         response = ai_client.chat.completions.create(
             model=config.MODEL,
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.5
+            temperature=config.temperature
         )
 
         raw_json = response.choices[0].message.content.strip()

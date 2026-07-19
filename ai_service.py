@@ -78,9 +78,9 @@ def get_task_help_ai(original_phrase: str, lang_name: str, step: int) -> str:
     return response.choices[0].message.content.strip()
 
 
-def check_task_ai(original_phrase: str, user_answer: str, lang_name: str) -> str:
+def check_task_ai(original_phrase: str, user_answer: str, lang_name: str,rule="General Grammar") -> str:
     """Проверяет ответ пользователя на грамматическое задание."""
-    prompt = aiPrompts.webapp_task_check_prompt(original_phrase, user_answer, lang_name)
+    prompt = aiPrompts.webapp_task_check_prompt(original_phrase, user_answer, lang_name,rule)
 
     response = loader.ai_client.chat.completions.create(
         model=config.MODEL,
@@ -172,3 +172,70 @@ def transcribe_audio_ai(audio_file_path: str) -> str:
             file=audio_file
         ),
     return transcript.text
+
+
+def generate_strict_grammar_task_ai(lang_name: str, target_word: str, difficulty: str, specific_rule: str) -> str:
+    """Генерирует 1 строку на русском языке строго по заданному правилу грамматики."""
+
+    # 🔥 Вызываем промпт из отдельного файла
+    prompt = aiPrompts.generate_strict_grammar_prompt(lang_name, target_word, difficulty, specific_rule)
+
+    try:
+        response = loader.ai_client.chat.completions.create(
+            model=config.MODEL,
+            messages=[
+                {"role": "system",
+                 "content": "Ты возвращаешь только 1 строку текста. Никаких Markdown, никаких тегов."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=2048
+        )
+
+        raw_text = response.choices[0].message.content.strip()
+
+        # Зачищаем мысли (для reasoning моделей вроде Qwen)
+        raw_text = re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
+        raw_text = raw_text.replace("```text", "").replace("```", "").strip()
+
+        # Если модель все же выдала список, берем первую строку
+        lines = [line.strip() for line in raw_text.split('\n') if line.strip()]
+
+        return lines[0] if lines else "Ошибка генерации"
+
+    except Exception as e:
+        print(f"❌ Ошибка в generate_strict_grammar_task_ai: {e}")
+        return "Произошла ошибка при составлении задания."
+
+
+import re
+import aiPrompts
+
+
+def free_chat_ai(history: list, lang_name: str) -> str:
+    """Свободный диалог с учетом истории сообщений."""
+    system_content = aiPrompts.generate_free_chat_system_prompt(lang_name)
+
+    # 1. Сначала ставим системные правила
+    messages = [{"role": "system", "content": system_content}]
+
+    # 2. Затем добавляем историю переписки (ограничим 10 последними сообщениями для экономии токенов)
+    for msg in history[-10:]:
+        # FastAPI/Pydantic оборачивает данные в объекты, поэтому достаем поля через точку
+        messages.append({"role": msg.role, "content": msg.content})
+
+    try:
+        response = loader.ai_client.chat.completions.create(
+            model=config.MODEL,
+            messages=messages,
+            temperature=0.7,
+            max_tokens=1024
+        )
+
+        raw_text = response.choices[0].message.content.strip()
+        raw_text = re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
+        return raw_text
+
+    except Exception as e:
+        print(f"❌ Ошибка в free_chat_ai: {e}")
+        return "Извини, я на секунду потерял связь. Повторишь? 😅"
