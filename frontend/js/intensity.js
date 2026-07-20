@@ -20,6 +20,7 @@ function showIntensitySetupMode() {
     document.getElementById('main-menu-cards').style.display = 'none';
     if (document.getElementById('dictionary-keyboard')) document.getElementById('dictionary-keyboard').style.display = 'none';
     if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'none';
+    if (document.getElementById('live-chat-block')) document.getElementById('live-chat-block').style.display = 'none';
 
     document.getElementById('input-container').style.display = 'flex';
     document.getElementById('text-input-row').style.display = 'flex';

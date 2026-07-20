@@ -23,13 +23,20 @@ function showTaskCard(htmlContent, buttonsHtml = '') {
         </div>`;
 }
 
-function showNewTaskMode(forceNew = false) {
+// 🔥 Теперь по умолчанию всегда запрашиваем НОВУЮ фразу (forceNew = true)
+function showNewTaskMode(forceNew = true) {
     window.currentAppMode = 'task';
     setAppHeader('🎯 Новое задание', true);
 
-    taskState.helpClicks = 0;
+    // 🔥 ПОЛНОСТЬЮ ОБНУЛЯЕМ ЛОКАЛЬНЫЙ СТЕЙТ ПЕРЕД НОВЫМ ЗАДАНИЕМ
+    taskState = {
+        helpClicks: 0,
+        phrase: "",
+        rule: "",
+        targetWord: ""
+    };
 
-    // 🔥 Прячем всё лишнее, включая ПЛАВАЮЩУЮ КНОПКУ (Goal 1)
+    // Прячем всё лишнее
     if (document.getElementById('mini-profile')) document.getElementById('mini-profile').style.display = 'none';
     if (document.getElementById('main-menu-cards')) document.getElementById('main-menu-cards').style.display = 'none';
     if (document.getElementById('dictionary-keyboard')) document.getElementById('dictionary-keyboard').style.display = 'none';
@@ -40,31 +47,74 @@ function showNewTaskMode(forceNew = false) {
     if (document.getElementById('text-input-row')) document.getElementById('text-input-row').style.display = 'flex';
     if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'none';
     if (document.getElementById('confirm-row')) document.getElementById('confirm-row').style.display = 'none';
+    if (document.getElementById('live-chat-block')) document.getElementById('live-chat-block').style.display = 'none';
+
 
     const userInput = document.getElementById('user-input');
     if (userInput) {
-        userInput.value = '';
+        userInput.value = ''; // Очищаем поле ввода
         userInput.placeholder = "Напиши перевод...";
     }
 
+    // Сразу показываем заглушку загрузки, чтобы старая карточка не висела
     showTaskCard(`
         <div style="font-size: 40px; margin-bottom: 15px;">⏳</div>
         <div style="font-size: 16px; color: var(--hint-color);">ИИ составляет предложение...</div>
     `);
 
-    const url = `/tasks/new?chat_id=${user.id}${forceNew ? '&force=true' : ''}`;
+    // 🔥 БЕРЕМ СЛУЧАЙНОЕ ПРАВИЛО С УЧЕТОМ УРОВНЯ СЛОЖНОСТИ
+    const lang = window.userProfile?.language || 'en';
+    const userDifficulty = window.userProfile?.difficulty || 'A1';
+    let randomRule = "General Grammar";
+
+    if (typeof grammarRulesDict !== 'undefined' && grammarRulesDict[lang]) {
+        let allowedRules = [];
+        const levels = Object.keys(grammarRulesDict[lang]);
+
+        for (const levelKey of levels) {
+            allowedRules.push(...grammarRulesDict[lang][levelKey]);
+            if (levelKey.startsWith(userDifficulty)) {
+                break;
+            }
+        }
+
+        if (allowedRules.length === 0) {
+            allowedRules = grammarRulesDict[lang][levels[0]];
+        }
+
+        randomRule = allowedRules[Math.floor(Math.random() * allowedRules.length)];
+    }
+
+    // Отправляем запрос (forceNew теперь по умолчанию true, старое задание из БД удалится)
+    const url = `/tasks/new?chat_id=${user.id}&rule=${encodeURIComponent(randomRule)}${forceNew ? '&force=true' : ''}`;
 
     apiFetch(url)
         .then(data => {
             if (window.currentAppMode !== 'task') return;
             if (data.success) {
                 taskState.phrase = data.phrase;
-                taskState.rule = data.rule || "General Grammar";
-                taskState.targetWord = data.target_word || "базовое слово"; // Получаем слово
+                taskState.targetWord = data.target_word || "базовое слово";
 
-                const langName = window.userProfile?.language === 'de' ? 'немецкий' : 'английский';
+                const langName = lang === 'de' ? 'немецкий' : 'английский';
 
-                // 🔥 Кнопки Хелп и Поменять фразу (Goal 3)
+                let finalRule = data.rule || "General Grammar";
+
+                if (typeof grammarRulesDict !== 'undefined' && grammarRulesDict[lang]) {
+                    const allSystemRules = Object.values(grammarRulesDict[lang]).flat();
+                    const searchContext = `${finalRule} ${data.phrase}`.toLowerCase().trim();
+
+                    const matchedRule = allSystemRules.find(r => {
+                        const cleanSystemRule = r.toLowerCase().trim();
+                        return searchContext.includes(cleanSystemRule) || cleanSystemRule.includes(finalRule.toLowerCase().trim());
+                    });
+
+                    if (matchedRule) {
+                        finalRule = matchedRule;
+                    }
+                }
+
+                taskState.rule = finalRule;
+
                 let buttons = `
                     <div style="display: flex; gap: 10px; width: 100%; margin-top: 20px;">
                         <button onclick="showTaskHelp()" style="flex: 1; padding: 12px; background: rgba(112, 132, 153, 0.1); border-radius: 10px; color: var(--text-color); font-size: 14px; border: 1px solid rgba(112, 132, 153, 0.2); cursor: pointer;">💡 Подсказка</button>

@@ -120,6 +120,7 @@ function showGrammarMenu() {
     if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'none';
     if (document.getElementById('input-container')) document.getElementById('input-container').style.display = 'none';
     if (document.getElementById('fab-add-word')) document.getElementById('fab-add-word').style.display = 'none';
+    if (document.getElementById('live-chat-block')) document.getElementById('live-chat-block').style.display = 'none';
 
     const chatContainer = document.getElementById('chat-messages');
     const lang = window.userProfile?.language || 'en';

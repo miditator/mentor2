@@ -7,17 +7,14 @@ import keyboard
 import aiPrompts
 import utils
 from telebot import types
-from loader import bot, ai_client
+from loader import bot  # Убрали ненужный ai_client
+from ai_service import ask_ai  # 🔥 Подключаем универсальный адаптер
 
 # Структура: { chat_id: { "words": [...], "current_word": {}, "is_rus_to_eng": False } }
 CURRENT_TRAINING = {}
 WORDS_INLINE_LOCKS = {}
 
 
-# ==========================================
-# 0. ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК ВЫХОДА (ПРИОРЕТЕТНЫЙ)
-# ==========================================
-@bot.message_handler(func=lambda message: message.text == "🚪 Выход из тренировки")
 # ==========================================
 # 0. ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК ВЫХОДА (ПРИОРЕТЕТНЫЙ)
 # ==========================================
@@ -351,7 +348,8 @@ def handle_custom_word_input(message):
     user_text = message.text.strip() if message.text else ""
 
     # 🛑 ГЛОБАЛЬНЫЙ ПРЕДОХРАНИТЕЛЬ: Сбрасываем режим ввода слов при клике на любые системные кнопки меню!
-    if user_text in ["🚪 Назад в меню", "⚙️ Настройки", "🎯 Новое задание", "📚 Тренировать слова", "➕ Добавить слово", "🔥 Интенсив по слову"]:
+    if user_text in ["🚪 Назад в меню", "⚙️ Настройки", "🎯 Новое задание", "📚 Тренировать слова", "➕ Добавить слово",
+                     "🔥 Интенсив по слову"]:
         bot.delete_state(user_id, chat_id)
         utils.start_or_resume_timer(chat_id)
 
@@ -391,12 +389,10 @@ def handle_custom_word_input(message):
 
     try:
         prompt = aiPrompts.word_translation_prompt(user_text, target_lang)
-        response = ai_client.chat.completions.create(
-            model=config.MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.1
-        )
-        ai_response = response.choices[0].message.content.strip().replace('"', '').replace("'", "")
+
+        # 🔥 Заменено на универсальный ask_ai
+        ai_response = ask_ai(prompt, temperature=0.1)
+        ai_response = ai_response.replace('"', '').replace("'", "")
 
         bot.delete_message(chat_id, loading.message_id)
 

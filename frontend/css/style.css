@@ -247,3 +247,204 @@ p {
     50% { transform: scale(1.3); opacity: 0.7; }
     100% { transform: scale(1); opacity: 1; }
 }
+
+/* ==========================================
+   КОНТЕЙНЕРЫ И КАРТОЧКИ ИЗОБРАЖЕНИЙ
+   ========================================== */
+.image-card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 250px;
+    background-color: var(--secondary-bg-color);
+    border-radius: 16px;
+    border: 1px solid rgba(112, 132, 153, 0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ==========================================
+   СКЕЛЕТОН-ЗАГРУЗЧИК И АНИМАЦИИ
+   ========================================== */
+.scanner-wrapper {
+    width: 100%;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px;
+}
+
+.skeleton-box {
+    width: 100%;
+    height: 140px;
+    /* Базовый серый фон + переливающийся градиент */
+    background: #eef2f5 linear-gradient(90deg, rgba(255, 255, 255, 0) 25%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite linear;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Переключаем на темную тему, если бэкграунд темный */
+body {
+    --skeleton-base: rgba(112, 132, 153, 0.1);
+    --skeleton-glow: rgba(112, 132, 153, 0.25);
+}
+
+.skeleton-box, .skeleton-line {
+    /* Делаем базовый цвет плашек чуть светлее, чтобы они выделялись на темно-синем фоне */
+    background: linear-gradient(90deg,
+        rgba(255, 255, 255, 0.05) 25%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite ease-in-out;
+}
+
+.scan-laser {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: var(--button-color);
+    box-shadow: 0 0 8px var(--button-color);
+    top: 0;
+    animation: scan-line 2.5s ease-in-out infinite;
+}
+
+
+
+.skeleton-line.title {
+    width: 80%;
+    height: 16px;
+    margin-top: 10px;
+}
+
+.skeleton-line.subtitle {
+    width: 60%;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+@keyframes scan-line {
+    0% { top: 0%; }
+    50% { top: 100%; }
+    100% { top: 0%; }
+}
+
+/* ==========================================
+   ИНТЕРФЕЙС СПИСКА СЛОВ (ЧЕКБОКСЫ)
+   ========================================== */
+.image-words-title {
+    font-size: 13px;
+    color: var(--button-color);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.image-words-scroll-box {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.word-checkbox-label {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    background: rgba(112, 132, 153, 0.05);
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 1px solid rgba(112, 132, 153, 0.2);
+    box-sizing: border-box;
+    transition: 0.2s;
+}
+
+.word-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 15px;
+    accent-color: var(--button-color);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.word-checkbox-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.word-checkbox-foreign {
+    font-size: 16px;
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+.word-checkbox-ru {
+    font-size: 13px;
+    color: var(--hint-color);
+}
+
+.image-card-buttons-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.btn-success-save {
+    flex: 1;
+    padding: 14px;
+    background: #34c759;
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-cancel-exit {
+    flex: 1;
+    padding: 14px;
+    background: rgba(112, 132, 153, 0.1);
+    border: 1px solid rgba(112, 132, 153, 0.2);
+    border-radius: 12px;
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* Простые утилитарные стили для иконок и текстов */
+.ic-icon-large { font-size: 50px; margin-bottom: 15px; }
+.ic-icon-medium { font-size: 40px; margin-bottom: 10px; }
+.ic-icon-success { font-size: 60px; margin-bottom: 10px; }
+.ic-title-bold { font-size: 18px; font-weight: bold; color: var(--text-color); margin-bottom: 10px; }
+.ic-title-success { font-size: 20px; font-weight: bold; color: var(--text-color); margin-bottom: 15px; }
+.ic-text-hint { font-size: 13px; color: var(--hint-color); padding: 0 10px; }
+.ic-text-normal { font-size: 16px; color: var(--text-color); }
+.btn-inline-menu { margin-top: 15px; padding: 10px 20px; background: var(--button-color); border: none; border-radius: 8px; color: #fff; cursor: pointer; }

@@ -8,7 +8,8 @@ import database
 import keyboard
 import aiPrompts
 import utils
-from loader import bot, ai_client
+from loader import bot
+from ai_service import ask_ai  # 🔥 Подключаем универсальный адаптер
 
 # Структура для мини-игры: { chat_id: { "word": "apple", "phrases": [...], "current_index": 0, "score": 0 } }
 CURRENT_INTENSITY = {}
@@ -116,17 +117,13 @@ def start_word_intensity(chat_id, word, target_lang=None):
     # 2. Переводим цифру сложности из БД в строковый маркер уровня для ИИ
     diff_from_db = user_config.get("difficulty", "2")  # По дефолту "2" (это A2)
 
-    # Нам нужно очистить строку от лишних пояснений, чтобы передать ИИ чистые "A1", "A2" и т.д.
     try:
         diff_key = int(diff_from_db)
-        # Из "A2 (Элементарный)" забираем только первые два символа "A2"
         full_diff_text = keyboard.DIFFICULTY.get(diff_key, "A2 (Элементарный)")
-        difficulty_for_ai = full_diff_text.split(" ")[0]  # Получим строго "A2"
+        difficulty_for_ai = full_diff_text.split(" ")[0]
     except ValueError:
-        # Если в базе вдруг уже лежала чистая строка "A2"
         difficulty_for_ai = str(diff_from_db).split(" ")[0]
 
-    # Красивое имя сложности для вывода пользователю в телеграм
     pretty_diff = keyboard.DIFFICULTY.get(int(diff_from_db) if str(diff_from_db).isdigit() else 2, "A2 (Элементарный)")
 
     loading = bot.send_message(
@@ -136,19 +133,12 @@ def start_word_intensity(chat_id, word, target_lang=None):
     )
 
     try:
-        # 🔥 Передаем ИИ строго строковый маркер сложности ("A1", "A2", "B1"...)
         prompt = aiPrompts.generate_word_intensity_prompt(word, target_lang, difficulty_for_ai)
 
-        response = ai_client.chat.completions.create(
-            model=config.MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=config.temperature
-        )
-
-        raw_json = response.choices[0].message.content.strip()
+        # 🔥 Заменено на универсальный ask_ai
+        raw_json = ask_ai(prompt, temperature=config.temperature)
 
         # Надежный парсинг JSON-массива
-        import re
         match = re.search(r'\[.*\]', raw_json, re.DOTALL)
         if match:
             clean_json = match.group(0)
@@ -227,20 +217,15 @@ def send_next_intensity_phrase(chat_id):
 
     current_task = session["phrases"][idx]
 
-    # 🌍 Вытаскиваем настройки пользователя из БД
     user_config = database.get_user_config(chat_id)
-    target_lang_code = user_config.get("source_lang", "en")  # По дефолту английский
+    target_lang_code = user_config.get("source_lang", "en")
 
-    # Сопоставляем код языка с красивым названием в дательном/винительном падеже
     lang_names_declined = {
         "en": "английский язык",
         "de": "немецкий язык",
     }
-
-    # Получаем красивое название языка (или дефолтное, если код не распознан)
     display_lang = lang_names_declined.get(target_lang_code, "изучаемый язык")
 
-    # Отправляем карточку с динамическим подставлением языка
     bot.send_message(
         chat_id,
         f"📝 <b>Фраза {idx + 1} из 5:</b>\n\n"
@@ -255,7 +240,6 @@ def send_next_intensity_phrase(chat_id):
 # 4. ИЗОЛИРОВАННЫЙ ПЕРЕХВАТ И ИИ-ПРОВЕРКА КАЖДОГО ОТВЕТА
 # ========================================================
 
-# 🛑 Перехватываем кнопку отмены И все системные кнопки меню ДО отправки текста к ИИ!
 @bot.message_handler(
     func=lambda message: message.text in [
         "🚪 Прервать интенсив", "🚪 Назад в меню", "🚪 Выход из тренировки",
@@ -267,7 +251,6 @@ def handle_intensity_cancel(message):
     user_id = message.from_user.id
     trigger_text = message.text
 
-    # Мгновенный замок: удаляем сессию из памяти
     CURRENT_INTENSITY.pop(chat_id, None)
 
     try:
@@ -278,14 +261,12 @@ def handle_intensity_cancel(message):
     import utils
     utils.start_or_resume_timer(chat_id)
 
-    # Если была нажата обычная кнопка прерывания
     if trigger_text in ["🚪 Прервать интенсив", "🚪 Назад в меню", "🚪 Выход из тренировки"]:
         bot.send_message(
             chat_id,
             "🚪 Интенсив прерван. Выбери следующее действие 👇",
             reply_markup=keyboard.get_main_menu()
         )
-    # Если нажата другая кнопка нижнего меню — перенаправляем на её логику
     else:
         from handlers.buttons import (
             show_settings, global_new_task_handler,
@@ -305,14 +286,12 @@ def handle_intensity_cancel(message):
             global_intensity_menu_handler(message)
 
 
-# Этот хэндлер обрабатывает ТОЛЬКО реальные ответы пользователя
 @bot.message_handler(func=lambda message: message.chat.id in CURRENT_INTENSITY)
 def handle_intensity_answers(message):
     chat_id = message.chat.id
     session = CURRENT_INTENSITY[chat_id]
     user_text = message.text.strip() if message.text else ""
 
-    # Дополнительная заглушка-предохранитель
     if user_text in [
         "🚪 Прервать интенсив", "🚪 Назад в меню", "🚪 Выход из тренировки",
         "⚙️ Настройки", "🎯 Новое задание", "📚 Тренировать слова", "➕ Добавить слово", "🔥 Интенсив по слову"
@@ -331,13 +310,9 @@ def handle_intensity_answers(message):
             user_foreign_answer=user_text
         )
 
-        response = ai_client.chat.completions.create(
-            model=config.MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.2
-        )
-
-        raw_json = response.choices[0].message.content.strip().replace("```json", "").replace("```", "").strip()
+        # 🔥 Заменено на универсальный ask_ai
+        raw_text = ask_ai(prompt, temperature=0.2)
+        raw_json = raw_text.replace("```json", "").replace("```", "").strip()
         result = json.loads(raw_json)
 
         bot.delete_message(chat_id, checking_msg.message_id)

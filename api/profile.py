@@ -6,11 +6,15 @@ from pydantic import BaseModel
 import database
 import ai_service  # 🔥 ПОДКЛЮЧАЕМ НАШ НОВЫЙ ВЫДЕЛЕННЫЙ СЕРВИС ИИ
 import random
+import config
 
 router = APIRouter(
     prefix="/api",
     tags=["Profile"]
 )
+
+
+
 
 
 # --- PYDANTIC МОДЕЛИ ВАЛИДАЦИИ ДАННЫХ ---
@@ -194,7 +198,8 @@ def get_dictionary(chat_id: int):
 # --- ЭНДПОИНТЫ ГРАММАТИЧЕСКИХ ЗАДАНИЙ (TASKS) ---
 
 @router.get("/tasks/new")
-def get_new_task(chat_id: int, force: bool = False):
+@router.get("/tasks/new") # Убедись, что декоратор маршрута стоит над функцией
+def get_new_task(chat_id: int, rule: str = "General Grammar", force: bool = False):
     try:
         if force:
             # 🔥 1. ПЕРЕД удалением сохраняем надоевшую фразу в историю, чтобы ИИ ее больше не выдавал
@@ -229,11 +234,12 @@ def get_new_task(chat_id: int, force: bool = False):
         # Теперь история будет содержать даже те фразы, которые ты пропустил
         history = database.get_today_phrases_list(chat_id)
 
-        ru_phrase, rule = ai_service.generate_task_ai(lang_name, target_word, difficulty, history)
+        # 🔥 3. ПЕРЕДАЕМ ПРАВИЛО В ИИ-СЕРВИС
+        ru_phrase, final_rule = ai_service.generate_task_ai(lang_name, target_word, difficulty, history, rule)
 
-        database.save_active_task(chat_id, ru_phrase, rule)
+        database.save_active_task(chat_id, ru_phrase, final_rule)
 
-        return {"success": True, "phrase": ru_phrase, "rule": rule, "target_word": target_word}
+        return {"success": True, "phrase": ru_phrase, "rule": final_rule, "target_word": target_word}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -360,11 +366,30 @@ def words_from_image(data: ImageWordData):
         user_config = database.get_user_config(data.chat_id)
         target_lang = user_config.get("source_lang", "en") if user_config else "en"
 
-        words_list = ai_service.extract_words_from_image_ai(data.image, target_lang)
+        # 1. Получаем слова от ИИ
+        ai_words_list = ai_service.extract_words_from_image_ai(data.image, target_lang)
+
+        # 2. Получаем словарь пользователя
+        existing_words_raw = database.get_full_dictionary(data.chat_id) or []
+        existing_foreign = set()
+
+        for w in existing_words_raw:
+            if isinstance(w, (list, tuple)) and len(w) > 0:
+                existing_foreign.add(str(w[0]).lower().strip())
+            elif isinstance(w, dict) and "foreign" in w:  # На случай, если БД вернет dict
+                existing_foreign.add(w["foreign"].lower().strip())
+
+            # 3. Фильтруем массив ИИ (оставляем только то, чего нет в existing_foreign)
+        filtered_words = []
+        for ai_word in ai_words_list:
+            word_str = ai_word.get("foreign", "").lower().strip()
+            if word_str and word_str not in existing_foreign:
+                filtered_words.append(ai_word)
 
         return {
             "success": True,
-            "words": words_list
+            "words": filtered_words,
+            "all_known": len(ai_words_list) > 0 and len(filtered_words) == 0
         }
     except Exception as e:
         print(f"❌ Ошибка в транспортном слое фото: {e}")

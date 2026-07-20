@@ -2,9 +2,10 @@ import time
 import config
 import database
 import aiPrompts
-from loader import bot, ai_client
+from loader import bot
 import keyboard
 import json
+from ai_service import ask_ai
 
 GENERATION_LOCKS = {}
 TIMER_STATES = {}
@@ -60,11 +61,9 @@ def send_text_task(chat_id):
     # 2. Конвертируем цифру из БД в чистый буквенный маркер для ИИ (например, "B1")
     try:
         diff_key = int(diff_from_db)
-        # Из строки "B1 (Средний)" забираем только "B1"
         full_diff_text = keyboard.DIFFICULTY.get(diff_key, "A2 (Элементарный)")
         difficulty_for_ai = full_diff_text.split(" ")[0]  # Получим строго "B1"
     except ValueError:
-        # Если в базе вдруг уже лежала чистая строка "B1"
         difficulty_for_ai = str(diff_from_db).split(" ")[0]
 
     # 3. Получаем красивое название уровня сложности для вывода пользователю в чате
@@ -81,13 +80,11 @@ def send_text_task(chat_id):
     try:
         # 🔥 Передаем ИИ строго буквенный маркер сложности (A1, A2, B1...), а не сырую цифру!
         prompt = aiPrompts.generate_pure_vocabulary_task_prompt(target_lang, difficulty_for_ai, words_to_blend, history)
-        response = ai_client.chat.completions.create(
-            model=config.MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.4
-        )
 
-        raw_json = response.choices[0].message.content.strip().replace("```json", "").replace("```", "").strip()
+        # 🔥 Заменили на универсальный ask_ai
+        raw_text = ask_ai(prompt, temperature=0.4)
+
+        raw_json = raw_text.replace("```json", "").replace("```", "").strip()
         task_json = json.loads(raw_json)
 
         database.save_active_task(chat_id, task_json["phrase"], task_json["rule_hint"])

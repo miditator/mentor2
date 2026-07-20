@@ -9,7 +9,8 @@ import config
 import utils
 import aiPrompts
 from telebot import types
-from loader import bot, ai_client
+from loader import bot  # Убрали ненужный ai_client
+from ai_service import ask_ai  # 🔥 Подключаем универсальный адаптер
 from utils import send_text_task
 from handlers.words import start_word_training, enter_add_word_mode
 import json
@@ -39,12 +40,11 @@ def seed_initial_words_via_ai(chat_id, target_lang="en"):
     print(f"📡 Запрашиваем у ИИ стартовый набор слов ({target_lang}) для chat_id: {chat_id}")
     try:
         prompt = aiPrompts.get_starting_words_prompt(target_lang)
-        response = ai_client.chat.completions.create(
-            model=config.MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3
-        )
-        raw_json = response.choices[0].message.content.strip().replace("```json", "").replace("```", "").strip()
+
+        # 🔥 Заменено на универсальный ask_ai
+        raw_text = ask_ai(prompt, temperature=0.3)
+
+        raw_json = raw_text.replace("```json", "").replace("```", "").strip()
         words_list = json.loads(raw_json)
 
         for item in words_list:
@@ -54,7 +54,6 @@ def seed_initial_words_via_ai(chat_id, target_lang="en"):
         print(f"❌ Критическая ошибка генерации стартовых слов ИИ: {e}")
 
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith(("set_", "start_")))
 @bot.callback_query_handler(func=lambda call: call.data.startswith(("set_", "start_")))
 def handle_settings_clicks(call):
     chat_id = call.message.chat.id
@@ -163,7 +162,7 @@ def finish_global_onboarding(chat_id, pretty_diff):
     current_lang_code = current_config.get("source_lang", "en")
     current_lang_text = "Английский" if current_lang_code == "en" else "Немецкий"
 
-    # 🔥 ИСПРАВЛЕНО: Убран seed_test_words. Вместо этого запускаем твою ИИ-генерацию!
+    # Запускаем ИИ-генерацию стартовых слов
     seed_initial_words_via_ai(chat_id, current_lang_code)
 
     # Отправляем финальное приветствие
@@ -264,7 +263,7 @@ def start_chat_onboarding_callback(call):
     bot.delete_message(chat_id, call.message.message_id)
 
     # Отправляем стандартный текстовый выбор языка
-    markup = keyboard.get_start_language_menu()  # Твоя старая функция выбора языка в чате
+    markup = keyboard.get_start_language_menu()
     bot.send_message(
         chat_id,
         "🌍 <b>Шаг 1 из 2 (в чате):</b> Выбери целевой язык для изучения:",

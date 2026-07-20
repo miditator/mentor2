@@ -12,7 +12,7 @@ function showSettingsMode() {
     if (document.getElementById('dictionary-keyboard')) document.getElementById('dictionary-keyboard').style.display = 'none';
     if (document.getElementById('input-container')) document.getElementById('input-container').style.display = 'none';
     if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'none';
-
+    if (document.getElementById('live-chat-block')) document.getElementById('live-chat-block').style.display = 'none';
 
     renderSettingsMenu();
 }

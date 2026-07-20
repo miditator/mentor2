@@ -27,6 +27,8 @@ function enterAddWordMode(isQuick = false) {
     if (document.getElementById('main-menu-cards')) document.getElementById('main-menu-cards').style.display = 'none';
     if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'none';
     if (document.getElementById('fab-add-word')) document.getElementById('fab-add-word').style.display = 'none';
+    if (document.getElementById('live-chat-block')) document.getElementById('live-chat-block').style.display = 'none';
+
 
     document.getElementById('input-container').style.display = 'flex';
     showTextInput();

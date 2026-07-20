@@ -6,13 +6,35 @@ import re
 import base64
 import io
 import PIL.Image
-import google.generativeai as genai
 import config
 import loader
 import aiPrompts
 
-# Инициализируем Gemini для фото один раз при запуске сервиса
 
+# Универсальный адаптер для работы с любыми провайдерами (OpenAI, Groq, Gemini)
+def ask_ai(prompt: str, temperature: float = 0.7) -> str:
+    """
+    Универсальный адаптер. Сам решает, куда слать запрос (OpenAI/Groq или Gemini),
+    и возвращает уже готовый чистый текст.
+    """
+    if loader.API_TYPE == "openai":
+        response = loader.ai_client_openai.chat.completions.create(
+            model=loader.CURRENT_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature
+        )
+        return response.choices[0].message.content.strip()
+
+    elif loader.API_TYPE == "gemini":
+        generation_config = {"temperature": temperature}
+        response = loader.ai_client_gemini.generate_content(
+            prompt,
+            generation_config=generation_config
+        )
+        return response.text.strip()
+
+
+# Модель для распознавания картинок
 vision_model = loader.vision_model
 
 
@@ -20,12 +42,8 @@ def translate_word_ai(word: str, target_lang: str) -> dict:
     """Отправляет слово на перевод ИИ и парсит кастомный формат ответов словаря."""
     prompt = aiPrompts.word_translation_prompt(word, target_lang)
 
-    response = loader.ai_client.chat.completions.create(
-        model=config.MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3
-    )
-    answer = response.choices[0].message.content.strip()
+    # 🔥 Используем ask_ai вместо прямого вызова клиента
+    answer = ask_ai(prompt, temperature=0.3)
 
     if answer == "ERROR_NONSENSE":
         return {"error": "nonsense"}
@@ -49,20 +67,16 @@ def translate_word_ai(word: str, target_lang: str) -> dict:
     }
 
 
-def generate_task_ai(lang_name: str, target_word: str, difficulty: str, history: list) -> tuple[str, str]:
+def generate_task_ai(lang_name: str, target_word: str, difficulty: str, history: list, rule: str = "General Grammar") -> \
+tuple[str, str]:
     """Генерирует грамматическое задание вокруг целевого слова."""
-    prompt = aiPrompts.generate_pure_vocabulary_task_prompt_ver2(lang_name, target_word, difficulty, history)
+    prompt = aiPrompts.generate_pure_vocabulary_task_prompt_ver2(lang_name, target_word, difficulty, history, rule)
 
-    response = loader.ai_client.chat.completions.create(
-        model=config.MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.7
-    )
-    content = response.choices[0].message.content.strip()
+    # 🔥 Используем ask_ai
+    content = ask_ai(prompt, temperature=0.7)
     lines = [line.strip() for line in content.split('\n') if line.strip()]
 
-    ru_phrase = lines[0]
-    rule = lines[1] if len(lines) > 1 else "General Grammar"
+    ru_phrase = lines[0] if lines else "Ошибка генерации"
     return ru_phrase, rule
 
 
@@ -70,36 +84,24 @@ def get_task_help_ai(original_phrase: str, lang_name: str, step: int) -> str:
     """Получает подсказку или готовый ответ для грамматического задания."""
     prompt = aiPrompts.webapp_task_help_prompt(original_phrase, lang_name, step)
 
-    response = loader.ai_client.chat.completions.create(
-        model=config.MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.5
-    )
-    return response.choices[0].message.content.strip()
+    # 🔥 Используем ask_ai
+    return ask_ai(prompt, temperature=0.5)
 
 
-def check_task_ai(original_phrase: str, user_answer: str, lang_name: str,rule="General Grammar") -> str:
+def check_task_ai(original_phrase: str, user_answer: str, lang_name: str, rule="General Grammar") -> str:
     """Проверяет ответ пользователя на грамматическое задание."""
-    prompt = aiPrompts.webapp_task_check_prompt(original_phrase, user_answer, lang_name,rule)
+    prompt = aiPrompts.webapp_task_check_prompt(original_phrase, user_answer, lang_name, rule)
 
-    response = loader.ai_client.chat.completions.create(
-        model=config.MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3
-    )
-    return response.choices[0].message.content.strip()
+    # 🔥 Используем ask_ai
+    return ask_ai(prompt, temperature=0.3)
 
 
 def start_intensity_ai(word: str, target_lang: str) -> list:
     """Генерирует 5 прогрессивных фраз для режима Интенсив."""
     prompt = aiPrompts.generate_word_intensity_prompt(word, target_lang)
 
-    response = loader.ai_client.chat.completions.create(
-        model=config.MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.5
-    )
-    raw_json = response.choices[0].message.content.strip()
+    # 🔥 Используем ask_ai
+    raw_json = ask_ai(prompt, temperature=0.5)
 
     # Очистка от markdown JSON-разметки
     match = re.search(r'\[.*\]', raw_json, re.DOTALL)
@@ -116,12 +118,9 @@ def check_intensity_ai(original_foreign_phrase: str, russian_task_phrase: str, u
         user_foreign_answer=user_answer
     )
 
-    response = loader.ai_client.chat.completions.create(
-        model=config.MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.2
-    )
-    raw_json = response.choices[0].message.content.strip().replace("```json", "").replace("```", "").strip()
+    # 🔥 Используем ask_ai
+    raw_json = ask_ai(prompt, temperature=0.2)
+    raw_json = raw_json.replace("```json", "").replace("```", "").strip()
     return json.loads(raw_json)
 
 
@@ -129,30 +128,24 @@ def help_intensity_ai(russian_phrase: str, foreign_phrase: str) -> str:
     """Возвращает грамматический разбор для Интенсива при сдаче."""
     prompt = aiPrompts.intensity_help_prompt(russian_phrase, foreign_phrase)
 
-    response = loader.ai_client.chat.completions.create(
-        model=config.MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3
-    )
-    return response.choices[0].message.content.strip()
+    # 🔥 Используем ask_ai
+    return ask_ai(prompt, temperature=0.3)
 
 
 def extract_words_from_image_ai(base64_image: str, target_lang: str) -> list:
     """Обрабатывает base64 картинку через Gemini Vision и возвращает список найденных слов."""
     prompt = aiPrompts.extract_words_from_image_prompt(target_lang)
 
-    # Декодируем картинку из Base64
     image_bytes = base64.b64decode(base64_image)
     image = PIL.Image.open(io.BytesIO(image_bytes))
 
-    # Принудительно убираем альфа-канал прозрачности (защита от падения Gemini)
     if image.mode != 'RGB':
         image = image.convert('RGB')
 
+    # Видение всегда использует Gemini Vision
     response = vision_model.generate_content([prompt, image])
     ai_text = response.text.strip()
 
-    # Очистка маркдауна
     if ai_text.startswith("```json"):
         ai_text = ai_text[7:]
     if ai_text.startswith("```"):
@@ -162,45 +155,31 @@ def extract_words_from_image_ai(base64_image: str, target_lang: str) -> list:
 
     return json.loads(ai_text.strip())
 
-# Добавь в api/ai_service.py
 
 def transcribe_audio_ai(audio_file_path: str) -> str:
-    """Отправляет аудио-файл в Whisper и возвращает текст."""
+    """Отправляет аудио-файл в Whisper и возвращает текст (требует OpenAI/Groq формат)."""
     with open(audio_file_path, "rb") as audio_file:
-        transcript = loader.ai_client.audio.transcriptions.create(
+        transcript = loader.ai_client_openai.audio.transcriptions.create(
             model=config.AUDIO_MODEL,
             file=audio_file
-        ),
+        )
     return transcript.text
 
 
 def generate_strict_grammar_task_ai(lang_name: str, target_word: str, difficulty: str, specific_rule: str) -> str:
     """Генерирует 1 строку на русском языке строго по заданному правилу грамматики."""
-
-    # 🔥 Вызываем промпт из отдельного файла
     prompt = aiPrompts.generate_strict_grammar_prompt(lang_name, target_word, difficulty, specific_rule)
 
     try:
-        response = loader.ai_client.chat.completions.create(
-            model=config.MODEL,
-            messages=[
-                {"role": "system",
-                 "content": "Ты возвращаешь только 1 строку текста. Никаких Markdown, никаких тегов."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.3,
-            max_tokens=2048
-        )
+        # Для строгого системного промпта комбинируем его через ask_ai, передавая системную роль в сам текст,
+        # либо пишем адаптивно. Поскольку ask_ai принимает только промпт, сделаем обертку:
+        full_prompt = f"[Системная инструкция: Ты возвращаешь только 1 строку текста. Никаких Markdown, никаких тегов.]\n\n{prompt}"
+        raw_text = ask_ai(full_prompt, temperature=0.3)
 
-        raw_text = response.choices[0].message.content.strip()
-
-        # Зачищаем мысли (для reasoning моделей вроде Qwen)
         raw_text = re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
         raw_text = raw_text.replace("```text", "").replace("```", "").strip()
 
-        # Если модель все же выдала список, берем первую строку
         lines = [line.strip() for line in raw_text.split('\n') if line.strip()]
-
         return lines[0] if lines else "Ошибка генерации"
 
     except Exception as e:
@@ -208,34 +187,41 @@ def generate_strict_grammar_task_ai(lang_name: str, target_word: str, difficulty
         return "Произошла ошибка при составлении задания."
 
 
-import re
-import aiPrompts
-
-
 def free_chat_ai(history: list, lang_name: str) -> str:
     """Свободный диалог с учетом истории сообщений."""
     system_content = aiPrompts.generate_free_chat_system_prompt(lang_name)
 
-    # 1. Сначала ставим системные правила
-    messages = [{"role": "system", "content": system_content}]
+    # Если бэкенд на Gemini, чат удобнее собрать через текстовый промпт-историю,
+    # но если провайдер OpenAI — поддерживаем массив сообщений.
+    if loader.API_TYPE == "openai":
+        messages = [{"role": "system", "content": system_content}]
+        for msg in history[-10:]:
+            messages.append({"role": msg.role, "content": msg.content})
 
-    # 2. Затем добавляем историю переписки (ограничим 10 последними сообщениями для экономии токенов)
-    for msg in history[-10:]:
-        # FastAPI/Pydantic оборачивает данные в объекты, поэтому достаем поля через точку
-        messages.append({"role": msg.role, "content": msg.content})
+        try:
+            response = loader.ai_client_openai.chat.completions.create(
+                model=loader.CURRENT_MODEL,
+                messages=messages,
+                temperature=0.7,
+                max_tokens=1024
+            )
+            raw_text = response.choices[0].message.content.strip()
+            return re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
+        except Exception as e:
+            print(f"❌ Ошибка в free_chat_ai (OpenAI): {e}")
+            return "Извини, я на секунду потерял связь. Повторишь? 😅"
 
-    try:
-        response = loader.ai_client.chat.completions.create(
-            model=config.MODEL,
-            messages=messages,
-            temperature=0.7,
-            max_tokens=1024
-        )
+    else:
+        # Адаптер для Gemini в свободном чате
+        chat_history_str = f"Системные инструкции: {system_content}\n\nИстория диалога:\n"
+        for msg in history[-10:]:
+            role = "Пользователь" if msg.role == "user" else "Ассистент"
+            chat_history_str += f"{role}: {msg.content}\n"
+        chat_history_str += "Ассистент:"
 
-        raw_text = response.choices[0].message.content.strip()
-        raw_text = re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
-        return raw_text
-
-    except Exception as e:
-        print(f"❌ Ошибка в free_chat_ai: {e}")
-        return "Извини, я на секунду потерял связь. Повторишь? 😅"
+        try:
+            raw_text = ask_ai(chat_history_str, temperature=0.7)
+            return re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
+        except Exception as e:
+            print(f"❌ Ошибка в free_chat_ai (Gemini): {e}")
+            return "Извини, я на секунду потерял связь. Повторишь? 😅"

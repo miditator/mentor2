@@ -15,6 +15,7 @@ function showFullDictionary() {
     if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'none';
     if (document.getElementById('input-container')) document.getElementById('input-container').style.display = 'none';
     if (document.getElementById('fab-add-word')) document.getElementById('fab-add-word').style.display = 'flex';
+    if (document.getElementById('live-chat-block')) document.getElementById('live-chat-block').style.display = 'none';
 
     const chatContainer = document.getElementById('chat-messages');
     chatContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--hint-color);"><i>⏳ Загрузка словаря...</i></div>';

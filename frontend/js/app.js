@@ -3,6 +3,7 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
+
 let user = tg.initDataUnsafe?.user || { id: 8407744578, first_name: "Пользователь (Резерв)" };
 
 window.userProfile = null;
@@ -59,9 +60,14 @@ async function startVoiceInput() {
                 formData.append('file', audioBlob, 'voice.webm');
 
                 try {
-                    const response = await fetch(`/speech/recognize?chat_id=${user.id}`, {
+                    // Используем твой BASE_URL и добавляем заголовок для ngrok
+                    const response = await fetch(`${BASE_URL}/speech/recognize?chat_id=${user.id}`, {
                         method: 'POST',
-                        body: formData
+                        body: formData,
+                        headers: {
+                            "ngrok-skip-browser-warning": "true"
+                        }
+                        // ВАЖНО: 'Content-Type' здесь писать не нужно, браузер сам поставит нужный для FormData
                     });
                     const data = await response.json();
 

@@ -2,7 +2,8 @@
 from telebot import types  # 🔥 ДОБАВИЛИ ДЛЯ СВЕРТЫВАНИЯ КЛАВИАТУРЫ
 import aiPrompts
 import config
-from loader import bot, ai_client
+from loader import bot  # Убрали ненужный ai_client
+from ai_service import ask_ai  # 🔥 Подключаем универсальный адаптер
 import utils
 from utils import send_text_task
 import database
@@ -62,12 +63,8 @@ def check_english_translation(message):
             end_lesson = True
 
         try:
-            response = ai_client.chat.completions.create(
-                model=config.MODEL,
-                messages=[{"role": "user", "content": prompt_text}],
-                temperature=config.temperature
-            )
-            ai_text = response.choices[0].message.content
+            # 🔥 Заменено на универсальный ask_ai
+            ai_text = ask_ai(prompt_text, temperature=config.temperature)
 
             # Если это была последняя попытка — прячем клавиатуру Android
             if end_lesson:
@@ -95,12 +92,8 @@ def check_english_translation(message):
     bot.send_message(chat_id, "🔍 <b>Проверяю твою грамматику...</b>", parse_mode="HTML")
 
     try:
-        response = ai_client.chat.completions.create(
-            model=config.MODEL,
-            messages=[{"role": "user", "content": prompt_text}],
-            temperature=0.5
-        )
-        ai_text = response.choices[0].message.content
+        # 🔥 Заменено на универсальный ask_ai
+        ai_text = ask_ai(prompt_text, temperature=0.5)
 
         # 🔥 ИСПРАВЛЕНО: Шлем вердикт ИИ и принудительно ЗАКРЫВАЕМ клавиатуру Android
         bot.send_message(chat_id, ai_text, reply_markup=types.ReplyKeyboardRemove(), parse_mode="HTML")

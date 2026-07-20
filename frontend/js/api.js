@@ -1,5 +1,10 @@
 // js/api.js
+
+
+
 const BASE_URL = 'https://postal-detention-poker.ngrok-free.dev/api';
+
+
 
 // Функция для выполнения запросов с обходом предупреждения ngrok
 function apiFetch(endpoint, options = {}) {
@@ -15,3 +20,4 @@ function apiFetch(endpoint, options = {}) {
             return response.json();
         });
 }
+

@@ -28,7 +28,7 @@ function showTrainingMenu() {
     if (document.getElementById('main-menu-cards')) document.getElementById('main-menu-cards').style.display = 'none';
     if (document.getElementById('input-container')) document.getElementById('input-container').style.display = 'none';
     if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'none';
-
+    if (document.getElementById('live-chat-block')) document.getElementById('live-chat-block').style.display = 'none';
 
     document.getElementById('chat-messages').innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--secondary-bg-color); border-radius: 16px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 25px 20px; margin-top: 20px; text-align: center;">
