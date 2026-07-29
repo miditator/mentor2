@@ -5,7 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ИИ-Ментор</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="frontend/css/style.css">
+
+    <!-- Подключаем современные шрифты Inter и Plus Jakarta Sans из Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="frontend/css/style.css?v=1.5">
+    <link rel="stylesheet" href="frontend/css/cards.css?v=1.1">
+    <link rel="stylesheet" href="frontend/css/buttons.css?v=1.9">
+    <link rel="stylesheet" href="frontend/css/progressBars.css?v=1.6">
+
 </head>
 <body>
 
@@ -41,128 +51,218 @@
 
     <!-- ГЛАВНЫЙ ЭКРАН ПРИЛОЖЕНИЯ -->
     <div id="screen-main" class="screen">
-        <div style="height: 100vh; display: flex; flex-direction: column; background-color: var(--bg-color);">
+        <div style="height: 100vh; display: flex; flex-direction: column;">
 
-            <!-- СОВРЕМЕННАЯ ШАПКА (TOP BAR) -->
-            <div id="top-bar" style="padding: 15px; border-bottom: 1px solid rgba(112, 132, 153, 0.3); font-weight: bold; font-size: 16px; background-color: var(--secondary-bg-color); display: flex; align-items: center; justify-content: center; position: relative; height: 54px; box-sizing: border-box;">
-                <div id="back-btn" onclick="exitToMainMenu()" style="display: none; position: absolute; left: 10px; top: 0; bottom: 0; align-items: center; justify-content: center; cursor: pointer; padding: 0 10px; color: var(--button-color);">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+
+
+ <!-- ШАПКА -->
+            <div id="top-bar" style="padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); font-weight: bold; font-size: 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%), linear-gradient(135deg, rgba(25, 38, 57, 0.6) 0%, rgba(10, 15, 24, 0.75) 100%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; position: relative; height: 54px; box-sizing: border-box; box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.12);">
+
+                <!-- Кнопка "Назад" (для внутренних экранов) -->
+                <!-- Кнопка "Назад" (для внутренних экранов) -->
+                <div id="back-btn" onclick="exitToMainMenu()" style="display: none; position: absolute; left: 10px; top: 0; bottom: 0; align-items: center; justify-content: center; cursor: pointer; padding: 0 10px; color: var(--text-color); opacity: 0.8; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
+                    <!-- Иконка подгрузится автоматически через JS -->
                 </div>
 
+
+
+
+                <!-- 🔥 Слот для кнопок в шапке (прижат в самый правый край) -->
+                <div id="top-bar-actions" style="position: absolute; right: 10px; display: flex; align-items: center;"></div>
+
+                <!-- Основной текст (Имя или Название экрана) -->
                 <span id="top-bar-title">Главное меню</span>
-               <div id="settings-btn" onclick="showSettingsMode()" style="font-size: 24px; cursor: pointer; position: absolute; right: 20px; transition: 0.2s;">
-        ⚙️
-    </div>
+
+
+
+
             </div>
+            <div id="output-area" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box;">
 
-            <!-- 🔥 МИНИ-ПЛАШКА СТАТИСТИКИ -->
-            <div id="mini-profile" style="display: none; background-color: var(--secondary-bg-color); border-bottom: 1px solid rgba(112, 132, 153, 0.2); padding: 12px 15px; align-items: center; font-size: 13px; color: var(--text-color); overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none;">
-                <div id="mp-avatar" style="font-size: 18px; display: flex; align-items: center; justify-content: center; background: rgba(112, 132, 153, 0.1); border-radius: 50%; width: 28px; height: 28px; margin-right: 12px; flex-shrink: 0; overflow: hidden;">👤</div>
-                <div style="width: 1px; height: 18px; background-color: rgba(112, 132, 153, 0.3); margin-right: 12px; flex-shrink: 0;"></div>
-                <div style="display: flex; gap: 5px; align-items: center; margin-right: 12px; flex-shrink: 0;"><span style="color: var(--hint-color);">Язык:</span><b id="mp-lang">-</b></div>
-                <div style="width: 1px; height: 18px; background-color: rgba(112, 132, 153, 0.3); margin-right: 12px; flex-shrink: 0;"></div>
-                <div style="display: flex; gap: 5px; align-items: center; margin-right: 12px; flex-shrink: 0;"><span style="color: var(--hint-color);">Уровень:</span><b id="mp-diff">-</b></div>
-                <div style="width: 1px; height: 18px; background-color: rgba(112, 132, 153, 0.3); margin-right: 12px; flex-shrink: 0;"></div>
-                <div style="display: flex; gap: 5px; align-items: center; flex-shrink: 0;"><span style="color: var(--hint-color);">Слов:</span><b id="mp-words">-</b></div>
-            </div>
+                <!-- 1. МИНИ-ПЛАШКА СТАТИСТИКИ (На всю ширину) -->
+<div id="mini-profile" style="display: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 0px; gap: 10px; width: 100%; box-sizing: border-box;">
+                    <!-- Аватар пользователя слева -->
+                    <div id="mp-avatar" style="font-size: 16px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 50%; width: 40px; height: 40px; flex-shrink: 0; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);">👤</div>
 
-            <div id="output-area" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
-
-                <!-- 🔥 ОБНОВЛЕННОЕ ГЛАВНОЕ МЕНЮ ИЗ 6 КАРТОЧЕК -->
-                <div id="main-menu-cards" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: +10px;">
-
-                    <!-- 1. Карточка загрузки фото -->
-                    <div class="menu-card" onclick="triggerImageUpload()">
-                        <div class="mc-header">Фото</div>
-                        <div class="mc-icon">📸</div>
-                        <div class="mc-info">С картинки</div>
+                    <!-- Центральная плашка со статами (растягивается) -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 6px 16px; font-size: 13px; font-weight: 600; flex: 1;">
+                        <div id="mp-diff" style="background: rgba(255, 255, 255, 0.06); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 1px solid rgba(255, 255, 255, 0.1);">A1</div>
+                        <span id="mp-lang" style="font-size: 15px;">🇬🇧</span>
+                        <span><b id="mp-words">0</b> слов</span>
+                        <span style="opacity: 0.25; margin: 0 2px;">•</span>
+                        <span>🔥 <span id="mp-streak">7</span></span>
                     </div>
 
-                    <div class="menu-card" onclick="showFullDictionary()">
-                        <div class="mc-header">База</div>
-                        <div class="mc-icon">📚</div>
-                        <div class="mc-info">Все слова</div>
+                    <!-- Кнопка настроек справа -->
+                    <div class="convex-icon icon-btn" onclick="showSettingsMode()" title="Настройки" style="width: 40px; height: 40px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1.13 1.57l-.31.13a2 2 0 0 1-2.43-.9l-.22-.38a2 2 0 0 0-2.73-.73l-.38.22a2 2 0 0 0-.73 2.73l.13.31a2 2 0 0 1-1.57 1.13H4a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.57 1.13l.13.31a2 2 0 0 1-.9 2.43l-.38.22a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.31-.13a2 2 0 0 1 1.13-1.57V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1.13-1.57l.31-.13a2 2 0 0 1 2.43.9l.22.38a2 2 0 0 0 2.73.73l.38-.22a2 2 0 0 0 .73-2.73l-.13-.31a2 2 0 0 1 1.57-1.13H20a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.57-1.13l-.13-.31a2 2 0 0 1 .9-2.43l.38-.22a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.31.13a2 2 0 0 1-1.13 1.57V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                     </div>
-                    <div class="menu-card" onclick="showNewTaskMode()">
-                        <div class="mc-header">Грамматика</div>
-                        <div class="mc-icon">🎯</div>
-                        <div class="mc-info">Задание</div>
-                    </div>
-                    <div class="menu-card" onclick="showTrainingMenu()">
-                        <div class="mc-header">Повторение</div>
-                        <div class="mc-icon">🧠</div>
-                        <div class="mc-info">Тренировка</div>
-                    </div>
-                    <div class="menu-card" onclick="showIntensitySetupMode()">
-                        <div class="mc-header">Практика</div>
-                        <div class="mc-icon">🔥</div>
-                        <div class="mc-info">Интенсив</div>
-                    </div>
-                    <div class="menu-card" onclick="showGrammarMenu()">
-                        <div class="mc-header">Грамматика</div>
-                        <div class="mc-icon">📖</div>
-                        <div class="mc-info">Тренировка правил</div>
-                    </div>
-
-
-
                 </div>
 
-                <!-- 🔥 СКРЫТЫЙ ИНПУТ ДЛЯ ФОТО (С поддержкой камеры) -->
+                <!-- 2. ПРОГРЕСС-БАРЫ (На всю ширину) -->
+<div id="progress-banner-block" style="width: 100%; box-sizing: border-box;"></div>
+                <!-- 🔥 ГЛАВНОЕ МЕНЮ ИЗ 6 КАРТОЧЕК С ЛЕГКИМИ ИКОНКАМИ -->
+ <!-- 🔥 ГЛАВНОЕ МЕНЮ ИЗ 6 КАРТОЧЕК -->
+<!-- 🔥 ГЛАВНОЕ МЕНЮ ИЗ 6 КАРТОЧЕК -->
+<div id="main-menu-cards" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; box-sizing: border-box; margin-top: 2px;">
+
+    <!-- ================= ВЕРХНИЙ РЯД (Желтоватые / теплые оттенки) ================= -->
+
+    <!-- 1. Тренировка -->
+    <div class="menu-card" onclick="showTrainingMenu()">
+        <div class="convex-icon" style="color: #f3e5ab; border-color: rgba(243, 229, 171, 0.25);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="menu-title">Тренировка</div>
+    </div>
+
+    <!-- 2. Интенсив -->
+    <div class="menu-card" onclick="showIntensitySetupMode()">
+        <div class="convex-icon" style="color: #f7dec9; border-color: rgba(247, 222, 201, 0.25);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+        </div>
+        <div class="menu-title">Интенсив</div>
+    </div>
+
+    <!-- 3. Словарь -->
+    <div class="menu-card" onclick="showFullDictionary()">
+        <div class="convex-icon" style="color: #edd5b8; border-color: rgba(237, 213, 184, 0.25);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10M6 10h10"></path></svg>
+        </div>
+        <div class="menu-title">Словарь</div>
+    </div>
+
+    <!-- ================= НИЖНИЙ РЯД (Фиолетово-синие оттенки) ================= -->
+
+    <!-- 4. Фразы -->
+    <div class="menu-card" onclick="showNewTaskMode()">
+        <div class="convex-icon" style="color: #d8b4fe; border-color: rgba(216, 180, 254, 0.25);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <div class="menu-title">Фразы</div>
+    </div>
+
+    <!-- 5. Грамматика -->
+    <div class="menu-card" onclick="showGrammarMenu()">
+        <div class="convex-icon" style="color: #c4b5fd; border-color: rgba(196, 181, 253, 0.25);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        </div>
+        <div class="menu-title">Грамматика</div>
+    </div>
+
+    <!-- 6. Текст (Чтение) -->
+    <div class="menu-card" onclick="handleTextCardClick()">
+        <div class="convex-icon" style="color: #93c5fd; border-color: rgba(147, 197, 253, 0.25);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+        </div>
+        <div class="menu-title">Текст</div>
+    </div>
+
+</div>
+
+                <!-- СКРЫТЫЙ ИНПУТ ДЛЯ ФОТО -->
                 <input type="file" id="image-upload-input" accept="image/*" capture="environment" style="display: none;" onchange="handleImageSelection(event)">
 
-                <!-- ПЕРЕВОДЧИК НА ГЛАВНОМ ЭКРАНЕ -->
+<!-- ПЕРЕВОДЧИК (С очищенными стилями и центровкой) -->
+<div id="quick-translator-block" class="glass-box feature-card">
+    <div class="feature-header">
+        <div class="muted-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        </div>
+        <span>Быстрый переводчик</span>
+    </div>
+    <div class="feature-input-row">
+        <input type="text" id="quick-translator-input" class="glass-input" oninput="toggleTranslatorIcon(this)" placeholder="Введи слово или текст">
 
-                <div id="quick-translator-block" style="background-color: var(--secondary-bg-color); margin-top: +20px; border-radius: 16px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 15px; margin-bottom: auto;">
-                    <div style="font-size: 13px; font-weight: bold; color: var(--hint-color); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">🌍 Быстрый переводчик</div>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="quick-translator-input" placeholder="Какое слово перевести?" style="flex: 1; padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(112, 132, 153, 0.3); background: var(--bg-color); color: var(--text-color); font-size: 15px; outline: none;">
-                        <button onclick="startQuickTranslation()" style="width: 50px; background: var(--button-color); border: none; border-radius: 12px; color: #fff; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                        </button>
-                    </div>
-                </div>
+        <button onclick="startQuickTranslation()" class="convex-icon feature-btn">
+            <svg id="icon-camera" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <svg id="icon-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+    </div>
+</div>
 
-                <!-- БЛОК: ЖИВОЙ ЧАТ С ИИ -->
-                <div id="live-chat-block" style="margin-top: 20px; width: 100%;">
-                    <div style="font-size: 13px; font-weight: bold; color: var(--hint-color); margin-bottom: 8px; margin-left: 5px; text-transform: uppercase; letter-spacing: 1px;">💬 Живой чат с ИИ</div>
+<!-- ЖИВОЙ ЧАТ С ИИ (С очищенными стилями и центровкой) -->
+<div id="live-chat-block" class="glass-box feature-card">
+    <div class="feature-header">
+        <div class="muted-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <span>Живой чат с ИИ</span>
+    </div>
+    <div class="feature-input-row">
+        <input type="text" id="live-chat-input" class="glass-input" placeholder="Спроси что-нибудь">
 
-                    <div style="position: relative; display: flex; align-items: center;">
-                        <input type="text" id="live-chat-input" placeholder="Спроси что-нибудь, или давай поболтаем..." style="width: 100%; padding: 16px 20px; padding-right: 50px; border-radius: 16px; border: 1px solid rgba(112, 132, 153, 0.2); background: var(--secondary-bg-color); color: var(--text-color); font-size: 15px; box-sizing: border-box; outline: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-
-                        <button onclick="startLiveChatFromMenu()" style="position: absolute; right: 8px; width: 36px; height: 36px; border-radius: 12px; background: var(--button-color); border: none; color: #fff; font-size: 16px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s;">
-                            ➤
-                        </button>
-                    </div>
-                </div>
-
+        <button onclick="startLiveChatFromMenu()" class="convex-icon feature-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+    </div>
+</div>
+                <!-- КОНТЕЙНЕР СООБЩЕНИЙ ЧАТА (ВОССТАНОВЛЕН) -->
                 <div id="chat-messages" style="display: flex; flex-direction: column; gap: 10px;"></div>
+
+                <!-- ==========================================
+                     ИНТЕРФЕЙС ЧИТАЛКИ (Встроенный в главный экран)
+                     ========================================== -->
+                <input type="file" id="book-upload-input" accept=".fb2,.epub,.mobi,.txt" style="display: none;" onchange="handleBookUpload(event)">
+
+                <div id="reader-container" style="display: none; flex-direction: column; flex: 1; position: relative; height: 100%; min-height: 65vh;">
+                    <!-- Текст книги -->
+                    <div id="reader-content" style="flex: 1; overflow-y: auto; padding: 15px; font-size: 16px; line-height: 1.6; color: #ffffff !important; background: rgba(0,0,0,0.3); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 12px; white-space: pre-wrap; word-wrap: break-word; user-select: text; -webkit-user-select: text;">
+                    </div>
+
+                <!-- Навигация и Темы (БЕЗ СТРЕЛОК) -->
+                    <div style="display: flex; flex-direction: column; gap: 12px; padding: 12px 20px; flex-shrink: 0; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05);">
+
+                        <!-- Ползунок темы -->
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 16px; opacity: 0.7;">🌙</span>
+                            <input type="range" id="reader-theme-slider" min="0" max="2" step="1" value="0" style="flex: 1; margin: 0 15px; accent-color: var(--button-color);" oninput="changeReaderTheme()">
+                            <span style="font-size: 16px; opacity: 0.9;">☀️</span>
+                        </div>
+
+                        <!-- Индикатор страниц -->
+                        <div style="display: flex; justify-content: center; align-items: center;">
+                            <span id="page-indicator" style="font-size: 13px; font-weight: bold; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px;">Стр. 0 / 0</span>
+                        </div>
+                    </div>
+
+                <!-- ПЛАВАЮЩАЯ КНОПКА ПЕРЕВОДА -->
+                <button id="reader-translate-btn" class="btn-glass btn-glass-purple" style="display: none; position: fixed; z-index: 9999; padding: 8px 16px; font-size: 14px; height: auto; width: auto; border-radius: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); backdrop-filter: blur(15px); border: 1px solid rgba(168, 129, 243, 0.4);">
+                    ✨ Перевести
+                </button>
+
+            </div> <!-- ЗАКРЫВАЕТ #output-area -->
+
+
+
+
+
             </div>
 
-            <!-- БЛОКИ ИНПУТА ДЛЯ ДРУГИХ РЕЖИМОВ -->
-            <div id="input-container" style="padding: 15px; border-top: 1px solid rgba(112, 132, 153, 0.3); display: none; flex-direction: column; gap: 12px; background-color: var(--bg-color);">
-           <div id="text-input-row" style="display: flex; gap: 10px;">
-                <!-- 🔥 Обертка для поля ввода и микрофона -->
-                <div style="position: relative; display: flex; align-items: center; flex: 1;">
-                    <!-- Поле ввода (добавлен padding-right: 40px, чтобы текст не залезал под микрофон) -->
-                    <input type="text" id="user-input" placeholder="Напиши слово..." style="width: 100%; padding: 12px 40px 12px 12px; border-radius: 10px; border: 1px solid rgba(112, 132, 153, 0.5); background: var(--secondary-bg-color); color: var(--text-color); font-size: 16px; outline: none; box-sizing: border-box;">
 
-                    <!-- 🔥 Кнопка микрофона внутри инпута -->
-                    <button id="mic-btn" onclick="startVoiceInput()" style="position: absolute; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer; padding: 0; outline: none;">
-                        🎙️
-                    </button>
+
+<!-- БЛОКИ ИНПУТА ДЛЯ ДРУГИХ РЕЖИМОВ -->
+            <div id="input-container" style="padding: 15px; border-top: 1px solid rgba(255, 255, 255, 0.04); display: none; flex-direction: column; gap: 12px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.85) 0%, rgba(8, 12, 18, 0.95) 100%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+                <div id="text-input-row" style="display: flex; width: 100%;">
+                    <div style="position: relative; display: flex; align-items: center; width: 100%;">
+                        <!-- Кнопка микрофона слева -->
+                        <button id="mic-btn" onclick="startVoiceInput()" style="position: absolute; left: 12px; background: none; border: none; font-size: 18px; cursor: pointer; padding: 0; outline: none; z-index: 2;" title="Голосовой ввод">🎙️</button>
+
+                        <!-- Поле ввода с отступами под микрофон и кнопку отправки -->
+                        <input type="text" id="user-input" placeholder="Напиши слово..." style="width: 100%; height: 46px; padding: 0 54px 0 42px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); background: rgba(0, 0, 0, 0.35); color: var(--text-color); font-size: 15px; outline: none; box-sizing: border-box;">
+
+                        <!-- Кнопка отправки внутри инпута (в стиле переводчика) -->
+                        <button id="btn-send" style="position: absolute; right: 6px; width: 34px; height: 34px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; color: #fff; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; box-sizing: border-box; margin: 0; padding: 0;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                        </button>
+                    </div>
                 </div>
-
-                <!-- Кнопка отправки текста -->
-                <button class="btn-primary" id="btn-send" style="margin: 0; width: 50px; padding: 0; display: flex; justify-content: center; align-items: center; border-radius: 10px;">➡️</button>
-            </div>
             </div>
 
-            <!-- 🔥 ПЛАВАЮЩИЕ КНОПКИ (FAB) В САМОМ НИЗУ ЭКРАНА -->
+            <!-- ПЛАВАЮЩИЕ КНОПКИ (FAB) -->
             <button id="fab-add-word" class="fab-button" style="display: none;" onclick="enterAddWordMode()">
                 <span style="font-size: 18px;">➕</span> Добавить
             </button>
-
             <button id="fab-next-task" class="fab-button" style="display: none; bottom: 100px;" onclick="showNewTaskMode(true)">
                 <span style="font-size: 18px;">🔄</span> Ещё 1 фразу
             </button>
@@ -171,18 +271,142 @@
     </div>
 
 
-<script src="frontend/js/api.js?v=1.0.7"></script>
-<script src="frontend/js/onboarding.js?v=1.0.7"></script>
-<script src="frontend/js/tasks.js?v=1.0.7"></script>
-<script src="frontend/js/add_word.js?v=1.0.7"></script>
-<script src="frontend/js/training.js?v=1.0.7"></script>
-<script src="frontend/js/image_words.js?v=1.0.7"></script>
-<script src="frontend/js/grammar.js?v=1.0.7"></script>
-<script src="frontend/js/dictionary.js?v=1.0.7"></script>
-<script src="frontend/js/chat.js?v=1.0.7"></script>
-<script src="frontend/js/app.js?v=1.0.7"></script>
-<script src="frontend/js/settings.js?v=1.0.7"></script>
-<script src="frontend/js/intensity.js?v=1.0.7"></script>
+    <!-- 🔥 МОДАЛЬНОЕ ОКНО "ДЕТАЛИ СЛОВА" В СТИЛЕ МАТОВОГО СТЕКЛА -->
+    <div id="word-details-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2000; justify-content: center; align-items: flex-end; opacity: 0; transition: opacity 0.3s;">
+        <div id="wd-modal-content" style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); width: 100%; max-height: 85vh; border-radius: 24px 24px 0 0; border: 1px solid rgba(255, 255, 255, 0.06); border-bottom: none; padding: 25px 20px; box-sizing: border-box; overflow-y: auto; position: relative; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.6);">
+
+            <!-- Кнопка закрытия -->
+<!-- Кнопка закрытия (Стеклянная, круглая) -->
+            <button onclick="closeWordDetails()" class="btn-glass btn-glass-neutral" style="position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; padding: 0; border-radius: 50%; justify-content: center; z-index: 10;">
+                <span style="font-size: 15px; opacity: 0.8;">✕</span>
+            </button>
+
+<!-- Заголовок с отступом под новую кнопку -->
+            <h2 id="wd-title" style="margin: 0 0 5px 0; font-size: 26px; color: var(--text-color); padding-right: 100px; word-break: break-word;">Word</h2>            <div id="wd-transcription" style="color: rgba(255, 255, 255, 0.45); margin-bottom: 20px; font-size: 15px; font-family: monospace;">[transcription]</div>
+
+            <!-- Индикатор загрузки -->
+            <div id="wd-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; color: rgba(255, 255, 255, 0.45);">
+                <span style="font-size: 30px; margin-bottom: 10px;">⏳</span>
+                <p>Анализирую слово...</p>
+            </div>
+
+            <!-- Контент после ответа ИИ -->
+            <div id="wd-data" style="display: none; flex-direction: column; gap: 15px;">
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1; background: rgba(0, 0, 0, 0.25); padding: 12px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06);">
+                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; font-weight: bold; letter-spacing: 0.8px;">Часть речи</div>
+                        <div id="wd-part" style="font-size: 15px; color: var(--text-color); margin-top: 4px;">-</div>
+                    </div>
+                    <div style="flex: 1; background: rgba(0, 0, 0, 0.25); padding: 12px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06);">
+                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; font-weight: bold; letter-spacing: 0.8px;">Формы</div>
+                        <div id="wd-forms" style="font-size: 15px; color: var(--text-color); margin-top: 4px;">-</div>
+                    </div>
+                </div>
+
+                <div style="font-size: 13px; font-weight: bold; color: rgba(255, 255, 255, 0.5); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.8px;">📚 Значения и примеры:</div>
+                <div id="wd-meanings" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Сюда вставятся значения -->
+                </div>
+
+            </div>
+        </div>
+    </div>
+   <!-- 🔥 МОДАЛЬНОЕ ОКНО ПРАВИЛА (С выездом снизу, как детали слова) -->
+<!-- 🔥 МОДАЛЬНОЕ ОКНО ПРАВИЛА (С выездом снизу, как детали слова) -->
+    <div id="rule-explanation-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2001; justify-content: center; align-items: flex-end; opacity: 0; transition: opacity 0.3s;">
+        <!-- 🔥 Добавлено height: 70vh; (высота ~2/3 экрана) -->
+        <div id="rule-modal-window" style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); width: 100%; height: 80vh; max-height: 85vh; border-radius: 24px 24px 0 0; border: 1px solid rgba(255, 255, 255, 0.06); border-bottom: none; padding: 25px 20px; box-sizing: border-box; overflow-y: auto; position: relative; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.6); display: flex; flex-direction: column;">
+
+            <button onclick="closeRuleExplanation()" style="position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 50%; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-color); font-size: 16px; transition: 0.2s;">✕</button>
+
+            <h2 id="rule-modal-title" style="margin: 0 0 15px 0; font-size: 24px; color: var(--text-color); padding-right: 40px; line-height: 1.2;">Правило</h2>
+
+            <div id="rule-modal-content" style="font-size: 15px; color: var(--text-color); line-height: 1.5; background: rgba(112, 132, 153, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(112, 132, 153, 0.2); margin-bottom: 20px;"></div>
+
+            <!-- Кнопка старта тренировки с иконкой (Интенсив - зеленая) -->
+            <button id="rule-modal-train-btn" class="btn-glass btn-glass-green">
+                <span id="rule-train-icon" style="display: flex; align-items: center; justify-content: center; width: 22px; height: 22px;"></span>
+                <span>Тренировать правило</span>
+            </button>
+        </div>
+    </div>    <!-- 🔥 МАЛЕНЬКАЯ ПОДСКАЗКА ПРАВИЛА ДЛЯ РЕЖИМА ЗАДАНИЙ -->
+    <div id="task-rule-tooltip" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 3000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.2s; padding: 20px; box-sizing: border-box;">
+        <div style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.98) 0%, rgba(8, 12, 18, 1) 100%); width: 100%; max-width: 340px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; box-sizing: border-box; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.6);">
+
+            <button onclick="closeTaskRuleTooltip()" style="position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, 0.1); border: none; border-radius: 50%; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-color); font-size: 12px;">✕</button>
+
+            <div id="task-rule-tooltip-title" style="margin: 0 0 10px 0; font-size: 16px; font-weight: bold; color: var(--button-color); padding-right: 25px;"></div>
+
+            <div id="task-rule-tooltip-content" style="font-size: 14px; color: rgba(255, 255, 255, 0.9); line-height: 1.4; max-height: 50vh; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+<!-- 🔥 ПОДСКАЗКА РЕДАКТИРОВАНИЯ ПЕРЕВОДА (ДЛЯ СЛОВАРЯ) -->
+    <div id="dict-edit-tooltip" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 3000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.2s; padding: 20px; box-sizing: border-box;">
+        <div style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.98) 0%, rgba(8, 12, 18, 1) 100%); width: 100%; max-width: 340px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; box-sizing: border-box; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.6);">
+
+            <div style="margin: 0 0 15px 0; font-size: 16px; font-weight: bold; color: var(--text-color);">Редактировать перевод</div>
+            <div id="dict-edit-word" style="font-size: 20px; font-weight: bold; color: var(--button-color); margin-bottom: 15px; word-break: break-word;"></div>
+
+            <!-- Поле textarea для многострочного текста -->
+            <textarea id="dict-edit-input" style="width: 100%; height: 120px; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: var(--text-color); font-size: 14px; outline: none; box-sizing: border-box; resize: none; margin-bottom: 20px; font-family: 'Inter', 'Plus Jakarta Sans', sans-serif; line-height: 1.4;"></textarea>
+
+            <div style="display: flex; gap: 10px;">
+                <button onclick="closeEditTranslationTooltip()" class="btn-glass btn-glass-neutral" style="flex: 1; height: 44px; font-size: 14px;">Отмена</button>
+                <button id="dict-edit-save-btn" class="btn-glass btn-glass-green" style="flex: 1; height: 44px; font-size: 14px;">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+<!-- 🔥 КРАСИВОЕ ОКНО ВЫБОРА КНИГИ -->
+    <div id="reader-choice-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 3500; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; padding: 20px; box-sizing: border-box;">
+
+        <div style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); width: 100%; max-width: 320px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.06); padding: 30px 20px 25px 20px; box-sizing: border-box; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.6); text-align: center;">
+
+            <!-- Крестик в левом верхнем углу -->
+            <button onclick="closeReaderChoiceModal()" class="btn-glass btn-glass-neutral" style="position: absolute; top: 12px; left: 12px; width: 34px; height: 34px; padding: 0; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10;">
+                <span style="font-size: 14px; opacity: 0.8;">✕</span>
+            </button>
+
+            <!-- Иконка книги (для эстетики) -->
+            <div style="font-size: 44px; margin-bottom: 15px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));">📖</div>
+
+            <!-- Заголовок (Только название книги) -->
+            <h2 id="rc-modal-title" style="margin: 0 0 25px 0; font-size: 20px; color: var(--text-color); word-break: break-word; line-height: 1.3;">Название книги</h2>
+
+            <!-- Кнопки: Слева "Новая", Справа "Продолжить" -->
+            <div style="display: flex; gap: 10px; width: 100%;">
+                <button onclick="startNewBookFromModal()" class="btn-glass btn-glass-neutral" style="flex: 1; height: 48px; font-size: 14px; padding: 0;">📂 Новая</button>
+                <button onclick="continueBookFromModal()" class="btn-glass btn-glass-green" style="flex: 1; height: 48px; font-size: 14px; padding: 0;">Продолжить</button>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    </div>
+
+
+
+    <script src="frontend/js/api.js?v=1.0.9"></script>
+    <script src="frontend/js/icons.js"></script>
+    <script src="frontend/js/onboarding.js?v=1.0.7"></script>
+    <script src="frontend/js/tasks.js?v=1.5"></script>
+    <script src="frontend/js/add_word.js?v=1.0.9"></script>
+    <script src="frontend/js/training.js?v=9"></script>
+    <script src="frontend/js/image_words.js?v=1.0.8"></script>
+    <script src="frontend/js/grammar.js?v=3"></script>
+    <script src="frontend/js/dictionary.js?v=8"></script>
+    <script src="frontend/js/chat.js?v=1.0.4"></script>
+    <script src="frontend/js/idioms_db.js?v=1.2"></script>
+    <script src="frontend/js/progress_bars.js?v=5"></script>
+
+    <script src="frontend/js/app.js?v=1.5"></script>
+    <script src="frontend/js/settings.js?v=1.6"></script>
+    <script src="frontend/js/intensity.js?v=1.4"></script>
+    <script src="frontend/js/translator.js?v=1"></script>
+    <script src="frontend/js/reader.js?v6"></script>
 
 </body>
 </html>

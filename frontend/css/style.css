@@ -1,66 +1,105 @@
 :root {
-    --bg-color: var(--tg-theme-bg-color, #17212b);
-    --text-color: var(--tg-theme-text-color, #f5f5f5);
-    /* 🎯 Исправлено название переменной на --secondary-bg-color */
-    --secondary-bg-color: var(--tg-theme-secondary-bg-color, #202b36);
-    --button-color: var(--tg-theme-button-color, #2f6ea5);
-    --button-text: var(--tg-theme-button-text-color, #ffffff);
-    --hint-color: var(--tg-theme-hint-color, #708499);
+    /* Жестко фиксируем темную тему, игнорируя настройки Telegram */
+    --bg-color: #0f1621;
+    --text-color: #f8fafc;
+    --secondary-bg-color: #1e293b;
+    --button-color: #38bdf8;
+    --button-text: #ffffff;
+    --hint-color: #94a3b8;
 }
 
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ==========================================
+   ОБЩИЕ СТИЛИ ДОКУМЕНТА И ТИПОГРАФИКА
+   ========================================== */
+/* ==========================================
+   ОБЩИЕ СТИЛИ ДОКУМЕНТА И ТИПОГРАФИКА
+   ========================================== */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: var(--bg-color);
+    /* Применяем современный и стильный шрифт ко всему приложению */
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: var(--text-color);
     margin: 0;
-    padding: 0; /* Убрал отступы, чтобы shell был на весь экран */
+    padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
     overflow-x: hidden;
+    position: relative;
+    background-color: #02060b;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Принудительно заставляем все кнопки и поля ввода использовать наш красивый шрифт */
+button, input, textarea, select {
+    font-family: inherit;
+}
+
+
+/* ==========================================
+   РАЗМЫТЫЙ ФОН (ШИРОКИЙ МЯГКИЙ СВЕТ СЛЕВА СВЕРХУ)
+   ========================================== */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    background:
+       linear-gradient(135deg, rgba(3, 8, 15, 0.75) 0%, rgba(1, 4, 8, 0.50) 100%),
+        url('../img/new2.avif') center center / cover no-repeat;
+
+    z-index: -1;
+    pointer-events: none;
+}
+/* ==========================================
+   АНИМАЦИИ И ПЕРЕХОДЫ ЭКРАНОВ (Pop-in эффект)
+   ========================================== */
+/* ==========================================
+   ПЛАВНЫЙ СКЕЙЛИНГ ИЗ ЦЕНТРА (POP-IN)
+   ========================================== */
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.8); /* Начинаем с 80% размера, чтобы скейл был заметнее */
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .screen {
     display: none;
     width: 100%;
-    max-width: 100%; /* Убрал ограничение в 360px для универсального экрана */
-    animation: fadeIn 0.3s ease-in-out;
+    max-width: 100%;
 }
 
 .screen.active {
     display: block;
+    /* Увеличили длительность до 0.45s и зафиксировали центр масштабирования */
+    animation: popIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+    transform-origin: center center;
 }
 
-.card {
-    background-color: var(--secondary-bg-color); /* 🎯 Обновил здесь */
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    text-align: center;
-    max-width: 360px;
-    margin: 0 auto;
-}
+/* ==========================================
+   ТИПОГРАФИКА
+   ========================================== */
+h1 { font-size: 24px; margin-top: 0; margin-bottom: 8px; }
+p { color: var(--hint-color); font-size: 14px; margin-bottom: 24px; }
 
-h1 {
-    font-size: 24px;
-    margin-top: 0;
-    margin-bottom: 8px;
-}
-
-p {
-    color: var(--hint-color);
-    font-size: 14px;
-    margin-bottom: 24px;
-}
-
-.selector-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 24px;
-}
+/* ==========================================
+   БАЗОВЫЕ КНОПКИ И ЭЛЕМЕНТЫ ВВОДА
+   ========================================== */
+.selector-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
 
 .option-btn {
     background-color: var(--bg-color);
@@ -77,14 +116,8 @@ p {
     justify-content: space-between;
 }
 
-.option-btn:active {
-    transform: scale(0.98);
-}
-
-.option-btn.selected {
-    border-color: var(--button-color);
-    background-color: rgba(47, 110, 165, 0.1);
-}
+.option-btn:active { transform: scale(0.98); }
+.option-btn.selected { border-color: var(--button-color); background-color: rgba(47, 110, 165, 0.1); }
 
 .btn-primary {
     background-color: var(--button-color);
@@ -97,121 +130,25 @@ p {
     cursor: pointer;
     width: 100%;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    margin: 14px 0;
-    font-size: 16px;
-}
-
-.info-label {
-    color: var(--hint-color);
-}
-
-.info-value {
-    font-weight: bold;
-}
-
-.loader {
-    font-size: 16px;
-    color: var(--hint-color);
-    text-align: center;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Эффект при нажатии на кнопку */
-.btn-primary:active {
-    transform: scale(0.95);
     transition: transform 0.1s ease;
 }
 
-/* Эффект для всех кнопок-опций */
-.option-btn:active {
-    transform: scale(0.98);
-    transition: transform 0.1s ease;
-}
+.btn-primary:active { transform: scale(0.95); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Базовое состояние скрытого экрана */
-.screen {
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    display: none; /* Сначала скрываем */
-}
+/* ==========================================
+   УТИЛИТЫ И ПРОЧЕЕ
+   ========================================== */
+.info-row { display: flex; justify-content: space-between; margin: 14px 0; font-size: 16px; }
+.info-label { color: var(--hint-color); }
+.info-value { font-weight: bold; }
+.loader { font-size: 16px; color: var(--hint-color); text-align: center; }
 
-/* Активное состояние */
-.screen.active {
-    opacity: 1;
-    display: block; /* Показываем плавно */
-}
+#mini-profile::-webkit-scrollbar { display: none; }
 
-/* Стили для новых карточек меню (Дашборд) */
-.menu-card {
-    background-color: var(--secondary-bg-color);
-    border: 1px solid rgba(112, 132, 153, 0.3);
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.1s ease, background-color 0.2s ease;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.menu-card:active {
-    transform: scale(0.95);
-    background-color: rgba(112, 132, 153, 0.1);
-}
-
-/* Верхний Header карточки */
-.mc-header {
-    font-size: 10px;
-    text-transform: uppercase;
-    font-weight: bold;
-    color: var(--hint-color);
-    padding: 6px 2px;
-    width: 100%;
-    border-bottom: 1px solid rgba(112, 132, 153, 0.2);
-}
-
-/* Картинка/Иконка по центру */
-.mc-icon {
-    font-size: 32px;
-    padding: 12px 0;
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Нижняя инфа карточки */
-.mc-info {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-color);
-    padding: 8px 2px;
-    width: 100%;
-    border-top: 1px solid rgba(112, 132, 153, 0.2);
-    background-color: rgba(112, 132, 153, 0.03);
-}
-
-#mini-profile::-webkit-scrollbar {
-    display: none;
-}
-
-/* Плавающая кнопка (FAB) для добавления слов */
+/* ==========================================
+   ПЛАВАЮЩИЕ КНОПКИ (FAB) И МИКРОФОН
+   ========================================== */
 .fab-button {
     position: fixed;
     bottom: 30px;
@@ -232,13 +169,10 @@ p {
     transition: transform 0.2s ease;
 }
 
-.fab-button:active {
-    transform: scale(0.92);
-}
+.fab-button:active { transform: scale(0.92); }
 
-/* 🔥 Анимация для микрофона при записи */
 .mic-button-recording {
-    color: #ff3b30 !important; /* Красный цвет */
+    color: #ff3b30 !important;
     animation: pulse-mic 1.2s infinite;
 }
 
@@ -248,203 +182,86 @@ p {
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* ==========================================
-   КОНТЕЙНЕРЫ И КАРТОЧКИ ИЗОБРАЖЕНИЙ
-   ========================================== */
-.image-card-container {
+/* Единый воздушный стеклянный стиль (из Ref UI) */
+.glass-box {
+    background: linear-gradient(135deg, rgba(40, 55, 80, 0.35) 0%, rgba(12, 18, 28, 0.45) 100%);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px;
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.35),
+        inset 0 1px 1px rgba(255, 255, 255, 0.25),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+/* Интерактивные выпуклые иконки-пузырьки */
+.convex-icon {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 18px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    min-height: 250px;
-    background-color: var(--secondary-bg-color);
-    border-radius: 16px;
-    border: 1px solid rgba(112, 132, 153, 0.2);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    padding: 20px;
-    margin-top: 20px;
-    text-align: center;
+    color: #e6d3c3;
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.2),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.15);
     position: relative;
-    overflow: hidden;
+    flex-shrink: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
-/* ==========================================
-   СКЕЛЕТОН-ЗАГРУЗЧИК И АНИМАЦИИ
-   ========================================== */
-.scanner-wrapper {
-    width: 100%;
-    max-width: 280px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 10px;
-}
-
-.skeleton-box {
-    width: 100%;
-    height: 140px;
-    /* Базовый серый фон + переливающийся градиент */
-    background: #eef2f5 linear-gradient(90deg, rgba(255, 255, 255, 0) 25%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 75%);
-    background-size: 200% 100%;
-    animation: skeleton-shimmer 1.5s infinite linear;
-    border-radius: 12px;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Переключаем на темную тему, если бэкграунд темный */
-body {
-    --skeleton-base: rgba(112, 132, 153, 0.1);
-    --skeleton-glow: rgba(112, 132, 153, 0.25);
-}
-
-.skeleton-box, .skeleton-line {
-    /* Делаем базовый цвет плашек чуть светлее, чтобы они выделялись на темно-синем фоне */
-    background: linear-gradient(90deg,
-        rgba(255, 255, 255, 0.05) 25%,
-        rgba(255, 255, 255, 0.15) 50%,
-        rgba(255, 255, 255, 0.05) 75%
-    );
-    background-size: 200% 100%;
-    animation: skeleton-shimmer 1.5s infinite ease-in-out;
-}
-
-.scan-laser {
-    position: absolute;
-    width: 100%;
-    height: 3px;
-    background: var(--button-color);
-    box-shadow: 0 0 8px var(--button-color);
-    top: 0;
-    animation: scan-line 2.5s ease-in-out infinite;
-}
-
-
-
-.skeleton-line.title {
-    width: 80%;
-    height: 16px;
-    margin-top: 10px;
-}
-
-.skeleton-line.subtitle {
-    width: 60%;
-}
-
-@keyframes skeleton-shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-@keyframes scan-line {
-    0% { top: 0%; }
-    50% { top: 100%; }
-    100% { top: 0%; }
-}
-
-/* ==========================================
-   ИНТЕРФЕЙС СПИСКА СЛОВ (ЧЕКБОКСЫ)
-   ========================================== */
-.image-words-title {
-    font-size: 13px;
-    color: var(--button-color);
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: bold;
-    text-align: center;
-}
-
-.image-words-scroll-box {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-    max-height: 350px;
-    overflow-y: auto;
-    padding-right: 5px;
-}
-
-.word-checkbox-label {
+/* Верхняя панель и пилюли статистики */
+.top-bar-ref {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    width: 100%;
-    background: rgba(112, 132, 153, 0.05);
-    padding: 12px 15px;
-    border-radius: 10px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    border: 1px solid rgba(112, 132, 153, 0.2);
-    box-sizing: border-box;
-    transition: 0.2s;
+    justify-content: space-between;
+    padding: 12px 16px;
 }
 
-.word-checkbox-label input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    margin-right: 15px;
-    accent-color: var(--button-color);
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.word-checkbox-text {
+.badge-pill {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 8px 14px;
     display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
-.word-checkbox-foreign {
-    font-size: 16px;
-    color: var(--text-color);
-    font-weight: bold;
-}
-
-.word-checkbox-ru {
-    font-size: 13px;
-    color: var(--hint-color);
-}
-
-.image-card-buttons-row {
-    display: flex;
+    align-items: center;
     gap: 10px;
-    width: 100%;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
 }
 
-.btn-success-save {
-    flex: 1;
-    padding: 14px;
-    background: #34c759;
-    border: none;
-    border-radius: 12px;
-    color: #fff;
-    font-weight: bold;
-    font-size: 14px;
+.badge-pill .level-circle {
+    background: rgba(255, 255, 255, 0.06);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lang-flag {
+    font-size: 16px;
+    margin-right: -2px;
+}
+
+.icon-btn {
+    width: 44px;
+    height: 44px;
     cursor: pointer;
     transition: 0.2s;
 }
 
-.btn-cancel-exit {
-    flex: 1;
-    padding: 14px;
-    background: rgba(112, 132, 153, 0.1);
-    border: 1px solid rgba(112, 132, 153, 0.2);
-    border-radius: 12px;
-    color: var(--text-color);
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.2s;
+.icon-btn:active {
+    transform: scale(0.95);
 }
-
-/* Простые утилитарные стили для иконок и текстов */
-.ic-icon-large { font-size: 50px; margin-bottom: 15px; }
-.ic-icon-medium { font-size: 40px; margin-bottom: 10px; }
-.ic-icon-success { font-size: 60px; margin-bottom: 10px; }
-.ic-title-bold { font-size: 18px; font-weight: bold; color: var(--text-color); margin-bottom: 10px; }
-.ic-title-success { font-size: 20px; font-weight: bold; color: var(--text-color); margin-bottom: 15px; }
-.ic-text-hint { font-size: 13px; color: var(--hint-color); padding: 0 10px; }
-.ic-text-normal { font-size: 16px; color: var(--text-color); }
-.btn-inline-menu { margin-top: 15px; padding: 10px 20px; background: var(--button-color); border: none; border-radius: 8px; color: #fff; cursor: pointer; }

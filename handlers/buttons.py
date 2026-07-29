@@ -270,3 +270,116 @@ def start_chat_onboarding_callback(call):
         reply_markup=markup,
         parse_mode="HTML"
     )
+
+
+# ==========================================
+# ОБРАБОТКА ОТВЕТОВ ВИКТОРИНЫ ПО ТАЙМЕРУ
+# ==========================================
+@bot.callback_query_handler(func=lambda call: call.data.startswith("quiz_"))
+def handle_quiz_timer_answer(call):
+    import utils  # Для доступа к функции генерации кнопки Mini App
+
+    if call.data == "quiz_T":
+        # Если юзер нажал правильный вариант — выводим зеленый Alert
+        bot.answer_callback_query(call.id, "✅ Правильно! Отличная работа!", show_alert=True)
+
+        try:
+            # Убираем кнопки-варианты, оставляя только ссылку на Mini App
+            bot.edit_message_reply_markup(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                reply_markup=utils.get_app_button_markup()
+            )
+        except Exception:
+            pass
+    else:
+        # Выводим красный Alert при ошибке
+        bot.answer_callback_query(call.id, "❌ Неверно! Попробуй вспомнить еще раз.", show_alert=True)
+
+
+# ==========================================
+# ОБРАБОТЧИК ИНЛАЙН-КНОПКИ "НОВОЕ ЗАДАНИЕ"
+# ==========================================
+# ==========================================
+# ОБРАБОТЧИК ИНЛАЙН-КНОПКИ "НОВОЕ ЗАДАНИЕ"
+# ==========================================
+@bot.callback_query_handler(func=lambda call: call.data == "generate_new_task")
+def handle_generate_new_task_callback(call):
+    chat_id = call.message.chat.id
+
+    import utils
+    import database
+
+    # ЗАЩИТА ОТ ДВОЙНОГО КЛИКА
+    if utils.GENERATION_LOCKS.get(chat_id) is True:
+        bot.answer_callback_query(call.id, "⏳ Ментор уже готовит задание, секунду...")
+        return
+
+    utils.GENERATION_LOCKS[chat_id] = True
+    bot.answer_callback_query(call.id, "Генерирую задание...")
+
+    try:
+        database.delete_active_task(chat_id)
+        utils.send_text_task(chat_id)
+        utils.start_or_resume_timer(chat_id)
+    finally:
+        # Гарантированно снимаем замок после отправки сообщения
+        utils.GENERATION_LOCKS[chat_id] = False
+
+
+# ==========================================
+# ОБРАБОТЧИК КНОПКИ "ПОДСКАЗКА" ДЛЯ ЗАДАНИЯ
+# ==========================================
+@bot.callback_query_handler(func=lambda call: call.data == "task_help")
+def handle_task_help_callback(call):
+    chat_id = call.message.chat.id
+    bot.answer_callback_query(call.id, "⏳ Готовлю подсказку...")
+
+    import database
+    import aiPrompts
+    import config
+    from ai_service import ask_ai
+    from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+    import utils
+
+    task_data = database.get_active_task(chat_id)
+    if not task_data:
+        bot.send_message(chat_id, "⚠️ У тебя сейчас нет активного задания.")
+        return
+
+    original_ru_phrase = task_data["phrase"]
+    user_config = database.get_user_config(chat_id)
+    end_lesson = False
+
+    # Логика подсказок
+    if task_data["help_count"] < 1:
+        database.increment_help_count(chat_id)
+        bot.send_message(chat_id, "💡 <b>Ментор отправляет подсказку</b>\n\n📌 Осталась 1 попытка\n", parse_mode="HTML")
+        prompt_text = aiPrompts.help_prompt(original_ru_phrase, user_config)
+    else:
+        bot.send_message(chat_id, "🛑 <b>Ответ ИИ-Ментора:</b>\n\n", parse_mode="HTML")
+        prompt_text = aiPrompts.final_ready_prompt(original_ru_phrase, user_config)
+        end_lesson = True
+
+    try:
+        ai_text = ask_ai(prompt_text, temperature=config.temperature)
+
+        if end_lesson:
+            database.delete_active_task(chat_id)
+            # Отправляем финальный разбор
+            bot.send_message(chat_id, ai_text, parse_mode="HTML")
+
+            # Предлагаем дальнейшие действия (Уже без кнопки "Подсказка")
+            markup = InlineKeyboardMarkup(row_width=1)
+            markup.add(
+                InlineKeyboardButton(text="🎯 Новое задание", callback_data="generate_new_task"),
+                InlineKeyboardButton(text="🚀 Продолжить в приложении", web_app=WebAppInfo(url=utils.WEB_APP_URL))
+            )
+            bot.send_message(chat_id, "Задание завершено. Выбери следующее действие 👇", reply_markup=markup,
+                             parse_mode="HTML")
+        else:
+            # Отправляем просто подсказку (задание еще активно)
+            bot.send_message(chat_id, ai_text, parse_mode="HTML")
+
+    except Exception as e:
+        bot.send_message(chat_id, f"Ошибка ИИ: {e}")

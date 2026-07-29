@@ -3,23 +3,92 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-
 let user = tg.initDataUnsafe?.user || { id: 8407744578, first_name: "Пользователь (Резерв)" };
+
+// 🔥 Отладка БД по нажатию клавиши (например, F10)
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'F10') {
+        event.preventDefault(); // Предотвращаем стандартное поведение
+        showDatabaseStateModal();
+    }
+});
+
+function showDatabaseStateModal() {
+    console.log("📊 Запрос состояния базы данных...");
+
+    apiFetch(`/debug/db_dump?chat_id=${user.id}`)
+        .then(data => {
+            const chatContainer = document.getElementById('chat-messages');
+            if (!chatContainer) return;
+
+            if (data.success) {
+                // Красиво форматируем JSON в читаемый текст
+                const prettyJson = JSON.stringify(data.tables, null, 2);
+
+                chatContainer.innerHTML = `
+                    <div style="display: flex; flex-direction: column; width: 100%; margin-top: 15px;">
+                        <div style="background: rgba(10, 15, 25, 0.95); border: 1px solid rgba(0, 255, 100, 0.3); border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); box-sizing: border-box; width: 100%;">
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <span style="font-size: 14px; font-weight: bold; color: #00ff64; text-transform: uppercase; letter-spacing: 1px;">
+                                    🟢 Состояние базы данных (Debug)
+                                </span>
+                                <button onclick="exitToMainMenu()" style="background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 4px 10px; border-radius: 8px; cursor: pointer; font-size: 12px;">Закрыть ✕</button>
+                            </div>
+                            
+                            <div style="background: rgba(0, 0, 0, 0.5); border-radius: 10px; padding: 12px; max-height: 350px; overflow-y: auto;">
+                                <pre style="color: #00ffcc; font-family: monospace; font-size: 11px; margin: 0; white-space: pre-wrap; word-break: break-all;">${prettyJson}</pre>
+                            </div>
+                            
+                        </div>
+                    </div>
+                `;
+
+                // Если нужно, скрываем поле ввода на время просмотра отладки
+                const inputContainer = document.getElementById('input-container');
+                if (inputContainer) inputContainer.style.display = 'none';
+
+            } else {
+                alert("Ошибка получения БД: " + data.error);
+            }
+        })
+        .catch(err => {
+            console.error("Ошибка сети при запросе БД:", err);
+        });
+}
+
+
+// 🔥 ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ДЛЯ ТЕКСТА В ШАПКЕ
+window.promoTexts = [
+    "🔥 Тренируй каждый день",
+    "📚 Ежедневная тренировка",
+    "✨ Грамматика и слова"
+];
+window.currentPromoIndex = 0;
+window.promoIntervalId = null;
+
+
+
 
 window.userProfile = null;
 window.currentAppMode = 'menu';
 let isProfileVisible = false;
-// 🔥 Озвучка
+
+// 🔥 Озвучка через собственный бэкенд
 function speakWord(text, lang) {
-    if (!('speechSynthesis' in window)) {
-        console.warn("Ваш браузер не поддерживает озвучку.");
-        return;
-    }
-    const utterance = new SpeechSynthesisUtterance(text);
-    // lang: 'en' или 'de' переводим в коды голосов
-    utterance.lang = lang === 'de' ? 'de-DE' : 'en-US';
-    utterance.rate = 0.9;
-    window.speechSynthesis.speak(utterance);
+    console.log("🔊 Клик по озвучке, текст:", text, "язык:", lang);
+
+    const targetLang = lang === 'de' ? 'de' : 'en';
+    const audioUrl = `${BASE_URL}/speech/tts?text=${encodeURIComponent(text)}&lang=${targetLang}`;
+
+    const audio = new Audio(audioUrl);
+    audio.playbackRate = 0.9;
+
+    audio.play().then(() => {
+        console.log("▶ Озвучка успешно воспроизведена с бэкенда");
+    }).catch(err => {
+        console.error("❌ Ошибка воспроизведения:", err);
+    });
 }
 
 // ==========================================
@@ -29,6 +98,7 @@ function speakWord(text, lang) {
 let mediaRecorder = null;
 let audioChunks = [];
 let isRecording = false;
+let globalAudioStream = null;
 
 async function startVoiceInput() {
     const micBtn = document.getElementById('mic-btn');
@@ -36,9 +106,11 @@ async function startVoiceInput() {
 
     if (!isRecording) {
         try {
-            // Запрашиваем доступ
-            currentStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(currentStream, { mimeType: 'audio/webm' }); // Используем webm для лучшей совместимости
+            if (!globalAudioStream || !globalAudioStream.active) {
+                globalAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            }
+
+            mediaRecorder = new MediaRecorder(globalAudioStream, { mimeType: 'audio/webm' });
             audioChunks = [];
 
             mediaRecorder.ondataavailable = event => {
@@ -46,11 +118,6 @@ async function startVoiceInput() {
             };
 
             mediaRecorder.onstop = async () => {
-                // 🔥 ОЧИСТКА: Останавливаем все дорожки микрофона
-                if (currentStream) {
-                    currentStream.getTracks().forEach(track => track.stop());
-                }
-
                 micBtn.innerText = '⏳';
                 micBtn.classList.remove('mic-button-recording');
                 wordInput.placeholder = "Распознавание...";
@@ -60,14 +127,12 @@ async function startVoiceInput() {
                 formData.append('file', audioBlob, 'voice.webm');
 
                 try {
-                    // Используем твой BASE_URL и добавляем заголовок для ngrok
                     const response = await fetch(`${BASE_URL}/speech/recognize?chat_id=${user.id}`, {
                         method: 'POST',
                         body: formData,
                         headers: {
                             "ngrok-skip-browser-warning": "true"
                         }
-                        // ВАЖНО: 'Content-Type' здесь писать не нужно, браузер сам поставит нужный для FormData
                     });
                     const data = await response.json();
 
@@ -96,7 +161,6 @@ async function startVoiceInput() {
             alert("Пожалуйста, разрешите доступ к микрофону в настройках Telegram.");
         }
     } else {
-        // Остановка
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
         }
@@ -106,19 +170,43 @@ async function startVoiceInput() {
 
 // 🔥 Глобальная функция для смены заголовка и стрелочки "Назад"
 // 🔥 Глобальная функция для смены заголовка и стрелочки "Назад"
+// 🔥 Глобальная функция для смены заголовка и стрелочки "Назад"
+// 🔥 Глобальная функция для смены заголовка и стрелочки "Назад"
+// 🔥 Глобальная функция для смены заголовка и стрелочки "Назад"
 function setAppHeader(title, showBackBtn = true) {
     const titleEl = document.getElementById('top-bar-title');
     const backBtnEl = document.getElementById('back-btn');
-    const settingsBtnEl = document.getElementById('settings-btn'); // Ищем нашу новую шестеренку
+    const settingsBtnEl = document.getElementById('settings-btn');
+    const topBarEl = document.getElementById('top-bar');
+    const tickerEl = document.getElementById('header-ticker');
+    const progressBannerEl = document.getElementById('progress-banner-block'); // 🔥 Получаем блок прогресс-баров
+
+    if (typeof initProgressBars === 'function') {
+        initProgressBars();
+    }
+
+    if (backBtnEl && !backBtnEl.innerHTML.includes('<svg')) {
+        backBtnEl.innerHTML = typeof APP_ICONS !== 'undefined' && APP_ICONS.chevronLeft ? APP_ICONS.chevronLeft : '⬅️';
+    }
 
     if (titleEl) titleEl.innerText = title;
 
-    // Управляем кнопкой "Назад"
-    if (backBtnEl) backBtnEl.style.display = showBackBtn ? 'flex' : 'none';
-
-    // 🔥 Управляем "Шестеренкой": показываем её ТОЛЬКО когда мы в главном меню (когда нет кнопки Назад)
-    if (settingsBtnEl) {
-        settingsBtnEl.style.display = showBackBtn ? 'none' : 'block';
+    if (showBackBtn) {
+        // 🔹 Мы внутри приложения (например, в словаре или тренировке)
+        if (topBarEl) topBarEl.style.display = 'flex';
+        if (backBtnEl) backBtnEl.style.display = 'flex';
+        if (settingsBtnEl) settingsBtnEl.style.display = 'none';
+        if (tickerEl) tickerEl.style.display = 'none';
+        if (titleEl) titleEl.style.display = 'inline';
+        if (progressBannerEl) progressBannerEl.style.display = 'none'; // 🔥 Прячем прогресс-бары внутри разделов
+    } else {
+        // 🔹 Мы в главном меню
+        if (topBarEl) topBarEl.style.display = 'none';
+        if (backBtnEl) backBtnEl.style.display = 'none';
+        if (settingsBtnEl) settingsBtnEl.style.display = 'none';
+        if (tickerEl) tickerEl.style.display = 'none';
+        if (titleEl) titleEl.style.display = 'none';
+        if (progressBannerEl) progressBannerEl.style.display = 'flex'; // 🔥 Показываем прогресс-бары в меню
     }
 }
 
@@ -126,49 +214,39 @@ function switchScreen(screenId) {
     const screens = document.querySelectorAll('.screen');
     const targetScreen = document.getElementById(screenId);
 
-    // 1. Убираем класс active у всех
     screens.forEach(s => s.classList.remove('active'));
-
-    // 2. Делаем экран видимым (display: block)
     targetScreen.style.display = 'block';
 
-    // 3. Добавляем active с маленькой задержкой (чтобы браузер «понял», что нужно анимировать)
     setTimeout(() => {
         targetScreen.classList.add('active');
-
-        // 4. Через время анимации скрываем старые экраны полностью
         screens.forEach(s => {
             if (s.id !== screenId) s.style.display = 'none';
         });
     }, 50);
 }
 
-// 🔥 Обновляем мини-плашку вместо старой гигантской карточки
-// 🔥 Обновляем мини-плашку (с полными названиями языков и флагами)
-// 🔥 Обновляем мини-плашку (теперь с загрузкой реальной аватарки!)
+// Обновление мини-плашки профиля
 function updateProfileUI(data) {
     window.userProfile = data;
 
-    // Словари для красивого вывода
-    const langMap = { "en": "Английский 🇬🇧", "de": "Немецкий 🇩🇪" };
+    const langMap = { "en": "🇬🇧", "de": "🇩🇪" };
     const lang = langMap[data.language] || data.language || "Не выбран";
     const diff = data.difficulty || "Не задан";
     const count = (data.words_count !== undefined) ? data.words_count : 0;
 
-    // Вставляем данные в плашку
     document.getElementById('mp-lang').innerText = lang;
     document.getElementById('mp-diff').innerText = diff;
     document.getElementById('mp-words').innerText = count;
 
-    // 📸 Проверяем и устанавливаем аватарку из Telegram
     const avatarContainer = document.getElementById('mp-avatar');
-    if (user && user.photo_url) {
-        // Если фото есть, вставляем картинку (object-fit: cover обрежет её ровно по кругу)
-        avatarContainer.innerHTML = `<img src="${user.photo_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-        avatarContainer.style.background = 'transparent'; // Убираем серый фон
-    } else {
-        // Если фото нет или скрыто, оставляем смайлик
-        avatarContainer.innerHTML = '👤';
+    if (avatarContainer) {
+        avatarContainer.style.display = 'flex';
+        if (user && user.photo_url) {
+            avatarContainer.innerHTML = `<img src="${user.photo_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            avatarContainer.style.background = 'transparent';
+        } else {
+            avatarContainer.innerHTML = '👤';
+        }
     }
 
     document.getElementById('mini-profile').style.display = 'flex';
@@ -208,7 +286,6 @@ document.getElementById('btn-send').addEventListener('click', () => {
     const text = inputField.value.trim();
     if (!text) return;
 
-    // 🔥 ИНТЕГРАЦИЯ СТИЛЕЙ: Если мы в живом чате, рисуем телеграм-пузырь
     if (window.currentAppMode === 'live_chat' && typeof addTelegramStyleMessage === 'function') {
         addTelegramStyleMessage(text, true);
     } else {
@@ -217,7 +294,6 @@ document.getElementById('btn-send').addEventListener('click', () => {
 
     inputField.value = '';
 
-    // МАРШРУТИЗАЦИЯ РЕЖИМОВ
     if (window.currentAppMode === 'add_word' && typeof handleAddWordInput === 'function') {
         handleAddWordInput(text);
     } else if (window.currentAppMode === 'task' && typeof handleTaskInput === 'function') {
@@ -235,66 +311,90 @@ document.getElementById('btn-send').addEventListener('click', () => {
     }
 });
 
-// Обработка нажатия Enter на стандартной клавиатуре
 document.getElementById('user-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
+        e.preventDefault(); // 🔥 Блокируем системное скрытие клавиатуры
         document.getElementById('btn-send').click();
     }
 });
 
-// Обработка Enter в быстром переводчике
+// 🔥 Опционально: Если ты иногда нажимаешь на саму кнопку "Отправить" пальцем,
+// добавь этот код, чтобы клик по ней не отбирал фокус у поля ввода:
+document.getElementById('btn-send').addEventListener('mousedown', function(e) {
+    e.preventDefault();
+});
+
 document.getElementById('quick-translator-input')?.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         if (typeof startQuickTranslation === 'function') startQuickTranslation();
     }
 });
 
-// 🔥 НОВОЕ: Обработка Enter в строке живого чата на главном экране
 document.getElementById('live-chat-input')?.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         if (typeof startLiveChatFromMenu === 'function') startLiveChatFromMenu();
     }
 });
 
-function startQuickTranslation() {
-    const input = document.getElementById('quick-translator-input');
-    const text = input ? input.value.trim() : '';
-    if (!text) return;
-    input.value = '';
-
-    enterAddWordMode(true);
-    document.getElementById('user-input').value = text;
-    hideTextInput();
-    if (typeof handleAddWordInput === 'function') handleAddWordInput(text);
-}
-
 // Запрос профиля
-apiFetch(`/profile?chat_id=${user.id}`)
+// Запрос профиля
+// Запрос профиля
+// Запрос профиля
+// Запрос профиля
+const telegramName = encodeURIComponent(user.first_name || 'Студент');
+apiFetch(`/profile?chat_id=${user.id}&username=${telegramName}`)
     .then(data => {
+        window.currentUsername = data.username || user.first_name || "Студент";
+
         if (data.is_new_user) {
             switchScreen('screen-onboarding');
         } else {
             updateProfileUI(data);
-            switchScreen('screen-main');
+
+            // 🔥 Проверяем, пришли ли по ссылке задания из бота
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetPage = urlParams.get('page');
+
+            if (targetPage === 'task' && data.active_task && data.active_task.phrase) {
+                console.log("🔥 Активируем экран и запускаем задачу из базы");
+
+                // 1. Сначала делаем основной экран видимым и активным
+                switchScreen('screen-main');
+
+                // 2. Затем отрисовываем саму карточку задания штатным методом
+                showExistingTask(data.active_task);
+            } else {
+                // Обычный запуск главного меню
+                switchScreen('screen-main');
+                setAppHeader(`${window.currentUsername}! 👋`, false);
+            }
         }
     })
     .catch(err => console.error(err));
 
 function exitToMainMenu() {
     window.currentAppMode = 'menu';
-    setAppHeader('Главное меню', false);
+    setAppHeader(`${window.currentUsername || 'Студент'}! 👋`, false);
+
+    const actionsEl = document.getElementById('top-bar-actions');
+    if (actionsEl) actionsEl.innerHTML = '';
 
     const chatContainer = document.getElementById('chat-messages');
     chatContainer.innerHTML = '';
-    // Сбрасываем Flex-настройки чата, чтобы они не ломали другие режимы
     chatContainer.style.display = 'block';
 
     document.getElementById('mini-profile').style.display = 'flex';
+
+    // 🔥 Возвращаем видимость прогресс-баров в главном меню
+    const progressBannerEl = document.getElementById('progress-banner-block');
+    if (progressBannerEl) progressBannerEl.style.display = 'flex';
+
+    const avatarContainer = document.getElementById('mp-avatar');
+    if (avatarContainer) avatarContainer.style.display = 'flex';
+
     document.getElementById('main-menu-cards').style.display = 'grid';
 
     if (document.getElementById('quick-translator-block')) document.getElementById('quick-translator-block').style.display = 'block';
-
-    // 🔥 Возвращаем поле живого чата
     if (document.getElementById('live-chat-block')) document.getElementById('live-chat-block').style.display = 'block';
 
     if (document.getElementById('dictionary-keyboard')) document.getElementById('dictionary-keyboard').style.display = 'none';
@@ -304,4 +404,92 @@ function exitToMainMenu() {
     if (document.getElementById('fab-add-word')) document.getElementById('fab-add-word').style.display = 'none';
 
     document.getElementById('user-input').placeholder = "Напиши слово...";
+}
+
+// ==========================================
+// 🔥 ГЛОБАЛЬНАЯ ОБРАБОТКА ЛИМИТОВ ТОКЕНОВ
+// ==========================================
+// 🔥 Проверяем именно реальное исчерпание токенов/квоты, а не минутный лимит запросов
+window.isRateLimitError = function(err) {
+    if (!err) return false;
+    const str = typeof err === 'string' ? err.toLowerCase() : JSON.stringify(err).toLowerCase();
+
+    // Срабатываем строго при исчерпании токенов/квоты или достижении TPD лимита
+    return str.includes('rate_limit_exceeded') ||
+           str.includes('tokens per day') ||
+           str.includes('insufficient_quota') ||
+           (str.includes('limit') && str.includes('day'));
+};
+
+window.showLimitCard = function() {
+    const chatContainer = document.getElementById('chat-messages');
+    const inputContainer = document.getElementById('input-container');
+    const textInputRow = document.getElementById('text-input-row');
+
+    // Прячем строки ввода, чтобы нельзя было дальше писать
+    if (inputContainer) inputContainer.style.display = 'none';
+    if (textInputRow) textInputRow.style.display = 'none';
+
+    // Отрисовываем премиальную карточку ошибки
+    chatContainer.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 15px;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; background: linear-gradient(135deg, rgba(30, 20, 20, 0.95) 0%, rgba(18, 8, 8, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 59, 48, 0.4); box-shadow: 0 10px 40px rgba(255, 59, 48, 0.15); padding: 30px 20px; text-align: center; width: 100%; box-sizing: border-box;">
+                
+                <div style="font-size: 54px; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255,59,48,0.5));">🔋</div>
+                
+                <div style="font-size: 20px; font-weight: bold; color: #ff453a; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
+                    Токены исчерпаны
+                </div>
+                
+                <div style="font-size: 14px; color: rgba(255, 255, 255, 0.7); line-height: 1.5; margin-bottom: 25px; padding: 0 10px;">
+                    Твой лимит запросов к нейросети закончился.<br>Пожалуйста, пополни баланс или дождись обновления квоты, чтобы продолжить тренировки.
+                </div>
+                
+                <button onclick="exitToMainMenu()" class="btn-glass" style="background: rgba(255, 59, 48, 0.15); color: #ff453a; border: 1px solid rgba(255, 59, 48, 0.3); width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                    🏠 Вернуться в меню
+                </button>
+            </div>
+        </div>
+    `;
+};
+
+// ==========================================
+// 🔥 АНИМАЦИЯ ПРОГРЕСС-БАРА НА ГЛАВНОМ ЭКРАНЕ
+// ==========================================
+function animateMainProgress(type) {
+    // type принимает значения 'words' или 'phrases'
+
+    // 1. Находим контейнеры баров на главном экране (подставь свои реальные ID)
+    const wordsBarContainer = document.getElementById('progress-container-words');
+    const phrasesBarContainer = document.getElementById('progress-container-phrases');
+    const activeBar = document.getElementById(`progress-bar-${type}`);
+
+    // 2. Скрываем оба, чтобы вывести только один целевой
+    if (wordsBarContainer) wordsBarContainer.style.display = 'none';
+    if (phrasesBarContainer) phrasesBarContainer.style.display = 'none';
+
+    const activeContainer = type === 'words' ? wordsBarContainer : phrasesBarContainer;
+
+    if (!activeContainer || !activeBar) return;
+
+    // 3. Делаем нужный контейнер видимым
+    activeContainer.style.display = 'block';
+
+    // 4. Считаем процент заполнения (берем из профиля, цель по умолчанию - 10)
+    const currentScore = type === 'words'
+        ? (window.userProfile?.words_today || 0)
+        : (window.userProfile?.phrases_today || 0);
+    const goal = window.userProfile?.daily_goal || 10;
+    const percent = Math.min((currentScore / goal) * 100, 100);
+
+    // 5. Запускаем плавную CSS-анимацию
+    requestAnimationFrame(() => {
+        activeBar.style.transition = 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        activeBar.style.width = `${percent}%`;
+    });
+
+    // 6. Обновляем текстовые счетчики (переиспользуем твою функцию)
+    if (typeof initProgressBars === 'function') {
+        setTimeout(initProgressBars, 100);
+    }
 }

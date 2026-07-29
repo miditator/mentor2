@@ -8,7 +8,7 @@ def get_app_menu():
     markup = types.InlineKeyboardMarkup(row_width=1)
 
     # Твоя ссылка на приложение
-    web_app_url = f"https://miditator.github.io/mentor2/?v=21"
+    web_app_url = f"https://mentorapp.duckdns.org/"
 
     app_button = types.InlineKeyboardButton(
         text="🚀 Открыть приложение",

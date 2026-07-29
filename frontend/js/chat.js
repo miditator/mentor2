@@ -52,13 +52,20 @@ function showLiveChatMode() {
 }
 
 // 🔥 Кастомная отрисовка пузырей в стиле Telegram
+// 🔥 Кастомная отрисовка пузырей в приглушенном стиле матового стекла
 function addTelegramStyleMessage(text, isUser = false) {
+
+    // 🔥 ПЕРЕХВАТЧИК ЛИМИТОВ В ЧАТЕ
+    if (!isUser && window.isRateLimitError(text)) {
+        return window.showLimitCard();
+    }
+    
     const chatMessages = document.getElementById('chat-messages');
     const outputArea = document.getElementById('output-area');
     const msgDiv = document.createElement('div');
 
     // Базовые стили (шрифт, отступы, максимальная ширина)
-    msgDiv.style.padding = '10px 14px';
+    msgDiv.style.padding = '12px 16px';
     msgDiv.style.marginBottom = '8px';
     msgDiv.style.fontSize = '15px';
     msgDiv.style.lineHeight = '1.4';
@@ -67,18 +74,25 @@ function addTelegramStyleMessage(text, isUser = false) {
     msgDiv.style.position = 'relative';
 
     if (isUser) {
-        // Стиль пользователя (справа, цвет основной кнопки, хвостик справа внизу)
-        msgDiv.style.backgroundColor = 'var(--button-color)';
-        msgDiv.style.color = '#ffffff';
+        // Стиль пользователя (справа, приглушенный стеклянный полупрозрачный фон с тонким контуром)
+        msgDiv.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%)';
+        msgDiv.style.backdropFilter = 'blur(16px)';
+        msgDiv.style.webkitBackdropFilter = 'blur(16px)';
+        msgDiv.style.color = 'var(--text-color)';
         msgDiv.style.alignSelf = 'flex-end';
-        msgDiv.style.borderRadius = '16px 16px 4px 16px';
+        msgDiv.style.border = '1px solid rgba(255, 255, 255, 0.06)';
+        msgDiv.style.borderRadius = '18px 18px 4px 18px';
+        msgDiv.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.25), inset 1px 1px 0 rgba(255, 255, 255, 0.1)';
     } else {
-        // Стиль ИИ (слева, вторичный фон, хвостик слева внизу)
-        msgDiv.style.backgroundColor = 'var(--secondary-bg-color)';
+        // Стиль ИИ (слева, вторичный темный фон, хвостик слева внизу)
+        msgDiv.style.background = 'linear-gradient(135deg, rgba(30, 44, 64, 0.55) 0%, rgba(10, 15, 24, 0.75) 100%)';
+        msgDiv.style.backdropFilter = 'blur(16px)';
+        msgDiv.style.webkitBackdropFilter = 'blur(16px)';
         msgDiv.style.color = 'var(--text-color)';
         msgDiv.style.alignSelf = 'flex-start';
-        msgDiv.style.border = '1px solid rgba(112, 132, 153, 0.15)';
-        msgDiv.style.borderRadius = '16px 16px 16px 4px';
+        msgDiv.style.border = '1px solid rgba(255, 255, 255, 0.025)';
+        msgDiv.style.borderRadius = '18px 18px 18px 4px';
+        msgDiv.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.25), inset 1px 1px 0 rgba(255, 255, 255, 0.08)';
     }
 
     msgDiv.innerHTML = text;
@@ -110,6 +124,9 @@ function handleLiveChatInput(text) {
         // 🔥 Отправляем на бэкенд всю историю
         body: JSON.stringify({ chat_id: user.id, history: liveChatHistory })
     }).then(data => {
+             if (!data.success && window.isRateLimitError(data.error)) {
+                return window.showLimitCard();
+            }
         const loadingEl = document.getElementById(loadingId);
         if (loadingEl) loadingEl.remove();
 

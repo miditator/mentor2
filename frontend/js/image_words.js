@@ -5,8 +5,15 @@
 let pendingImageWords = []; // Массив слов, которые вернет ИИ
 
 function showImageCard(htmlContent) {
+    // 🔥 ПЕРЕХВАТЧИК ЛИМИТОВ (исправлен синтаксис комментария и добавлена проверка)
+    if (window.isRateLimitError(htmlContent)) {
+        return window.showLimitCard();
+    }
+
     const chatContainer = document.getElementById('chat-messages');
-    chatContainer.innerHTML = `<div class="image-card-container">${htmlContent}</div>`;
+    if (chatContainer) {
+        chatContainer.innerHTML = `<div class="image-card-container">${htmlContent}</div>`;
+    }
 }
 
 // 1. Имитируем клик по скрытому инпуту загрузки файла
@@ -82,6 +89,11 @@ function sendImageToAi(base64Image) {
         body: JSON.stringify({ chat_id: user.id, image: base64Image })
     })
     .then(data => {
+
+        // 🔥 ПЕРЕХВАТЧИК ЛИМИТОВ ТОКЕНОВ
+        if (window.isRateLimitError(data) || window.isRateLimitError(data.error)) {
+            return window.showLimitCard();
+        }
         // Защита: если юзер уже вышел в меню, прерываем отрисовку
         if (window.currentAppMode !== 'image_words') {
             console.log("Анализ фото завершен в фоне, отрисовка отменена.");

@@ -1,0 +1,313 @@
+/* ==========================================
+   МАТОВОЕ СТЕКЛО С АКЦЕНТОМ СЛЕВА СВЕРХУ И ПРИГЛУШЕННЫМ НИЗОМ
+   ========================================== */
+
+/* 1. Большие карточки (экран онбординга) */
+.card {
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.001) 100%),
+        linear-gradient(135deg, rgba(22, 33, 50, 0.8) 0%, rgba(8, 12, 18, 0.9) 100%);
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    border: 1px solid rgba(255, 255, 255, 0.025);
+    border-radius: 24px;
+
+    /* Блик сверху-слева (inset 1px 1px) + приглушенная тень и затемнение справа-снизу (inset -1px -1px) */
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.12),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.3);
+
+    padding: 24px;
+    color: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+}
+
+/* ==========================================
+   КАРТОЧКИ МЕНЮ (Из референса)
+   ========================================== */
+.menu-card {
+    background: linear-gradient(135deg, rgba(40, 55, 80, 0.4) 0%, rgba(12, 18, 28, 0.5) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    box-shadow:
+        0 10px 25px rgba(0, 0, 0, 0.25),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 250%;
+    height: 100%;
+    background: linear-gradient(125deg, transparent 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+    pointer-events: none;
+}
+
+.menu-card:active {
+    transform: scale(0.96);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Иконка внутри карточки */
+.menu-card .convex-icon {
+    width: 54px;
+    height: 54px;
+    /* Убедимся, что стили convex-icon применяются правильно, если они не заданы глобально */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e6d3c3; /* Цвет иконок из референса */
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.2),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Текст внутри карточки */
+.menu-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-color); /* Используем переменную из твоей темы */
+}
+
+/* ==========================================
+   КОНТЕЙНЕРЫ ИЗОБРАЖЕНИЙ И СКЕЛЕТОН
+   ========================================== */
+.image-card-container {
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.001) 100%),
+        linear-gradient(135deg, rgba(22, 33, 50, 0.75) 0%, rgba(8, 12, 18, 0.85) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.025);
+    border-radius: 20px;
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.4),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.1),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.25);
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 250px;
+}
+
+/* ==========================================
+   ЧЕКБОКСЫ ВНУТРИ КАРТОЧЕК
+   ========================================== */
+.word-checkbox-label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 12px 15px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.06), inset -1px -1px 0 rgba(0, 0, 0, 0.15);
+    transition: background 0.2s, transform 0.1s;
+    box-sizing: border-box;
+}
+
+.word-checkbox-label:active {
+    background: rgba(255, 255, 255, 0.04);
+    transform: scale(0.98);
+}
+
+/* ==========================================
+   СЛОВАРЬ: КАРТОЧКИ СЛОВ И БЕЙДЖИ ПРОЦЕНТОВ
+   ========================================== */
+/* ==========================================
+   СЛОВАРЬ: КАРТОЧКИ СЛОВ И БЕЙДЖИ ПРОЦЕНТОВ (Оптимизировано для 60 FPS)
+   ========================================== */
+.dict-word-card {
+    /* УБРАН тяжелый backdrop-filter! Заменен на плотный матовый градиент */
+    background: linear-gradient(135deg, rgba(35, 48, 65, 0.9) 0%, rgba(10, 15, 22, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    /* Упрощенная тень для легкого рендеринга */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    transition: transform 0.1s ease;
+    margin-bottom: 10px;
+
+    /* Принудительное аппаратное ускорение для плавной прокрутки */
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+.dict-word-card:active {
+    transform: scale(0.97);
+}
+
+.dict-word-card.edit-mode {
+    border: 1px dashed rgba(255, 159, 10, 0.4);
+}
+
+/* Стеклянная плашка процентов */
+.dict-percent-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 8px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* 0% - Бесцветное, полностью прозрачное стекло */
+.percent-0 {
+    color: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* 1-39% - Легкий зеленоватый оттенок */
+.percent-low {
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    background: rgba(16, 185, 129, 0.08);
+}
+
+/* 40-79% - Уверенный зеленый */
+.percent-mid {
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    background: rgba(16, 185, 129, 0.15);
+}
+
+/* 80-100% - Яркий заполненный зеленый */
+.percent-high {
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.5);
+    background: rgba(16, 185, 129, 0.25);
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================
+   ПОЛЯ ВВОДА (INPUTS) В СТИЛЕ СТЕКЛА
+   ========================================== */
+.glass-input {
+    width: 100%;
+    height: 46px;
+    padding: 0 16px;
+    margin: 0;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.15);
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    transition: border-color 0.2s, background 0.2s;
+    font-family: inherit;
+}
+
+.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.glass-input:focus {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* ==========================================
+   БЛОКИ ПЕРЕВОДЧИКА И ЧАТА С ИИ
+   ========================================== */
+.feature-card {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 16px 16px 16px;
+
+    /* 🔥 ФОН В СТИЛЕ СЛОВАРЯ */
+    background: linear-gradient(135deg, rgba(35, 48, 65, 0.9) 0%, rgba(10, 15, 22, 0.98) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.05) !important;
+
+    /* Отключаем тяжелое размытие для идеальной плавности */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.feature-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.feature-header .muted-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feature-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.feature-btn {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    margin: 0;
+    border-radius: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -126,8 +126,9 @@ function handleAddWordInput(text) {
                     ${examplesHtml}
                     
                     <div style="display: flex; gap: 10px; width: 100%;">
-                        <button onclick="confirmAddWord()" style="flex: 1; padding: 14px; background: #34c759; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s;">✅ Сохранить</button>
-                        <button onclick="rejectAddWord()" style="flex: 1; padding: 14px; background: rgba(112, 132, 153, 0.1); border: 1px solid rgba(112, 132, 153, 0.2); border-radius: 12px; color: var(--text-color); font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s;">${rejectBtnText}</button>
+                        <button onclick="confirmAddWord()" style="flex: 1; height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(30, 120, 50, 0.3) 100%); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: 14px; color: #34c759; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-sizing: border-box;">✅ Сохранить</button>
+                        
+                        <button onclick="rejectAddWord()" style="flex: 1; height: 46px; padding: 0 16px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; color: var(--text-color); font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-sizing: border-box;">${rejectBtnText}</button>
                     </div>
                 </div>
             `);

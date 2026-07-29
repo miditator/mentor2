@@ -1,110 +1,192 @@
 import time
+import random
+import threading
+import json
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+
 import config
 import database
 import aiPrompts
 from loader import bot
 import keyboard
-import json
 from ai_service import ask_ai
 
 GENERATION_LOCKS = {}
 TIMER_STATES = {}
+LAST_TASK_TIME = {}  # 🔥 Новый словарь для отслеживания времени
+WEB_APP_URL = "https://mentorapp.duckdns.org/"
 
 
 def start_or_resume_timer(chat_id):
     """Включает или возобновляет таймер для пользователя"""
-    import threading
     if TIMER_STATES.get(chat_id) == "active":
         return
     if TIMER_STATES.get(chat_id) == "paused":
         TIMER_STATES[chat_id] = "active"
+        LAST_TASK_TIME[chat_id] = time.time()  # Сбрасываем время при снятии с паузы
         print(f"⏰ Таймер для {chat_id} ВОЗОБНОВЛЕН.")
         return
+
     TIMER_STATES[chat_id] = "active"
+    LAST_TASK_TIME[chat_id] = time.time()  # Начинаем отсчет
     print(f"⏰ Фоновый таймер для {chat_id} ЗАПУЩЕН.")
     threading.Thread(target=send_question_timer_loop, args=(chat_id,), daemon=True).start()
 
 
 def pause_timer(chat_id):
-    """Ставит таймер на паузу"""
+    """Ставит таймер на паузу (например, на время тренировки слов)"""
     TIMER_STATES[chat_id] = "paused"
     print(f"⏸ Таймер для {chat_id} ПОСТАВЛЕН НА ПАУЗУ.")
 
 
 def send_question_timer_loop(chat_id):
-    time.sleep(config.TASK_INTERVAL)
+    """Умный цикл, который проверяет время каждые 5 секунд"""
     while True:
         current_state = TIMER_STATES.get(chat_id, "stopped")
         if current_state == "stopped":
             break
+
         if current_state == "paused":
             time.sleep(5)
             continue
-        if database.get_active_task(chat_id) is not None:
+
+        now = time.time()
+        last_time = LAST_TASK_TIME.get(chat_id, now)
+
+        # Если прошло меньше 2 часов (TASK_INTERVAL), просто спим дальше
+        if now - last_time < config.TASK_INTERVAL:
+            time.sleep(5)
+            continue
+
+        # Если 2 часа прошло, проверяем, не генерирует ли бот задание вручную прямо сейчас
+        if not GENERATION_LOCKS.get(chat_id):
+            GENERATION_LOCKS[chat_id] = True
             try:
-                bot.send_message(chat_id, "⏰ <b>Не забудь решить текущее задание!</b> Ментор ждет твой перевод.",
-                                 parse_mode="HTML")
-            except Exception:
-                pass
+                # 🔥 Жесткая проверка: если в базе ДЕЙСТВИТЕЛЬНО есть активное задание
+                current_active = database.get_active_task(chat_id)
+                if current_active is not None:
+                    try:
+                        bot.send_message(chat_id,
+                                         "⏰ <b>Не забудь решить текущее задание!</b> Ментор ждет твой перевод.",
+                                         parse_mode="HTML")
+                    except Exception:
+                        pass
+                else:
+                    # Если задания нет (решил в приложении), просто генерируем новое или ждем
+                    send_text_task(chat_id)
+            finally:
+                GENERATION_LOCKS[chat_id] = False
+                LAST_TASK_TIME[chat_id] = time.time()
         else:
-            send_text_task(chat_id)
-        time.sleep(config.TASK_INTERVAL)
+            time.sleep(5)  # Если юзер жмет кнопки, отступаем и ждем
+
+
+def get_task_markup():
+    """Специальная клавиатура для грамматического задания (только кнопка в приложение)"""
+    markup = InlineKeyboardMarkup()
+
+    # 🔥 Добавляем параметр ?page=task к ссылке и убираем лишние кнопки
+    deep_link_url = WEB_APP_URL + "?page=task"
+    btn_app = InlineKeyboardButton(text="🚀 Открыть в приложении", web_app=WebAppInfo(url=deep_link_url))
+    markup.row(btn_app)
+    return markup
 
 
 def send_text_task(chat_id):
+    """Главная функция-маршрутизатор: выбирает между викториной и фразой (50% / 50%)"""
+
+    # 🔥 КРИТИЧЕСКИ ВАЖНО: Если юзер запросил задание вручную, сбрасываем время таймера!
+    LAST_TASK_TIME[chat_id] = time.time()
+
+    # Шансы: 50% (фраза), 50% (викторина слова). Фан-факт полностью убран.
+    task_type = random.choices(['grammar', 'quiz'], weights=[50, 50], k=1)[0]
+
+    if task_type == 'quiz':
+        success = send_quiz_task(chat_id)
+        if success:
+            return
+        task_type = 'grammar'  # Фолбэк, если в словаре мало слов
+
+    # Если выпала 'grammar' или сработал фолбэк
+    send_grammar_task(chat_id)
+
+
+def send_quiz_task(chat_id):
+    """Задание Б: Викторина на перевод слова из словаря (без лишних кнопок)"""
+    user_config = database.get_user_config(chat_id)
+    target_lang = user_config.get("source_lang", "en") if user_config else "en"
+    lang_label = "Английского" if target_lang == "en" else "Немецкого"
+
+    words = database.get_full_dictionary(chat_id, specific_lang=target_lang)
+    if len(words) < 3:
+        return False  # Недостаточно слов для вариантов ответа
+
+    chosen_words = random.sample(words, 3)
+    target_word = chosen_words[0]
+    options = [w[1] for w in chosen_words]
+    random.shuffle(options)
+
+    # 🔥 Оставляем исключительно инлайн-кнопки с вариантами ответа
+    markup = InlineKeyboardMarkup(row_width=1)
+    for opt in options:
+        cb_data = "quiz_T" if opt == target_word[1] else "quiz_F"
+        markup.add(InlineKeyboardButton(text=opt.capitalize(), callback_data=cb_data))
+
+    bot.send_message(
+        chat_id,
+        f"🧠 <b>Викторина из словаря!</b>\nКак переводится слово <b>{target_word[0]}</b> с {lang_label.lower()}?",
+        reply_markup=markup,
+        parse_mode="HTML"
+    )
+    return True
+
+
+def send_grammar_task(chat_id):
+    """Задание А: Классическая грамматическая фраза (только кнопка открытия в приложении)"""
     user_config = database.get_user_config(chat_id)
     target_lang = user_config.get("source_lang", "en")
+    lang_name = "английский" if target_lang == "en" else "немецкий"
 
-    # 1. Извлекаем сырую сложность из БД (цифру, например "3")
-    diff_from_db = user_config.get("difficulty", "2")  # По умолчанию "2" (это A2)
-
-    # 2. Конвертируем цифру из БД в чистый буквенный маркер для ИИ (например, "B1")
-    try:
-        diff_key = int(diff_from_db)
-        full_diff_text = keyboard.DIFFICULTY.get(diff_key, "A2 (Элементарный)")
-        difficulty_for_ai = full_diff_text.split(" ")[0]  # Получим строго "B1"
-    except ValueError:
-        difficulty_for_ai = str(diff_from_db).split(" ")[0]
-
-    # 3. Получаем красивое название уровня сложности для вывода пользователю в чате
+    diff_from_db = user_config.get("difficulty", "2")
     try:
         diff_key = int(diff_from_db)
         pretty_diff = keyboard.DIFFICULTY.get(diff_key, f"Уровень {diff_from_db}")
     except ValueError:
         pretty_diff = diff_from_db
 
-    # Сбор материалов для генерации задания
-    words_to_blend = database.get_words_for_grammar_context(chat_id, limit=2)
+    words = database.get_words_for_grammar_context(chat_id, limit=1)
     history = database.get_today_phrases_list(chat_id)
 
+    if not words:
+        return
+
+    target_word_ru = words[0]['ru']
+    target_word_foreign = words[0]['foreign']
+
     try:
-        # 🔥 Передаем ИИ строго буквенный маркер сложности (A1, A2, B1...), а не сырую цифру!
-        prompt = aiPrompts.generate_pure_vocabulary_task_prompt(target_lang, difficulty_for_ai, words_to_blend, history)
-
-        # 🔥 Заменили на универсальный ask_ai
+        prompt = aiPrompts.generate_pure_vocabulary_task_prompt_ver2(
+            lang_name=lang_name,
+            target_word=target_word_ru,
+            difficulty=pretty_diff,
+            history=history,
+            rule="General Grammar"
+        )
         raw_text = ask_ai(prompt, temperature=0.4)
+        ru_phrase = raw_text.replace('"', '').replace('`', '').strip()
 
-        raw_json = raw_text.replace("```json", "").replace("```", "").strip()
-        task_json = json.loads(raw_json)
+        database.save_active_task(chat_id, ru_phrase, "General Grammar")
+        database.add_to_history(chat_id, ru_phrase)
 
-        database.save_active_task(chat_id, task_json["phrase"], task_json["rule_hint"])
-        database.add_to_history(chat_id, task_json["phrase"])
-
-        words_line = ", ".join([f"<b>{w['foreign']}</b>" for w in words_to_blend])
-        lang_label = "АНГЛИЙСКИЙ 🇬🇧" if target_lang == "en" else "НЕМЕЦКИЙ 🇩🇪"
-
-        # 🔥 Отправляем задание пользователю с отображением красивого pretty_diff вместо цифры!
         bot.send_message(
             chat_id,
             f"🤖 <b>Новое задание на основе твоего словаря!</b>\n"
             f"🎯 Уровень сложности: <code>{pretty_diff}</code>\n"
-            f"💡 Используем слова: {words_line}\n\n"
-            f"👉 <code>{task_json['phrase']}</code>\n\n"
-            f"<b>Переведи это предложение на {lang_label} язык 👇</b>",
-            reply_markup=keyboard.get_main_menu(),
+            f"💡 Используем слово: <b>{target_word_foreign}</b>\n\n"
+            f"👉 <code>{ru_phrase}</code>\n\n"
+            f"<b>Переведи это предложение на {lang_name} язык 👇</b>",
+            reply_markup=get_task_markup(),
             parse_mode="HTML"
         )
 
     except Exception as e:
         print(f"🔴 Ошибка генерации контекстного таска: {e}")
-        bot.send_message(chat_id, "⚠️ Ментор задумался. Нажми «🎯 Новое задание» еще раз.")

@@ -1,9 +1,15 @@
-# api_main.py
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.profile import router as profile_router # Импортируем наш роутер
+import database
+
 
 app = FastAPI(title="ИИ-Ментор API")
+
+database.init_db()
+
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,6 +22,3 @@ app.add_middleware(
 # 🚀 ПОДКЛЮЧАЕМ НАШИ РОУТЕРЫ
 app.include_router(profile_router)
 
-# Когда добавим задания, это будет выглядеть так же просто:
-# from api.tasks import router as tasks_router
-# app.include_router(tasks_router)
