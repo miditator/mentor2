@@ -277,23 +277,20 @@ def start_chat_onboarding_callback(call):
 # ==========================================
 @bot.callback_query_handler(func=lambda call: call.data.startswith("quiz_"))
 def handle_quiz_timer_answer(call):
-    import utils  # Для доступа к функции генерации кнопки Mini App
+    chat_id = call.message.chat.id
+    message_id = call.message.message_id
 
     if call.data == "quiz_T":
-        # Если юзер нажал правильный вариант — выводим зеленый Alert
-        bot.answer_callback_query(call.id, "✅ Правильно! Отличная работа!", show_alert=True)
+        # Уведомляем пользователя всплывающим уведомлением
+        bot.answer_callback_query(call.id, "✅ Правильно!")
 
+        # Просто удаляем сообщение с викториной и больше ничего не делаем
         try:
-            # Убираем кнопки-варианты, оставляя только ссылку на Mini App
-            bot.edit_message_reply_markup(
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-                reply_markup=utils.get_app_button_markup()
-            )
-        except Exception:
-            pass
+            bot.delete_message(chat_id, message_id)
+        except Exception as e:
+            print(f"Не удалось удалить сообщение викторины: {e}")
     else:
-        # Выводим красный Alert при ошибке
+        # При неверном ответе показываем подсказку
         bot.answer_callback_query(call.id, "❌ Неверно! Попробуй вспомнить еще раз.", show_alert=True)
 
 

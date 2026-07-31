@@ -58,10 +58,12 @@ function showFullDictionary() {
                         Всего слов: <span id="dict-count">${dictionaryWords.length}</span>
                     </div>
                     
-                    <!-- ПОИСК -->
-               <!-- ПОИСК -->
+          <!-- ПОИСК В СТИЛЕ КАРТОЧЕК ГЛАВНОГО ЭКРАНА -->
                     <div style="position: sticky; top: 0; padding: 5px 0 15px 0; z-index: 10; margin-top: -10px;">
-                        <input type="text" id="dict-search" class="glass-input" oninput="filterDictionary(this.value)" placeholder="🔍 Поиск по слову или переводу...">
+                        
+                            <div class="feature-input-row">
+<input type="text" id="dict-search" class="glass-input" style="background: rgba(15, 20, 35, 0.8);" oninput="filterDictionary(this.value)" placeholder="🔍 Поиск по слову или переводу...">                            </div>
+                       
                     </div>
                     
                     <div id="dict-list-wrapper"></div>

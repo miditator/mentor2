@@ -42,43 +42,38 @@ def pause_timer(chat_id):
 def send_question_timer_loop(chat_id):
     """Умный цикл, который проверяет время каждые 5 секунд"""
     while True:
-        current_state = TIMER_STATES.get(chat_id, "stopped")
-        if current_state == "stopped":
-            break
+        try:
+            current_state = TIMER_STATES.get(chat_id, "stopped")
+            if current_state == "stopped":
+                break
 
-        if current_state == "paused":
-            time.sleep(5)
-            continue
+            if current_state == "paused":
+                time.sleep(5)
+                continue
 
-        now = time.time()
-        last_time = LAST_TASK_TIME.get(chat_id, now)
+            now = time.time()
+            last_time = LAST_TASK_TIME.get(chat_id, now)
 
-        # Если прошло меньше 2 часов (TASK_INTERVAL), просто спим дальше
-        if now - last_time < config.TASK_INTERVAL:
-            time.sleep(5)
-            continue
+            # Если прошло меньше интервала, спим дальше
+            if now - last_time < config.TASK_INTERVAL:
+                time.sleep(5)
+                continue
 
-        # Если 2 часа прошло, проверяем, не генерирует ли бот задание вручную прямо сейчас
-        if not GENERATION_LOCKS.get(chat_id):
-            GENERATION_LOCKS[chat_id] = True
-            try:
-                # 🔥 Жесткая проверка: если в базе ДЕЙСТВИТЕЛЬНО есть активное задание
-                current_active = database.get_active_task(chat_id)
-                if current_active is not None:
-                    try:
-                        bot.send_message(chat_id,
-                                         "⏰ <b>Не забудь решить текущее задание!</b> Ментор ждет твой перевод.",
-                                         parse_mode="HTML")
-                    except Exception:
-                        pass
-                else:
-                    # Если задания нет (решил в приложении), просто генерируем новое или ждем
+            # Отправляем викторину слов
+            if not GENERATION_LOCKS.get(chat_id):
+                GENERATION_LOCKS[chat_id] = True
+                try:
                     send_text_task(chat_id)
-            finally:
-                GENERATION_LOCKS[chat_id] = False
-                LAST_TASK_TIME[chat_id] = time.time()
-        else:
-            time.sleep(5)  # Если юзер жмет кнопки, отступаем и ждем
+                except Exception as e:
+                    print(f"🔴 Ошибка в цикле таймера для {chat_id}: {e}")
+                finally:
+                    GENERATION_LOCKS[chat_id] = False
+                    LAST_TASK_TIME[chat_id] = time.time()
+            else:
+                time.sleep(5)
+        except Exception as err:
+            print(f"🔴 Критическая ошибка в потоке таймера: {err}")
+            time.sleep(5)
 
 
 def get_task_markup():
@@ -93,22 +88,20 @@ def get_task_markup():
 
 
 def send_text_task(chat_id):
-    """Главная функция-маршрутизатор: выбирает между викториной и фразой (50% / 50%)"""
-
-    # 🔥 КРИТИЧЕСКИ ВАЖНО: Если юзер запросил задание вручную, сбрасываем время таймера!
+    """Оставляет только викторину слов из словаря"""
     LAST_TASK_TIME[chat_id] = time.time()
 
-    # Шансы: 50% (фраза), 50% (викторина слова). Фан-факт полностью убран.
-    task_type = random.choices(['grammar', 'quiz'], weights=[50, 50], k=1)[0]
-
-    if task_type == 'quiz':
-        success = send_quiz_task(chat_id)
-        if success:
-            return
-        task_type = 'grammar'  # Фолбэк, если в словаре мало слов
-
-    # Если выпала 'grammar' или сработал фолбэк
-    send_grammar_task(chat_id)
+    success = send_quiz_task(chat_id)
+    if not success:
+        # Если в словаре недостаточно слов для викторины, можно мягко подсказать пользователю
+        try:
+            bot.send_message(
+                chat_id,
+                "⚠️ В твоем словаре пока недостаточно слов для викторины (нужно минимум 3). Добавь новые слова через приложение! 📚",
+                parse_mode="HTML"
+            )
+        except Exception:
+            pass
 
 
 def send_quiz_task(chat_id):
@@ -118,23 +111,41 @@ def send_quiz_task(chat_id):
     lang_label = "Английского" if target_lang == "en" else "Немецкого"
 
     words = database.get_full_dictionary(chat_id, specific_lang=target_lang)
-    if len(words) < 3:
+    if not words or len(words) < 3:
         return False  # Недостаточно слов для вариантов ответа
 
-    chosen_words = random.sample(words, 3)
+    chosen_words = random.sample(words, min(3, len(words)))
     target_word = chosen_words[0]
-    options = [w[1] for w in chosen_words]
+
+    # Безопасно извлекаем иностранное слово и перевод (поддерживает и словари, и списки)
+    def get_word_prop(w, key, index):
+        if isinstance(w, dict):
+            return w.get(key) or w.get(f"word_{key}")
+        try:
+            return w[index]
+        except (KeyError, TypeError, IndexError):
+            return None
+
+    target_foreign = get_word_prop(target_word, 'foreign', 0)
+    target_ru = get_word_prop(target_word, 'ru', 1)
+
+    options = [get_word_prop(w, 'ru', 1) for w in chosen_words]
+    options = [opt for opt in options if opt]
+
+    if len(options) < 3 or not target_foreign or not target_ru:
+        return False
+
     random.shuffle(options)
 
-    # 🔥 Оставляем исключительно инлайн-кнопки с вариантами ответа
+    # Инлайн-кнопки с вариантами ответа
     markup = InlineKeyboardMarkup(row_width=1)
     for opt in options:
-        cb_data = "quiz_T" if opt == target_word[1] else "quiz_F"
-        markup.add(InlineKeyboardButton(text=opt.capitalize(), callback_data=cb_data))
+        cb_data = "quiz_T" if opt == target_ru else "quiz_F"
+        markup.add(InlineKeyboardButton(text=str(opt).capitalize(), callback_data=cb_data))
 
     bot.send_message(
         chat_id,
-        f"🧠 <b>Викторина из словаря!</b>\nКак переводится слово <b>{target_word[0]}</b> с {lang_label.lower()}?",
+        f"🧠 <b>Викторина из словаря!</b>\nКак переводится слово <b>{target_foreign}</b> с {lang_label.lower()}?",
         reply_markup=markup,
         parse_mode="HTML"
     )

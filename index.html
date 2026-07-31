@@ -53,24 +53,24 @@
         Подготавливаем твою тренировку
     </div>
 </div>
-    <!-- ЭКРАН ОНБОРДИНГА -->
+<!-- ЭКРАН ОНБОРДИНГА -->
     <div id="screen-onboarding" class="screen">
-        <div class="card">
-            <span style="font-size: 44px;">🎓</span>
-            <h1 id="onboard-title">Выберите язык</h1>
-            <p id="onboard-subtitle">Шаг 1 из 2: Какой язык будем изучать?</p>
+        <div class="card glass-box" style="padding: 30px 20px; box-sizing: border-box; max-width: 360px; margin: auto;">
+            <span style="font-size: 44px; display: block; text-align: center; margin-bottom: 10px;">🎓</span>
+            <h1 id="onboard-title" style="text-align: center;">Выберите язык</h1>
+            <p id="onboard-subtitle" style="text-align: center; margin-bottom: 25px;">Шаг 1 из 2: Какой язык будем изучать?</p>
 
-            <div id="step-language" class="selector-group">
-                <button class="option-btn" onclick="selectLanguage('en')"><span>🇬🇧 Английский</span></button>
-                <button class="option-btn" onclick="selectLanguage('de')"><span>🇩🇪 Немецкий</span></button>
+            <div id="step-language" class="selector-group" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 0;">
+                <button class="btn-glass" onclick="selectLanguage('en')"><span>🇬🇧 Английский</span></button>
+                <button class="btn-glass" onclick="selectLanguage('de')"><span>🇩🇪 Немецкий</span></button>
             </div>
 
-            <div id="step-difficulty" class="selector-group" style="display: none;">
-                <button class="option-btn" onclick="selectDifficulty('A1')"><span>🟢 Начальный (A1)</span></button>
-                <button class="option-btn" onclick="selectDifficulty('A2')"><span>🟢 Элементарный (A2)</span></button>
-                <button class="option-btn" onclick="selectDifficulty('B1')"><span>🟡 Средний (B1)</span></button>
-                <button class="option-btn" onclick="selectDifficulty('B2')"><span>🟡 Выше среднего (B2)</span></button>
-                <button class="option-btn" onclick="selectDifficulty('C1')"><span>🔴 Продвинутый (C1)</span></button>
+            <div id="step-difficulty" class="selector-group" style="display: none; flex-direction: column; gap: 12px; margin-bottom: 0;">
+                <button class="btn-glass" onclick="selectDifficulty('A1')"><span>🟢 Начальный (A1)</span></button>
+                <button class="btn-glass" onclick="selectDifficulty('A2')"><span>🟢 Элементарный (A2)</span></button>
+                <button class="btn-glass" onclick="selectDifficulty('B1')"><span>🟡 Средний (B1)</span></button>
+                <button class="btn-glass" onclick="selectDifficulty('B2')"><span>🟡 Выше среднего (B2)</span></button>
+                <button class="btn-glass" onclick="selectDifficulty('C1')"><span>🔴 Продвинутый (C1)</span></button>
             </div>
         </div>
     </div>
@@ -417,7 +417,7 @@
     <script src="frontend/js/training.js?v=5"></script>
     <script src="frontend/js/image_words.js?v=1.2"></script>
     <script src="frontend/js/grammar.js?v=7"></script>
-    <script src="frontend/js/dictionary.js?v=6"></script>
+    <script src="frontend/js/dictionary.js?v=3"></script>
     <script src="frontend/js/chat.js?v=1.0.4"></script>
     <script src="frontend/js/idioms_db.js?v=1.2"></script>
     <script src="frontend/js/progress_bars.js?v=3"></script>
