@@ -174,6 +174,7 @@ async function startVoiceInput() {
 // 🔥 Глобальная функция для смены заголовка и стрелочки "Назад"
 // 🔥 Глобальная функция для смены заголовка и стрелочки "Назад"
 function setAppHeader(title, showBackBtn = true) {
+
     const titleEl = document.getElementById('top-bar-title');
     const backBtnEl = document.getElementById('back-btn');
     const settingsBtnEl = document.getElementById('settings-btn');
@@ -247,8 +248,13 @@ function updateProfileUI(data) {
         } else {
             avatarContainer.innerHTML = '👤';
         }
-    }
 
+
+    }
+    const settingsBtn = document.getElementById('settings-btn-icon');
+        if (settingsBtn && typeof APP_ICONS !== 'undefined') {
+            settingsBtn.innerHTML = APP_ICONS.settings;
+        }
     document.getElementById('mini-profile').style.display = 'flex';
     isProfileVisible = true;
 }
@@ -346,6 +352,13 @@ apiFetch(`/profile?chat_id=${user.id}&username=${telegramName}`)
     .then(data => {
         window.currentUsername = data.username || user.first_name || "Студент";
 
+        // 🔥 Скрываем красивый экран загрузки с ментором при первом старте
+        const loadingScreen = document.getElementById('app-loading-screen');
+        if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => loadingScreen.remove(), 400);
+        }
+
         if (data.is_new_user) {
             switchScreen('screen-onboarding');
         } else {
@@ -421,31 +434,38 @@ window.isRateLimitError = function(err) {
            (str.includes('limit') && str.includes('day'));
 };
 
-window.showLimitCard = function() {
+window.showLimitCard = function(customTitle, customMessage) {
     const chatContainer = document.getElementById('chat-messages');
     const inputContainer = document.getElementById('input-container');
     const textInputRow = document.getElementById('text-input-row');
 
-    // Прячем строки ввода, чтобы нельзя было дальше писать
     if (inputContainer) inputContainer.style.display = 'none';
     if (textInputRow) textInputRow.style.display = 'none';
 
-    // Отрисовываем премиальную карточку ошибки
+    // Дефолтные значения для обычных текстовых лимитов
+    const title = customTitle || "Токены исчерпаны";
+    const currentProvider = window.userProfile?.ai_provider || 'groq';
+    const providerName = currentProvider.toLowerCase() === 'gemini' ? 'Gemini' : 'Groq';
+
+    const defaultMessage = `У вас закончились токены для провайдера <b>${providerName}</b>.<br>Перейдите в настройки, смените провайдера.<br><span style="font-size: 12px; color: rgba(255, 255, 255, 0.5); display: block; margin-top: 8px;">Для информации о вашем провайдере нажмите на иконку ментора.</span>`;
+
+    const message = customMessage || defaultMessage;
+
     chatContainer.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 15px;">
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; background: linear-gradient(135deg, rgba(30, 20, 20, 0.95) 0%, rgba(18, 8, 8, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 59, 48, 0.4); box-shadow: 0 10px 40px rgba(255, 59, 48, 0.15); padding: 30px 20px; text-align: center; width: 100%; box-sizing: border-box;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 270px; background: linear-gradient(135deg, rgba(30, 20, 20, 0.95) 0%, rgba(18, 8, 8, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 59, 48, 0.4); box-shadow: 0 10px 40px rgba(255, 59, 48, 0.15); padding: 30px 20px; text-align: center; width: 100%; box-sizing: border-box;">
                 
                 <div style="font-size: 54px; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(255,59,48,0.5));">🔋</div>
                 
                 <div style="font-size: 20px; font-weight: bold; color: #ff453a; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">
-                    Токены исчерпаны
+                    ${title}
                 </div>
                 
-                <div style="font-size: 14px; color: rgba(255, 255, 255, 0.7); line-height: 1.5; margin-bottom: 25px; padding: 0 10px;">
-                    Твой лимит запросов к нейросети закончился.<br>Пожалуйста, пополни баланс или дождись обновления квоты, чтобы продолжить тренировки.
+                <div style="font-size: 14px; color: rgba(255, 255, 255, 0.8); line-height: 1.5; margin-bottom: 20px; padding: 0 10px;">
+                    ${message}
                 </div>
-                
-                <button onclick="exitToMainMenu()" class="btn-glass" style="background: rgba(255, 59, 48, 0.15); color: #ff453a; border: 1px solid rgba(255, 59, 48, 0.3); width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+
+                <button onclick="exitToMainMenu()" class="btn-glass" style="background: rgba(255, 255, 255, 0.05); color: rgba(255,255,255,0.7); border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; padding: 12px; border-radius: 14px; font-size: 14px; cursor: pointer;">
                     🏠 Вернуться в меню
                 </button>
             </div>
@@ -492,4 +512,141 @@ function animateMainProgress(type) {
     if (typeof initProgressBars === 'function') {
         setTimeout(initProgressBars, 100);
     }
+}
+
+// ==========================================
+// 🔥 АНИМИРОВАННЫЙ БАБЛ МЫСЛЕЙ ИИ
+// ==========================================
+
+// ==========================================
+// 🔥 ГЛОБАЛЬНЫЙ ИНДИКАТОР ЗАГРУЗКИ ИИ
+// ==========================================
+
+window.showAiLoader = function(text = "ИИ думает...") {
+    let loader = document.getElementById('ai-floating-loader');
+
+    // Если элемента еще нет на странице — создаем его
+    if (!loader) {
+        // 1. Добавляем стили анимаций
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes ai-brain-pulse {
+                0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.4)); }
+                50% { transform: scale(1.15); filter: drop-shadow(0 0 15px rgba(56, 189, 248, 1)); }
+                100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.4)); }
+            }
+            @keyframes ai-signal-blink {
+                0%, 100% { opacity: 0.2; transform: scale(0.8); }
+                50% { opacity: 1; transform: scale(1.2); background: #38bdf8; box-shadow: 0 0 8px #38bdf8; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 2. Создаем сам блок
+        loader = document.createElement('div');
+        loader.id = 'ai-floating-loader';
+        loader.style.cssText = `
+            position: fixed;
+            top: 70px; /* Появляется прямо под шапкой, над карточками */
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: linear-gradient(135deg, rgba(20, 30, 45, 0.95), rgba(10, 15, 22, 0.98));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 18px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 15px rgba(56, 189, 248, 0.1);
+            z-index: 5000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        `;
+
+        // 3. Наполняем контентом (Пульсирующий мозг + бегающие точки)
+        loader.innerHTML = `
+            <div style="font-size: 26px; animation: ai-brain-pulse 1.5s infinite;">🧠</div>
+            <div style="display: flex; flex-direction: column; justify-content: center;">
+                <span id="ai-loader-text" style="color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; margin-bottom: 4px; letter-spacing: 0.3px;">${text}</span>
+                <div style="display: flex; gap: 5px;">
+                    <div style="width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%; animation: ai-signal-blink 1s infinite 0s;"></div>
+                    <div style="width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%; animation: ai-signal-blink 1s infinite 0.2s;"></div>
+                    <div style="width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%; animation: ai-signal-blink 1s infinite 0.4s;"></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(loader);
+    }
+
+    // Меняем текст (если нужно) и плавно показываем
+    document.getElementById('ai-loader-text').innerText = text;
+    loader.style.display = 'flex';
+
+    // Небольшая задержка для срабатывания CSS transition
+    setTimeout(() => {
+        loader.style.opacity = '1';
+        loader.style.transform = 'translateX(-50%) translateY(0)';
+    }, 10);
+};
+
+window.hideAiLoader = function() {
+    const loader = document.getElementById('ai-floating-loader');
+    if (loader) {
+        // Плавно скрываем
+        loader.style.opacity = '0';
+        loader.style.transform = 'translateX(-50%) translateY(-20px)';
+
+        // Убираем из DOM-потока после завершения анимации
+        setTimeout(() => loader.style.display = 'none', 300);
+    }
+};
+
+// ==========================================
+// 💡 ЛОКАЛЬНАЯ ИНФОРМАЦИЯ О ПРОВАЙДЕРЕ (БЕЗ ЗАПРОСА К ИИ)
+// ==========================================
+function showMentorInfo() {
+    // 1. Читаем текущего провайдера прямо из локального профиля
+    const currentProvider = window.userProfile?.ai_provider || 'groq';
+    const providerName = currentProvider.toLowerCase() === 'gemini' ? 'Google Gemini' : 'Groq (Claude / Llama)';
+
+    // 2. Переводим приложение в режим просмотра (скрываем лишние поля ввода)
+    window.currentAppMode = 'mentor_info';
+    if (document.getElementById('input-container')) document.getElementById('input-container').style.display = 'none';
+    if (document.getElementById('text-input-row')) document.getElementById('text-input-row').style.display = 'none';
+    if (document.getElementById('mini-profile')) document.getElementById('mini-profile').style.display = 'none';
+    if (document.getElementById('main-menu-cards')) document.getElementById('main-menu-cards').style.display = 'none';
+
+    // 3. Отрисовываем красивую информационную карточку
+    const chatContainer = document.getElementById('chat-messages');
+    if (!chatContainer) return;
+
+    chatContainer.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 15px;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 30px 20px; text-align: center; width: 100%; box-sizing: border-box;">
+                
+                <!-- Аватарка ментора -->
+                <div style="width: 76px; height: 76px; border-radius: 50%; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);">
+                    <img src="frontend/img/mentor.jpg" alt="Mentor" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                
+                <div style="font-size: 18px; font-weight: bold; color: var(--text-color); margin-bottom: 8px;">
+                    Статус ментора
+                </div>
+                
+                <div style="font-size: 14px; color: rgba(255, 255, 255, 0.8); line-height: 1.6; margin-bottom: 25px;">
+                    Сейчас у вас выбран провайдер:<br>
+                    <b style="color: #38bdf8; font-size: 16px;">${providerName}</b>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                    <button onclick="exitToMainMenu()" class="btn-glass" style="width: 100%; padding: 12px; border-radius: 14px; font-size: 14px; cursor: pointer;">
+                        🏠 Вернуться в меню
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
 }

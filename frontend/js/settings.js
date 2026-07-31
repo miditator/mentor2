@@ -27,11 +27,16 @@ function renderSettingsMenu() {
     const currentWords = window.userProfile?.words_per_day || 5;
     const currentPhrases = window.userProfile?.phrases_per_day || 10;
 
+    // 🔥 Получаем текущего ИИ-провайдера (если нет, по умолчанию groq)
+    const currentProvider = window.userProfile?.ai_provider || 'groq';
+    const isGroq = currentProvider === 'groq';
+    const isGemini = currentProvider === 'gemini';
+
     chatContainer.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px 20px; margin-top: 5px; box-sizing: border-box; width: 100%;">
             
             <div style="font-size: 36px; margin-bottom: 10px;">⚙️</div>
-            <div style="font-size: 20px; font-weight: bold; color: var(--text-color); margin-bottom: 20px;">Настройки</div>
+            <div style="font-size: 20px; color: var(--text-color); margin-bottom: 20px;">Настройки</div>
             
             <div onclick="showLanguageSelector()" 
                  style="width: 100%; background: rgba(255, 255, 255, 0.04); padding: 15px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); margin-bottom: 12px; cursor: pointer; transition: 0.2s; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center;"
@@ -42,7 +47,7 @@ function renderSettingsMenu() {
                  onmouseleave="this.style.transform='scale(1)'">
                 <div>
                     <span style="color: var(--hint-color); font-size: 12px; display: block; margin-bottom: 2px;">Изучаемый язык</span>
-                    <span style="color: var(--text-color); font-weight: 600; font-size: 15px;">${currentLang}</span>
+                    <span style="color: var(--text-color); font-size: 15px;">${currentLang}</span>
                 </div>
                 <span style="color: var(--hint-color); font-size: 16px;">🌍</span>
             </div>
@@ -56,7 +61,7 @@ function renderSettingsMenu() {
                  onmouseleave="this.style.transform='scale(1)'">
                 <div>
                     <span style="color: var(--hint-color); font-size: 12px; display: block; margin-bottom: 2px;">Текущий уровень</span>
-                    <span style="color: var(--text-color); font-weight: 600; font-size: 15px;">${currentDiff}</span>
+                    <span style="color: var(--text-color); font-size: 15px;">${currentDiff}</span>
                 </div>
                 <span style="color: var(--hint-color); font-size: 16px;">📈</span>
             </div>
@@ -70,13 +75,13 @@ function renderSettingsMenu() {
                  onmouseleave="this.style.transform='scale(1)'">
                 <div>
                     <span style="color: var(--hint-color); font-size: 12px; display: block; margin-bottom: 2px;">Цель по словам в день</span>
-                    <span style="color: var(--text-color); font-weight: 600; font-size: 15px;">${currentWords} слов</span>
+                    <span style="color: var(--text-color); font-size: 15px;">${currentWords} слов</span>
                 </div>
                 <span style="color: var(--hint-color); font-size: 16px;">📚</span>
             </div>
 
             <div onclick="showPhrasesGoalSelector()" 
-                 style="width: 100%; background: rgba(255, 255, 255, 0.04); padding: 15px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); margin-bottom: 5px; cursor: pointer; transition: 0.2s; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center;"
+                 style="width: 100%; background: rgba(255, 255, 255, 0.04); padding: 15px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); margin-bottom: 20px; cursor: pointer; transition: 0.2s; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center;"
                  onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.12)';"
                  onmouseout="this.style.background='rgba(255, 255, 255, 0.04)'; this.style.borderColor='rgba(255, 255, 255, 0.06)';"
                  onmousedown="this.style.transform='scale(0.98)'"
@@ -84,9 +89,29 @@ function renderSettingsMenu() {
                  onmouseleave="this.style.transform='scale(1)'">
                 <div>
                     <span style="color: var(--hint-color); font-size: 12px; display: block; margin-bottom: 2px;">Цель по фразам в день</span>
-                    <span style="color: var(--text-color); font-weight: 600; font-size: 15px;">${currentPhrases} фраз</span>
+                    <span style="color: var(--text-color); font-size: 15px;">${currentPhrases} фраз</span>
                 </div>
                 <span style="color: var(--hint-color); font-size: 16px;">✍️</span>
+            </div>
+
+            <!-- 🔥 НОВЫЙ БЛОК ВЫБОРА НЕЙРОСЕТИ 🔥 -->
+            <div style="width: 100%; background: rgba(255, 255, 255, 0.02); padding: 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); box-sizing: border-box; text-align: left;">
+                <div style="font-size: 15px; color: #ffffff; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">🧠</span> Выбор нейросети
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <button id="btn-ai-groq" onclick="changeAiProvider('groq')" class="btn-glass btn-glass-secondary" style="flex: 1; height: 42px; font-size: 14px; ${isGroq ? 'border: 1px solid rgba(14, 165, 233, 0.5); color: #38bdf8; background: rgba(14, 165, 233, 0.1);' : 'border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-color); background: rgba(255, 255, 255, 0.04);'}">
+                        Claude / Llama
+                    </button>
+                    <button id="btn-ai-gemini" onclick="changeAiProvider('gemini')" class="btn-glass btn-glass-secondary" style="flex: 1; height: 42px; font-size: 14px; ${isGemini ? 'border: 1px solid rgba(52, 199, 89, 0.5); color: #34c759; background: rgba(52, 199, 89, 0.1);' : 'border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-color); background: rgba(255, 255, 255, 0.04);'}">
+                        Gemini
+                    </button>
+                </div>
+
+                <div style="font-size: 12px; color: rgba(255, 255, 255, 0.4); line-height: 1.4;">
+                    * У Gemini есть жесткий лимит (~20 запросов в день). Используйте как резерв, если токены основной сети закончились.
+                </div>
             </div>
 
         </div>
@@ -185,5 +210,87 @@ function saveSetting(key, value) {
     }).catch(err => {
         chatContainer.innerHTML = `<div style="text-align:center; padding: 20px; color: #ff3b30;">⚠️ Ошибка сети.</div>`;
         setTimeout(renderSettingsMenu, 2000);
+    });
+}
+
+// ==========================================
+// 🔥 СМЕНА ИИ-ПРОВАЙДЕРА В НАСТРОЙКАХ
+// ==========================================
+function changeAiProvider(provider) {
+    const btnGroq = document.getElementById('btn-ai-groq');
+    const btnGemini = document.getElementById('btn-ai-gemini');
+
+    if (!btnGroq || !btnGemini) return;
+
+    // 1. Визуально подсвечиваем активную кнопку
+    if (provider === 'groq') {
+        btnGroq.style.border = '1px solid rgba(14, 165, 233, 0.5)';
+        btnGroq.style.color = '#38bdf8';
+        btnGroq.style.background = 'rgba(14, 165, 233, 0.1)';
+
+        btnGemini.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+        btnGemini.style.color = 'var(--text-color)';
+        btnGemini.style.background = 'rgba(255, 255, 255, 0.04)';
+    } else {
+        btnGemini.style.border = '1px solid rgba(52, 199, 89, 0.5)';
+        btnGemini.style.color = '#34c759';
+        btnGemini.style.background = 'rgba(52, 199, 89, 0.1)';
+
+        btnGroq.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+        btnGroq.style.color = 'var(--text-color)';
+        btnGroq.style.background = 'rgba(255, 255, 255, 0.04)';
+    }
+
+    // 2. Отправляем выбор на сервер (используем существующий метод)
+    apiFetch('/settings/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: user.id,
+            setting_key: 'ai_provider',
+            setting_value: provider
+        })
+    }).then(data => {
+        if (data.success) {
+            // Сохраняем локально, чтобы профиль был актуальным
+            if (window.userProfile) {
+                window.userProfile.ai_provider = provider;
+            }
+            // Если мы вызвали это с плашки исчерпания лимитов
+            const inputContainer = document.getElementById('input-container');
+            if (inputContainer && inputContainer.style.display === 'none' && window.currentAppMode !== 'settings') {
+                exitToMainMenu();
+            }
+        } else {
+            alert('❌ Ошибка при смене нейросети');
+        }
+    }).catch(err => console.error("Ошибка смены ИИ:", err));
+}
+
+// ==========================================
+// 🔥 ОТЛАДКА: ПРОВЕРКА ТЕКУЩЕЙ НЕЙРОСЕТИ
+// ==========================================
+function testAiIdentity() {
+    console.log("🕵️ Отправляю запрос для проверки ИИ-модели...");
+    alert("⏳ Запрос отправлен. ИИ думает...");
+
+    apiFetch('/debug/ai_identity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: user.id })
+    }).then(data => {
+        if (data.success) {
+            // Вывод в консоль для разработчика
+            console.log("✅ ОТВЕТ НЕЙРОСЕТИ:", data.identity);
+
+            // Вывод на экран для удобства на телефоне
+            alert("🤖 Ответ ИИ:\n\n" + data.identity);
+        } else {
+            console.error("❌ Ошибка ИИ:", data.error);
+            alert("Ошибка: " + data.error);
+        }
+    }).catch(err => {
+        console.error("Ошибка сети:", err);
+        alert("Ошибка сети!");
     });
 }

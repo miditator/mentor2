@@ -265,3 +265,15 @@ p { color: var(--hint-color); font-size: 14px; margin-bottom: 24px; }
 .icon-btn:active {
     transform: scale(0.95);
 }
+
+/* ==========================================
+   ПРИНУДИТЕЛЬНЫЙ СБРОС ВСЕГО ЖИРНОГО ШРИФТА
+   ========================================== */
+[style*="font-weight"],
+#main-menu-cards *,
+#main-menu-cards,
+.pb-main-container *,
+.dict-word-card *,
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 400 !important;
+}

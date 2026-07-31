@@ -354,7 +354,8 @@ function openWordDetails(word) {
 
         meaningsHeader.innerHTML = `
             <span>📚 Значения и примеры:</span>
-            <button style="border: 1px solid rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.08); color: #a7f3d0; width: auto; height: 32px; padding: 0 12px; font-size: 12px; border-radius: 10px; display: flex; align-items: center; gap: 6px; cursor: pointer; outline: none;"
+            <button class="btn-glass-cream" 
+                    style="width: auto; height: 32px; padding: 0 12px; font-size: 12px; border-radius: 10px; border: 1px solid rgba(243, 229, 171, 0.2); display: flex; align-items: center; gap: 6px; cursor: pointer; outline: none;"
                     onclick="closeWordDetails(); setTimeout(() => startIntensityFromDict(null, '${safeWord}'), 300);">
                 <span style="display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;">
                     ${intensityIcon}
@@ -384,14 +385,14 @@ function openWordDetails(word) {
             document.getElementById('wd-part').innerText = data.details.part_of_speech || '-';
             document.getElementById('wd-forms').innerText = data.details.forms || '-';
 
-         const meaningsBox = document.getElementById('wd-meanings');
+            const meaningsBox = document.getElementById('wd-meanings');
             currentWordMeanings = [];
 
             if (data.details.meanings && data.details.meanings.length > 0) {
                 currentWordMeanings = data.details.meanings.slice(0, 5).map(m => m.meaning);
 
-                // Создаем контейнер с id="word-meanings-list"
-                let meaningsListHtml = '<div id="word-meanings-list" style="padding-bottom: 70px;">';
+                // Создаем контейнер с отступом снизу, чтобы контент не перекрывался кнопкой
+                let meaningsListHtml = '<div id="word-meanings-list" style="padding-bottom: 80px;">';
 
                 data.details.meanings.forEach((m, index) => {
                     const safeMeaning = (m.meaning || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
@@ -400,7 +401,7 @@ function openWordDetails(word) {
                     meaningsListHtml += `
                         <div class="dict-meaning-card">
                             
-                            <!-- 🔥 Зеленая галочка в правом верхнем углу -->
+                            <!-- Зеленая галочка в правом верхнем углу -->
                             <button onclick="toggleMeaningCheckbox(this)" 
                                     data-selected="false"
                                     data-meaning="${safeMeaning}"
@@ -414,27 +415,24 @@ function openWordDetails(word) {
 
                 meaningsListHtml += '</div>';
 
-                // 🔥 Плавающая панель, закрепленная строго внизу модального окна (position: absolute)
+                // Плавающая зеленая кнопка без фоновой подложки, закрепленная внизу
                 const safeForeignStr = word.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                meaningsListHtml += `
-                    <div id="dict-meaning-selection-panel" style="display: none; position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, rgba(20, 30, 45, 0.98) 0%, rgba(8, 12, 18, 0.99) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 15px 20px; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.7); z-index: 100; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.15); opacity: 0; transition: opacity 0.3s; pointer-events: none; box-sizing: border-box;">
+                    meaningsListHtml += `
+                    <div id="dict-meaning-selection-panel" style="display: none; position: sticky; bottom: 10px; left: 0; right: 0; z-index: 100; opacity: 0; transition: opacity 0.3s; pointer-events: none; box-sizing: border-box; margin-top: 10px; display: flex; justify-content: center;">
                         <button id="save-selected-meanings-btn" onclick="saveSelectedMeanings('${safeForeignStr}')" 
                                 class="btn-glass btn-glass-green" 
-                                style="width: 100%; height: 46px; font-size: 14px; font-weight: bold; -webkit-tap-highlight-color: transparent; margin: 0;">
-                            Сохранить дополнительные значения
+                                style="width: 70%; height: 46px; font-size: 13px; font-weight: 700; text-transform: uppercase; -webkit-tap-highlight-color: transparent; margin: 0; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);">
+                            Сохранить значения
                         </button>
                     </div>
                 `;
 
                 meaningsBox.innerHTML = meaningsListHtml;
             }
-
-
-            }
-            document.getElementById('wd-loading').style.display = 'none';
-            document.getElementById('wd-data').style.display = 'flex';
-
-    })
+        }
+        document.getElementById('wd-loading').style.display = 'none';
+        document.getElementById('wd-data').style.display = 'flex';
+    });
 }
 
 function closeWordDetails() {

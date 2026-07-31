@@ -82,6 +82,8 @@ function handleImageSelection(event) {
 }
 
 // 3. Отправляем данные на бэкенд
+// 3. Отправляем данные на бэкенд
+// 3. Отправляем данные на бэкенд
 function sendImageToAi(base64Image) {
     apiFetch('/words/from_image', {
         method: 'POST',
@@ -89,16 +91,22 @@ function sendImageToAi(base64Image) {
         body: JSON.stringify({ chat_id: user.id, image: base64Image })
     })
     .then(data => {
+        // 🔥 ПЕРЕХВАТЧИК ЛИМИТОВ ТОКЕНОВ ДЛЯ КАРТИНОК
+        if (!data.success && window.isRateLimitError(data.error)) {
+            return window.showLimitCard(
+                "Лимит Gemini исчерпан",
+                "У вас закончились токены для провайдера <b>Gemini</b> для распознавания картинок.<br>Пожалуйста, подождите обновления токенов."
+            );
+        }
 
-        // 🔥 ПЕРЕХВАТЧИК ЛИМИТОВ ТОКЕНОВ
         if (window.isRateLimitError(data) || window.isRateLimitError(data.error)) {
-            return window.showLimitCard();
+            return window.showLimitCard(
+                "Лимит Gemini исчерпан",
+                "У вас закончились токены для провайдера <b>Gemini</b> для распознавания картинок.<br>Пожалуйста, подождите обновления токенов."
+            );
         }
-        // Защита: если юзер уже вышел в меню, прерываем отрисовку
-        if (window.currentAppMode !== 'image_words') {
-            console.log("Анализ фото завершен в фоне, отрисовка отменена.");
-            return;
-        }
+
+        if (window.currentAppMode !== 'image_words') return;
 
         if (data.success) {
             if (data.words && data.words.length > 0) {
@@ -119,11 +127,23 @@ function sendImageToAi(base64Image) {
                 `);
             }
         } else {
+            if (window.isRateLimitError(data.error)) {
+                return window.showLimitCard(
+                    "Лимит Gemini исчерпан",
+                    "У вас закончились токены для провайдера <b>Gemini</b> для распознавания картинок.<br>Пожалуйста, подождите обновления токенов."
+                );
+            }
             showImageCard(`❌ Ошибка сервера: ${data.error}`);
         }
     })
     .catch(err => {
         if (window.currentAppMode !== 'image_words') return;
+        if (window.isRateLimitError(err.message)) {
+            return window.showLimitCard(
+                "Лимит Gemini исчерпан",
+                "У вас закончились токены для провайдера <b>Gemini</b> для распознавания картинок.<br>Пожалуйста, подождите обновления токенов."
+            );
+        }
         showImageCard(`<div class="ic-icon-medium">⚠️</div><div>Ошибка сети: ${err.message}</div>`);
     });
 }

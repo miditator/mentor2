@@ -161,7 +161,7 @@ function renderSingleWordResult(originalWord, details) {
 
                 <button id="single-word-save-btn" onclick="toggleSingleWordSave(this, '${safeForeignStr}', '${safeRuStr}')" 
                         data-added="false" 
-                        class="btn-glass btn-glass-purple" 
+                        class="btn-glass btn-glass-cream" 
                         style="margin-top: 15px; width: 100%; height: 46px; -webkit-tap-highlight-color: transparent;">Добавить в словарь</button>
             </div>
         </div>

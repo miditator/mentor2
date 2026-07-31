@@ -11,22 +11,48 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="frontend/css/style.css?v=1.5">
-    <link rel="stylesheet" href="frontend/css/cards.css?v=1.1">
-    <link rel="stylesheet" href="frontend/css/buttons.css?v=1.9">
-    <link rel="stylesheet" href="frontend/css/progressBars.css?v=1.6">
+    <link rel="stylesheet" href="frontend/css/style.css?v=1.8">
+    <link rel="stylesheet" href="frontend/css/cards.css?v=7">
+    <link rel="stylesheet" href="frontend/css/buttons.css?v=3">
+    <link rel="stylesheet" href="frontend/css/progressBars.css?v=1.1">
 
 </head>
 <body>
 
-    <!-- ЭКРАН ЗАГРУЗКИ -->
-    <div id="screen-loading" class="screen active">
-        <div class="loader">
-            <span style="font-size: 40px;">⏳</span>
-            <p>Загрузка ИИ-Ментора...</p>
-        </div>
+<!-- 🔥 КРАСИВЫЙ ЭКРАН ЗАГРУЗКИ С МЕНТОРОМ -->
+<div id="app-loading-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(10, 15, 25, 0.98) 0%, rgba(5, 8, 14, 1) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.4s ease; box-sizing: border-box;">
+
+    <style>
+        @keyframes mentorPulseGlow {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 25px 10px rgba(56, 189, 248, 0.2); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+        }
+        @keyframes loadingDots {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+        }
+        .loading-dots::after {
+            content: '...';
+            animation: loadingDots 1.5s infinite steps(4, end);
+        }
+    </style>
+
+    <!-- Аватар ментора с пульсацией -->
+    <div style="width: 88px; height: 88px; border-radius: 50%; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 20px; animation: mentorPulseGlow 2s infinite ease-in-out; background: rgba(56, 189, 248, 0.1);">
+        <img src="frontend/img/mentor.jpg" alt="Mentor" style="width: 100%; height: 100%; object-fit: cover;">
     </div>
 
+    <!-- Текст загрузки -->
+    <div style="font-size: 16px; font-weight: 600; color: var(--text-color, #fff); margin-bottom: 8px; letter-spacing: 0.5px;">
+        Ментор загружает данные<span class="loading-dots"></span>
+    </div>
+
+    <div style="font-size: 13px; color: var(--hint-color, rgba(255,255,255,0.5));">
+        Подготавливаем твою тренировку
+    </div>
+</div>
     <!-- ЭКРАН ОНБОРДИНГА -->
     <div id="screen-onboarding" class="screen">
         <div class="card">
@@ -79,38 +105,32 @@
             </div>
             <div id="output-area" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box;">
 
-                <!-- 1. МИНИ-ПЛАШКА СТАТИСТИКИ (На всю ширину) -->
+<!-- 1. МИНИ-ПЛАШКА СТАТИСТИКИ (На всю ширину) -->
 <div id="mini-profile" style="display: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 0px; gap: 10px; width: 100%; box-sizing: border-box;">
-                    <!-- Аватар пользователя слева -->
-                    <div id="mp-avatar" style="font-size: 16px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 50%; width: 40px; height: 40px; flex-shrink: 0; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);">👤</div>
+    <!-- Аватар пользователя слева -->
+    <div id="mp-avatar" style="font-size: 16px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 50%; width: 40px; height: 40px; flex-shrink: 0; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);">👤</div>
 
-                    <!-- Центральная плашка со статами (растягивается) -->
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 6px 16px; font-size: 13px; font-weight: 600; flex: 1;">
-                        <div id="mp-diff" style="background: rgba(255, 255, 255, 0.06); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 1px solid rgba(255, 255, 255, 0.1);">A1</div>
-                        <span id="mp-lang" style="font-size: 15px;">🇬🇧</span>
-                        <span><b id="mp-words">0</b> слов</span>
-                        <span style="opacity: 0.25; margin: 0 2px;">•</span>
-                        <span>🔥 <span id="mp-streak">7</span></span>
-                    </div>
+    <!-- Центральная плашка со статами (растянута через space-between) -->
+    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 6px 16px; font-size: 13px; font-weight: 600; flex: 1; box-sizing: border-box;">
+        <div id="mp-diff" style="background: rgba(200, 200, 200, 0.06);color: #c4aff3; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 1px solid rgba(255, 255, 255, 0.1);">A1</div>
+        <span style="color: #f9e59e;">  &nbsp Слова: &nbsp   <b id="mp-words">0</b> </span>
+        <span id="mp-lang" style="font-size: 16px;">🇬🇧</span>
+    </div>
 
-                    <!-- Кнопка настроек справа -->
-                    <div class="convex-icon icon-btn" onclick="showSettingsMode()" title="Настройки" style="width: 40px; height: 40px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1.13 1.57l-.31.13a2 2 0 0 1-2.43-.9l-.22-.38a2 2 0 0 0-2.73-.73l-.38.22a2 2 0 0 0-.73 2.73l.13.31a2 2 0 0 1-1.57 1.13H4a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.57 1.13l.13.31a2 2 0 0 1-.9 2.43l-.38.22a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.31-.13a2 2 0 0 1 1.13-1.57V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1.13-1.57l.31-.13a2 2 0 0 1 2.43.9l.22.38a2 2 0 0 0 2.73.73l.38-.22a2 2 0 0 0 .73-2.73l-.13-.31a2 2 0 0 1 1.57-1.13H20a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.57-1.13l-.13-.31a2 2 0 0 1 .9-2.43l.38-.22a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.31.13a2 2 0 0 1-1.13 1.57V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    </div>
-                </div>
+    <!-- Кнопка настроек справа -->
+    <div id="settings-btn-icon" class="convex-icon icon-btn icon-dark" onclick="showSettingsMode()" title="Настройки" style="width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"></div>
+</div>
 
                 <!-- 2. ПРОГРЕСС-БАРЫ (На всю ширину) -->
 <div id="progress-banner-block" style="width: 100%; box-sizing: border-box;"></div>
-                <!-- 🔥 ГЛАВНОЕ МЕНЮ ИЗ 6 КАРТОЧЕК С ЛЕГКИМИ ИКОНКАМИ -->
- <!-- 🔥 ГЛАВНОЕ МЕНЮ ИЗ 6 КАРТОЧЕК -->
-<!-- 🔥 ГЛАВНОЕ МЕНЮ ИЗ 6 КАРТОЧЕК -->
+                <!-- 🔥 ГЛАВНОЕ МЕНЮ ИЗ 6 КАРТОЧЕК -->
 <div id="main-menu-cards" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; box-sizing: border-box; margin-top: 2px;">
 
     <!-- ================= ВЕРХНИЙ РЯД (Желтоватые / теплые оттенки) ================= -->
 
     <!-- 1. Тренировка -->
     <div class="menu-card" onclick="showTrainingMenu()">
-        <div class="convex-icon" style="color: #f3e5ab; border-color: rgba(243, 229, 171, 0.25);">
+        <div class="convex-icon icon-yellow-1">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
         </div>
         <div class="menu-title">Тренировка</div>
@@ -118,7 +138,7 @@
 
     <!-- 2. Интенсив -->
     <div class="menu-card" onclick="showIntensitySetupMode()">
-        <div class="convex-icon" style="color: #f7dec9; border-color: rgba(247, 222, 201, 0.25);">
+        <div class="convex-icon icon-yellow-2">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
         </div>
         <div class="menu-title">Интенсив</div>
@@ -126,7 +146,7 @@
 
     <!-- 3. Словарь -->
     <div class="menu-card" onclick="showFullDictionary()">
-        <div class="convex-icon" style="color: #edd5b8; border-color: rgba(237, 213, 184, 0.25);">
+        <div class="convex-icon icon-yellow-3">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10M6 10h10"></path></svg>
         </div>
         <div class="menu-title">Словарь</div>
@@ -136,7 +156,7 @@
 
     <!-- 4. Фразы -->
     <div class="menu-card" onclick="showNewTaskMode()">
-        <div class="convex-icon" style="color: #d8b4fe; border-color: rgba(216, 180, 254, 0.25);">
+        <div class="convex-icon icon-purple-1">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
         </div>
         <div class="menu-title">Фразы</div>
@@ -144,7 +164,7 @@
 
     <!-- 5. Грамматика -->
     <div class="menu-card" onclick="showGrammarMenu()">
-        <div class="convex-icon" style="color: #c4b5fd; border-color: rgba(196, 181, 253, 0.25);">
+        <div class="convex-icon icon-purple-2">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
         </div>
         <div class="menu-title">Грамматика</div>
@@ -152,7 +172,7 @@
 
     <!-- 6. Текст (Чтение) -->
     <div class="menu-card" onclick="handleTextCardClick()">
-        <div class="convex-icon" style="color: #93c5fd; border-color: rgba(147, 197, 253, 0.25);">
+        <div class="convex-icon icon-purple-3">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
         </div>
         <div class="menu-title">Текст</div>
@@ -324,7 +344,7 @@
             <div id="rule-modal-content" style="font-size: 15px; color: var(--text-color); line-height: 1.5; background: rgba(112, 132, 153, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(112, 132, 153, 0.2); margin-bottom: 20px;"></div>
 
             <!-- Кнопка старта тренировки с иконкой (Интенсив - зеленая) -->
-            <button id="rule-modal-train-btn" class="btn-glass btn-glass-green">
+            <button id="rule-modal-train-btn" class="btn-glass btn-glass-purple">
                 <span id="rule-train-icon" style="display: flex; align-items: center; justify-content: center; width: 22px; height: 22px;"></span>
                 <span>Тренировать правило</span>
             </button>
@@ -390,23 +410,23 @@
 
 
     <script src="frontend/js/api.js?v=1.0.9"></script>
-    <script src="frontend/js/icons.js"></script>
+    <script src="frontend/js/icons.js?v=1.0.2"></script>
     <script src="frontend/js/onboarding.js?v=1.0.7"></script>
-    <script src="frontend/js/tasks.js?v=1.5"></script>
+    <script src="frontend/js/tasks.js?v=1"></script>
     <script src="frontend/js/add_word.js?v=1.0.9"></script>
-    <script src="frontend/js/training.js?v=9"></script>
-    <script src="frontend/js/image_words.js?v=1.0.8"></script>
-    <script src="frontend/js/grammar.js?v=3"></script>
-    <script src="frontend/js/dictionary.js?v=8"></script>
+    <script src="frontend/js/training.js?v=5"></script>
+    <script src="frontend/js/image_words.js?v=1.2"></script>
+    <script src="frontend/js/grammar.js?v=7"></script>
+    <script src="frontend/js/dictionary.js?v=6"></script>
     <script src="frontend/js/chat.js?v=1.0.4"></script>
     <script src="frontend/js/idioms_db.js?v=1.2"></script>
-    <script src="frontend/js/progress_bars.js?v=5"></script>
+    <script src="frontend/js/progress_bars.js?v=3"></script>
 
-    <script src="frontend/js/app.js?v=1.5"></script>
-    <script src="frontend/js/settings.js?v=1.6"></script>
-    <script src="frontend/js/intensity.js?v=1.4"></script>
+    <script src="frontend/js/app.js?v=7"></script>
+    <script src="frontend/js/settings.js?v=1.7"></script>
+    <script src="frontend/js/intensity.js?v=8"></script>
     <script src="frontend/js/translator.js?v=1"></script>
-    <script src="frontend/js/reader.js?v6"></script>
+    <script src="frontend/js/reader.js?v1.6"></script>
 
 </body>
 </html>

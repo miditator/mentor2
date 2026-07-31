@@ -125,6 +125,12 @@ def init_db():
     except sqlite3.OperationalError:
         pass
 
+        # 🔥 НОВАЯ МИГРАЦИЯ ДЛЯ ПРОВАЙДЕРА ИИ 🔥
+        try:
+            cursor.execute("ALTER TABLE user_settings ADD COLUMN ai_provider TEXT DEFAULT 'groq'")
+        except sqlite3.OperationalError:
+            pass
+
     conn.commit()
     conn.close()
 
@@ -134,8 +140,8 @@ def init_db():
 def get_user_config(chat_id):
     conn = sqlite3.connect(DB_NAME, check_same_thread=False)
     cursor = conn.cursor()
-    # Читаем только актуальные настройки
-    cursor.execute("SELECT difficulty, source_lang, words_per_day, phrases_per_day, username FROM user_settings WHERE chat_id = ?", (chat_id,))
+    # 🔥 Добавили ai_provider в запрос
+    cursor.execute("SELECT difficulty, source_lang, words_per_day, phrases_per_day, username, ai_provider FROM user_settings WHERE chat_id = ?", (chat_id,))
     row = cursor.fetchone()
     conn.close()
 
@@ -145,7 +151,8 @@ def get_user_config(chat_id):
             "source_lang": row[1],
             "words_per_day": row[2] if row[2] is not None else 5,
             "phrases_per_day": row[3] if row[3] is not None else 10,
-            "username": row[4]
+            "username": row[4],
+            "ai_provider": row[5] if row[5] is not None else "groq" # 🔥 Добавили в отдачу
         }
     return None
 
@@ -172,8 +179,8 @@ def update_user_setting(chat_id, key, value):
 
     cursor.execute("INSERT OR IGNORE INTO user_settings (chat_id) VALUES (?)", (chat_id,))
 
-    # Оставляем только реальные настройки
-    if key in ["difficulty", "source_lang", "words_per_day", "phrases_per_day", "username"]:
+    # 🔥 Добавили "ai_provider" в список разрешенных ключей
+    if key in ["difficulty", "source_lang", "words_per_day", "phrases_per_day", "username", "ai_provider"]:
         cursor.execute(f"UPDATE user_settings SET {key} = ? WHERE chat_id = ?", (value, chat_id))
 
     conn.commit()

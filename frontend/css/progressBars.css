@@ -44,12 +44,14 @@
 
 .pb-title {
     color: #ffffff;
-    font-weight: 500;
+    font-weight: 300;
+    font-size: 11px;
 }
 
 .pb-value {
     color: #ffffff;
     font-weight: 600;
+    font-size: 11px;
 }
 
 .pb-track {
@@ -70,6 +72,15 @@
     transition: width 0.4s ease-out;
 }
 
+/* Новый класс для нижнего бара (фиолетовый, под цвет карточек фраз) */
+.pb-fill-purple {
+    height: 100%;
+    background: linear-gradient(90deg, #755C93, #d8b4fe);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(196, 102, 255, 0.4);
+    transition: width 0.4s ease-out;
+}
+
 .pb-avatar {
     width: 76px;
     height: 76px;
@@ -82,4 +93,49 @@
     overflow: hidden;
     flex-shrink: 0;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.25);
+}
+
+/* 🔥 Анимация покачивания мыслей ментора */
+@keyframes ai-bubble-float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-4px) scale(1.02); }
+}
+
+/* 🔥 Отдельный класс для аватарки ментора в режиме раздумий (можно легко заменить картинку) */
+.pb-avatar-thinking {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid #38bdf8; /* Подсветка во время работы ИИ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    animation: ai-bubble-float 2s ease-in-out infinite;
+}
+
+/* 🔥 Стиль для анимированного облачка мыслей */
+.ai-thought-bubble {
+    position: fixed;
+    top: 65px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: linear-gradient(135deg, rgba(20, 30, 45, 0.95), rgba(10, 15, 22, 0.98));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 20px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    z-index: 5000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: ai-bubble-float 3s ease-in-out infinite;
 }

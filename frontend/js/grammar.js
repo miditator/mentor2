@@ -260,8 +260,6 @@ const grammarRulesDict = {
     }
 };
 
-// 🔥 СТАТИЧНАЯ БАЗА ПРАВИЛ (чтобы не дергать ИИ)
-// 🔥 СТАТИЧНАЯ БАЗА ПРАВИЛ (Полная версия EN + DE)
 const grammarExplanations = {
     en: {
      // --- A1 ---
@@ -525,7 +523,6 @@ let grammarState = {
     helpClicks: 0
 };
 
-
 // Состояние активной вкладки уровня грамматики
 let currentGrammarLevel = null;
 
@@ -588,30 +585,27 @@ function showGrammarMenu(selectedLevel = null) {
 
     html += `</div>`;
 
-    // Карточки правил со светлым фоном
+    // 🔥 ИСПОЛЬЗУЕМ КЛАССЫ СЛОВАРЯ ДЛЯ КАРТОЧЕК ПРАВИЛ
     const rules = rulesList[currentGrammarLevel] || [];
 
-    html += `
-        <div style="width: 100%; background: #1e293b; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 8px 24px rgba(0,0,0,0.4); overflow: hidden;">
-            <div style="display: flex; flex-direction: column; background: #1e293b;">
-    `;
+    html += `<div style="display: flex; flex-direction: column; width: 100%; padding-top: 5px;">`;
 
     rules.forEach((rule, index) => {
-        const borderBottom = index < rules.length - 1 ? 'border-bottom: 1px solid rgba(255, 255, 255, 0.08);' : '';
         const safeRuleAttr = rule.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         const chevronIcon = typeof APP_ICONS !== 'undefined' && APP_ICONS.chevronDown ? APP_ICONS.chevronDown : '▼';
 
         html += `
-                <button onclick="explainRule('${safeRuleAttr}')" style="width: 100%; text-align: left; padding: 13px 16px; background: transparent; border: none; ${borderBottom} color: #f8fafc; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
-                    <span style="color: #f8fafc;">${rule}</span>
-                    <span style="color: rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;">
-                        ${chevronIcon}
-                    </span>
-                </button>
+            <!-- Класс dict-word-card из словаря -->
+            <div class="dict-word-card" onclick="explainRule('${safeRuleAttr}')">
+                <span style="color: #f8fafc; font-size: 14px; font-weight: 500; text-align: left; padding-right: 10px; line-height: 1.3;">${rule}</span>
+                <span style="color: rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(255,255,255,0.05); border-radius: 6px; flex-shrink: 0;">
+                    ${chevronIcon}
+                </span>
+            </div>
         `;
     });
 
-    html += `</div></div></div>`;
+    html += `</div></div>`;
     chatContainer.innerHTML = html;
 
     // Восстанавливаем позицию прокрутки вкладок
@@ -621,35 +615,46 @@ function showGrammarMenu(selectedLevel = null) {
     }
 }
 
-// 🎯 УНИВЕРСАЛЬНАЯ КАРТОЧКА ДЛЯ РЕЖИМА
-function showGrammarCard(htmlContent, buttonsHtml = '') {
+// 🎯 УНИВЕРСАЛЬНАЯ КАРТОЧКА ДЛЯ РЕЖИМА (Стиль как в заданиях)
+function showGrammarCard(htmlContent, buttonsHtml = '', isSpacious = false) {
 
     // 🔥 ПЕРЕХВАТЧИК ЛИМИТОВ
     if (window.isRateLimitError(htmlContent)) {
         return window.showLimitCard();
     }
     const chatContainer = document.getElementById('chat-messages');
+
+    let minHeight = isSpacious ? '260px' : '200px';
+    let padding = isSpacious ? '25px 20px' : '16px 16px';
+    let marginTop = isSpacious ? '15px' : '5px';
+
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 250px; background-color: var(--secondary-bg-color); border-radius: 16px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; margin-top: 20px; text-align: center;">
-            <div style="width: 100%;">${htmlContent}</div>
-            ${buttonsHtml}
+        <div style="display: flex; flex-direction: column; width: 100%; margin-top: ${marginTop}; margin-bottom: auto;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: ${minHeight}; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: ${padding}; position: relative; box-sizing: border-box; width: 100%; text-align: center;">
+                <div style="width: 100%;">
+                    ${htmlContent}
+                </div>
+                
+                ${buttonsHtml ? `<div style="display: flex; gap: 10px; width: 100%; margin-top: 20px;">${buttonsHtml}</div>` : ''}
+            </div>
         </div>`;
 }
 
+// 🎯 ЗАПУСК ТРЕНИРОВКИ КОНКРЕТНОГО ПРАВИЛА
 // 🎯 ЗАПУСК ТРЕНИРОВКИ КОНКРЕТНОГО ПРАВИЛА
 function startGrammarTraining(rule) {
     window.currentAppMode = 'grammar_training';
     grammarState.rule = rule;
     grammarState.helpClicks = 0;
 
-    // 🔥 Находим, какому уровню (A1, A2 и т.д.) принадлежит выбранное правило
+    // Находим, какому уровню (A1, A2 и т.д.) принадлежит выбранное правило
     const lang = window.userProfile?.language || 'en';
     const rulesList = grammarRulesDict[lang];
     let detectedLevel = "";
 
     for (const [level, rules] of Object.entries(rulesList)) {
         if (rules.includes(rule)) {
-            detectedLevel = level; // например, "A1 (Начальный)"
+            detectedLevel = level;
             break;
         }
     }
@@ -660,8 +665,8 @@ function startGrammarTraining(rule) {
     // Экранируем кавычки для безопасной подстановки в onclick кнопок
     const safeRule = rule.replace(/'/g, "\\'");
 
-    // 🔥 Меняем шапку, чтобы было видно и уровень сложности правила, и само правило
-    setAppHeader(`Тренировка [${detectedLevel || 'Правило'}]: ${rule}`, true);
+    // 🔥 Сделали шапку статичной, так как правило теперь внутри карточки!
+    setAppHeader('Тренировка грамматики', true);
 
     document.getElementById('input-container').style.display = 'flex';
     document.getElementById('text-input-row').style.display = 'flex';
@@ -669,51 +674,65 @@ function startGrammarTraining(rule) {
     document.getElementById('user-input').placeholder = "Напиши перевод...";
 
     showGrammarCard(`
-        <div style="font-size: 40px; margin-bottom: 15px;">⏳</div>
-        <div style="font-size: 16px; color: var(--hint-color);">ИИ составляет предложение по правилу <br><b>${rule}</b>...</div>
+        <div style="font-size: 32px; margin-bottom: 10px;">⏳</div>
+        <div style="font-size: 15px; color: var(--hint-color);">ИИ составляет предложение по правилу <br><b>${rule}</b>...</div>
     `);
+    window.showAiLoader("ИИ сосотавляет задание...")
 
-    // 🔥 Передаем принудительно вычисленную сложность (difficulty) вместо юзерской
+    // Передаем принудительно вычисленную сложность (difficulty) вместо юзерской
     apiFetch(`/grammar/new?chat_id=${user.id}&rule=${encodeURIComponent(rule)}&difficulty=${encodeURIComponent(difficultyForApi)}`)
         .then(data => {
             if (window.currentAppMode !== 'grammar_training') return; // Охранник
 
             if (data.success) {
                 grammarState.phrase = data.phrase;
-                grammarState.targetWord = data.target_word;
-
-                const langName = window.userProfile?.language === 'de' ? 'немецкий' : 'английский';
+                grammarState.targetWord = data.target_word || "базовое слово";
 
                 let buttons = `
-                    <div style="display: flex; gap: 10px; width: 100%; margin-top: 20px;">
-                        <button onclick="showGrammarHelp()" style="flex: 1; padding: 12px; background: rgba(112, 132, 153, 0.1); border-radius: 10px; color: var(--text-color); font-size: 14px; border: 1px solid rgba(112, 132, 153, 0.2); cursor: pointer;">💡 Подсказка</button>
-                        <button onclick="startGrammarTraining('${safeRule}')" style="flex: 1; padding: 12px; background: rgba(112, 132, 153, 0.1); border-radius: 10px; color: var(--text-color); font-size: 14px; border: 1px solid rgba(112, 132, 153, 0.2); cursor: pointer;">🔄 Другая фраза</button>
-                    </div>
+                    <button onclick="showGrammarHelp()" onmousedown="event.preventDefault()" class="btn-glass-orange-soft" style="flex: 1;">Подсказка</button>
+                    <button onclick="startGrammarTraining('${safeRule}')" onmousedown="event.preventDefault()" class="btn-glass-secondary" style="flex: 1;">Поменять</button>
                 `;
 
                 showGrammarCard(`
-                    <div style="font-size: 13px; color: var(--hint-color); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Переведи на ${langName}:</div>
-                    <div style="font-size: 24px; font-weight: bold; color: var(--text-color); margin-bottom: 20px;">${data.phrase}</div>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="font-size: 14px; color: var(--text-color); background: rgba(112, 132, 153, 0.1); padding: 10px; border-radius: 8px; border-left: 4px solid #34c759; text-align: left; width: 100%; box-sizing: border-box;">
-                            <b>📌 Слово:</b> ${grammarState.targetWord}
+                    <!-- Текст задания сделан крупнее и жирнее (font-weight: 900) -->
+                    <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 16px; word-wrap: break-word; line-height: 1.3;">${data.phrase}</div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                        <div class="task-word-badge">
+                            <b style="font-size: 15px;">Слово:</b> <i>${grammarState.targetWord.split('(')[0].trim()}</i>
+                        </div>
+                        
+                        <!-- ИНТЕРАКТИВНОЕ ПРАВИЛО -->
+                        <div class="task-rule-badge" onclick="explainRule('${safeRule}')">
+                            <span><b style="font-size: 15px;">Тема:</b> <i>${grammarState.rule}</i></span>
+                            <div class="info-pulse-badge">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 16v-4"></path>
+                                    <path d="M12 8h.01"></path>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 `, buttons);
                 document.getElementById('user-input').focus();
             } else {
-                showGrammarCard(`<div style="font-size: 40px; margin-bottom: 10px;">❌</div><div>Ошибка: ${data.error}</div>`);
+                showGrammarCard(`<div style="font-size: 32px; margin-bottom: 8px;">❌</div><div>Ошибка генерации: ${data.error}</div>`);
             }
         }).catch(err => {
-            showGrammarCard(`<div style="font-size: 40px; margin-bottom: 10px;">⚠️</div><div>Ошибка сети.</div>`);
-        });
+            showGrammarCard(`<div style="font-size: 32px; margin-bottom: 8px;">⚠️</div><div>Ошибка связи с сервером.</div>`);
+        })
+          .finally(() => {
+        // 🔥 Плавное скрытие анимированного бабла мыслей
+        window.hideAiLoader();
+    });
 }
 
 // 🎯 ОБРАБОТКА ВВОДА ПОЛЬЗОВАТЕЛЯ
 function handleGrammarInput(text) {
     showGrammarCard(`
-        <div style="font-size: 40px; margin-bottom: 15px;">🤖</div>
-        <div style="font-size: 16px; color: var(--hint-color);">ИИ проверяет грамматику...</div>
+        <div style="font-size: 32px; margin-bottom: 10px;">🤖</div>
+        <div style="font-size: 15px; color: var(--hint-color);">ИИ проверяет грамматику...</div>
     `);
     document.getElementById('text-input-row').style.display = 'none';
 
@@ -722,35 +741,50 @@ function handleGrammarInput(text) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-        chat_id: user.id,
-        original_phrase: grammarState.phrase,
-        answer: text,
-        rule: grammarState.rule,
-        target_word: grammarState.targetWord // 🔥 Передаем слово на проверку
-    })
+            chat_id: user.id,
+            original_phrase: grammarState.phrase,
+            answer: text,
+            rule: grammarState.rule,
+            target_word: grammarState.targetWord // 🔥 Передаем слово на проверку
+        })
     }).then(data => {
         if (window.currentAppMode !== 'grammar_training') return;
 
         if (data.success) {
             const safeRule = grammarState.rule.replace(/'/g, "\\'");
-            let btnNext = `<button onclick="startGrammarTraining('${safeRule}')" class="btn-primary" style="margin-top: 15px;">🔄 Следующая фраза</button>`;
-            let statusIcon = data.is_correct ? "✅" : "❌";
-            let statusColor = data.is_correct ? "#34c759" : "#ff3b30";
+            let btnNext = `<button onclick="startGrammarTraining('${safeRule}')" onmousedown="event.preventDefault()" class="btn-glass btn-glass-blue" style="width: 100%; height: 46px;">🔄 Следующая фраза</button>`;
+
+            let middleContent = '';
+
+            if (data.is_correct) {
+                middleContent = `
+                    <div style="font-size: 11px; color: #34c759; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">✅ Отлично:</div>
+                    <div style="background: rgba(52, 199, 89, 0.1); padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(52, 199, 89, 0.3); text-align: left; width: 100%; box-sizing: border-box;">
+                        <div style="font-size: 15px; color: var(--text-color); font-weight: 500; word-wrap: break-word;">${text}</div>
+                        <div style="font-size: 13px; color: var(--hint-color); margin-top: 8px; line-height: 1.4;">${data.feedback}</div>
+                    </div>
+                `;
+            } else {
+                middleContent = `
+                    <div style="font-size: 11px; color: #ff3b30; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">❌ Ошибка:</div>
+                    <div style="background: rgba(255, 59, 48, 0.1); padding: 12px; border-radius: 10px; border-left: 4px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box;">
+                        <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
+                    </div>
+                `;
+            }
 
             showGrammarCard(`
-                <div style="font-size: 13px; color: var(--hint-color); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Задание:</div>
-                <div style="font-size: 20px; font-weight: bold; color: var(--text-color); margin-bottom: 10px;">${grammarState.phrase}</div>
-                <div style="font-size: 50px; margin-bottom: 15px;">${statusIcon}</div>
-                <div style="background: rgba(112, 132, 153, 0.05); padding: 15px; border-radius: 12px; border-left: 4px solid ${statusColor}; text-align: left; width: 100%; box-sizing: border-box;">
-                    <div style="font-size: 15px; color: var(--text-color); line-height: 1.5;">${data.feedback}</div>
-                </div>
-            `, btnNext);
+                <div style="font-size: 11px; color: var(--hint-color); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">Задание:</div>
+                <div style="font-size: 16px; font-weight: bold; color: var(--text-color); margin-bottom: 15px; word-wrap: break-word;">${grammarState.phrase}</div>
+                
+                ${middleContent}
+            `, btnNext, true); // true = просторная карточка (isSpacious)
         } else {
-            showGrammarCard(`<div>❌ Ошибка: ${data.error}</div>`);
+            showGrammarCard(`<div style="font-size: 32px; margin-bottom: 8px;">❌</div><div>Ошибка проверки: ${data.error}</div>`);
             document.getElementById('text-input-row').style.display = 'flex';
         }
     }).catch(err => {
-        showGrammarCard(`<div>⚠️ Ошибка сети.</div>`);
+        showGrammarCard(`<div style="font-size: 32px; margin-bottom: 8px;">⚠️</div><div>Ошибка сети.</div>`);
         document.getElementById('text-input-row').style.display = 'flex';
     });
 }
@@ -760,22 +794,22 @@ function showGrammarHelp() {
     grammarState.helpClicks++;
     let step = grammarState.helpClicks;
 
-    showGrammarCard(`
-        <div style="font-size: 24px; font-weight: bold; color: var(--text-color); margin-bottom: 20px;">${grammarState.phrase}</div>
-        <div style="text-align: center; color: var(--hint-color);"><span style="font-size: 24px;">🤖</span><br>ИИ готовит ${step === 1 ? 'подсказку' : 'ответ'}...</div>
-    `);
-    document.getElementById('text-input-row').style.display = 'none';
+    // 🔥 Прячем поле ввода ТОЛЬКО если это кнопка "Сдаюсь" (шаг 2).
+    if (step > 1) {
+        document.getElementById('text-input-row').style.display = 'none';
+    }
+    window.showAiLoader()
 
     apiFetch('/grammar/help', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({
-    chat_id: user.id,
-    original_phrase: grammarState.phrase,
-    step: step,
-    rule: grammarState.rule,
-    target_word: grammarState.targetWord // 🔥 Обязательно добавляем, чтобы ИИ не забыл слово!
-})
+        body: JSON.stringify({
+            chat_id: user.id,
+            original_phrase: grammarState.phrase,
+            step: step,
+            rule: grammarState.rule,
+            target_word: grammarState.targetWord
+        })
     }).then(data => {
         if (window.currentAppMode !== 'grammar_training') return;
 
@@ -783,33 +817,46 @@ function showGrammarHelp() {
             const safeRule = grammarState.rule.replace(/'/g, "\\'");
             if (step === 1) {
                 let buttons = `
-                    <div style="display: flex; gap: 10px; width: 100%; margin-top: 15px;">
-                        <button onclick="showGrammarHelp()" style="flex: 1; padding: 12px; background: rgba(255, 59, 48, 0.1); border-radius: 10px; color: #ff3b30; font-size: 14px; border: 1px solid rgba(255, 59, 48, 0.2); cursor: pointer;">🆘 Сдаюсь</button>
-                        <button onclick="startGrammarTraining('${safeRule}')" style="flex: 1; padding: 12px; background: rgba(112, 132, 153, 0.1); border-radius: 10px; color: var(--text-color); font-size: 14px; border: 1px solid rgba(112, 132, 153, 0.2); cursor: pointer;">🔄 Другая фраза</button>
-                    </div>
+                    <button onclick="showGrammarHelp()" onmousedown="event.preventDefault()" class="btn-glass-orange-soft" style="flex: 1; background: rgba(255, 59, 48, 0.1); border-color: rgba(255, 59, 48, 0.3); color: #ff3b30;">Сдаюсь</button>
+                    <button onclick="startGrammarTraining('${safeRule}')" onmousedown="event.preventDefault()" class="btn-glass-secondary" style="flex: 1;">Поменять</button>
                 `;
                 showGrammarCard(`
-                    <div style="font-size: 24px; font-weight: bold; color: var(--text-color); margin-bottom: 15px;">${grammarState.phrase}</div>
-                    <div style="background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.3); padding: 15px; border-radius: 12px; text-align: left; margin-bottom: 15px; width: 100%; box-sizing: border-box;">
-                        <div style="font-size: 16px; font-weight: bold; color: #ff9f0a; margin-bottom: 8px;">💡 Подсказка:</div>
-                        <div style="font-size: 15px; color: var(--text-color); line-height: 1.5;">${data.feedback}</div>
+                    <!-- 🔥 Текст задания с повышенной жирностью -->
+                    <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 14px; word-wrap: break-word;">${grammarState.phrase}</div>
+                    
+                    <div style="background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.3); padding: 12px; border-radius: 10px; text-align: left; margin-bottom: 5px; width: 100%; box-sizing: border-box;">
+                        <div style="font-size: 14px; font-weight: bold; color: #ff9f0a; margin-bottom: 4px;">💡 Подсказка:</div>
+                        <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
                     </div>
                 `, buttons);
                 document.getElementById('text-input-row').style.display = 'flex';
-                document.getElementById('user-input').focus();
+                // Фокус останется на месте автоматически
             } else {
-                let btnNext = `<button onclick="startGrammarTraining('${safeRule}')" class="btn-primary" style="margin-top: 15px;">🔄 Следующая фраза</button>`;
+                let btnNext = `<button onclick="startGrammarTraining('${safeRule}')" onmousedown="event.preventDefault()" class="btn-glass btn-glass-green" style="width: 100%; height: 46px;">🔄 Следующая фраза</button>`;
                 showGrammarCard(`
-                    <div style="font-size: 24px; font-weight: bold; color: var(--text-color); margin-bottom: 15px;">${grammarState.phrase}</div>
-                    <div style="background: rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3); padding: 15px; border-radius: 12px; text-align: left; width: 100%; box-sizing: border-box;">
-                        <div style="font-size: 16px; font-weight: bold; color: #34c759; margin-bottom: 8px;">📖 Правильный ответ:</div>
-                        <div style="font-size: 15px; color: var(--text-color); line-height: 1.5;">${data.feedback}</div>
+                    <div style="font-size: 11px; color: var(--hint-color); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Исходная фраза:</div>
+                    <div style="font-size: 21px; font-weight: bold; color: var(--text-color); margin-bottom: 12px; word-wrap: break-word;">${grammarState.phrase}</div>
+                    
+                    <div style="background: rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3); padding: 12px; border-radius: 10px; text-align: left; width: 100%; box-sizing: border-box;">
+                        <div style="font-size: 14px; font-weight: bold; color: #34c759; margin-bottom: 4px;">📖 Правильный ответ:</div>
+                        <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
                     </div>
                 `, btnNext);
             }
+        } else {
+            showGrammarCard(`<div style="font-size: 32px; margin-bottom: 8px;">❌</div><div>Ошибка: ${data.error}</div>`);
+            document.getElementById('text-input-row').style.display = 'flex';
         }
+    }).catch(err => {
+        showGrammarCard(`<div style="font-size: 32px; margin-bottom: 8px;">⚠️</div><div>Ошибка сети.</div>`);
+        document.getElementById('text-input-row').style.display = 'flex';
+    })
+          .finally(() => {
+        // 🔥 Плавное скрытие анимированного бабла мыслей
+        window.hideAiLoader("ИИ дает подсказку...");
     });
 }
+
 // ==========================================
 // 🔥 ФУНКЦИИ ВСПЛЫВАЮЩЕГО ОКНА ДЛЯ ПРАВИЛ (BOTTOM SHEET)
 // ==========================================
@@ -827,6 +874,15 @@ function explainRule(ruleName) {
         iconSpan.innerHTML = APP_ICONS.intensity;
     }
 
+    // 🔥 ПРОВЕРКА РЕЖИМА: Скрываем кнопку "Тренировать", если мы уже в тренировке
+    if (trainBtn) {
+        if (window.currentAppMode === 'grammar_training') {
+            trainBtn.style.display = 'none';
+        } else {
+            trainBtn.style.display = 'flex'; // Возвращаем кнопку для меню
+        }
+    }
+
     // Получаем текст правила из нашего статического словаря
     const lang = window.userProfile?.language || 'en';
     let explanationText = "Краткое объяснение для этого правила пока не добавлено.";
@@ -839,15 +895,17 @@ function explainRule(ruleName) {
     content.innerHTML = explanationText;
 
     // Настраиваем действие кнопки "Тренировать правило"
-    trainBtn.onclick = () => {
-        closeRuleExplanation();
-        // Даем модалке время уехать вниз перед отрисовкой нового экрана (300мс)
-        setTimeout(() => {
-            if (typeof startGrammarTraining === 'function') {
-                startGrammarTraining(ruleName);
-            }
-        }, 300);
-    };
+    if (trainBtn) {
+        trainBtn.onclick = () => {
+            closeRuleExplanation();
+            // Даем модалке время уехать вниз перед отрисовкой нового экрана (300мс)
+            setTimeout(() => {
+                if (typeof startGrammarTraining === 'function') {
+                    startGrammarTraining(ruleName);
+                }
+            }, 300);
+        };
+    }
 
     // Показываем окно с анимацией выезда снизу
     modal.style.display = 'flex';

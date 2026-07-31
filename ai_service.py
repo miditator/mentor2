@@ -9,49 +9,56 @@ import PIL.Image
 import config
 import loader
 import aiPrompts
-import database  # 🔥 Добавлен импорт для работы с токенами
+import database
 
 
 # Универсальный адаптер для работы с любыми провайдерами
 def ask_ai(prompt: str, temperature: float = 0.7, chat_id: int = None) -> str:
     """
     Универсальный адаптер. Сам решает, куда слать запрос,
-    и автоматически списывает токены, если передан chat_id.
+    основываясь на личном выборе пользователя в настройках.
+    Никаких проверок токенов здесь нет.
     """
-    # Проверка баланса перед запросом
+    user_provider = "groq"  # Значение по умолчанию
+
+    # 1. Просто узнаем, какую сеть выбрал юзер
     if chat_id:
         user_config = database.get_user_config(chat_id)
-        if user_config.get("tokens_left", 0) <= 0:
-            raise Exception("⚠️ Лимит токенов исчерпан. Пожалуйста, пополните баланс.")
+        if user_config:
+            user_provider = user_config.get("ai_provider", "groq")
+    print(f"\n🚀 [AI ROUTER] Запрос от chat_id: {chat_id} | Нейросеть: {user_provider.upper()} 🚀\n")
 
-    used_tokens = 0
-    text_response = ""
+    try:
+        # 2. Запрос в Groq (Claude / Llama)
+        if user_provider == "groq":
+            from openai import OpenAI
+            client = OpenAI(
+                api_key=config.LLM_PROVIDERS["groq"]["api_key"],
+                base_url=config.LLM_PROVIDERS["groq"]["base_url"]
+            )
+            response = client.chat.completions.create(
+                model=config.LLM_PROVIDERS["groq"]["model"],
+                messages=[{"role": "user", "content": prompt}],
+                temperature=temperature
+            )
+            return response.choices[0].message.content.strip()
 
-    if loader.API_TYPE == "openai":
-        response = loader.ai_client_openai.chat.completions.create(
-            model=loader.CURRENT_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=temperature
-        )
-        text_response = response.choices[0].message.content.strip()
-        if response.usage:
-            used_tokens = response.usage.total_tokens
+        # 3. Запрос в Gemini
+        elif user_provider == "gemini":
+            import google.generativeai as genai
+            genai.configure(api_key=config.LLM_PROVIDERS["gemini"]["api_key"])
+            client = genai.GenerativeModel(config.LLM_PROVIDERS["gemini"]["model"])
 
-    elif loader.API_TYPE == "gemini":
-        generation_config = {"temperature": temperature}
-        response = loader.ai_client_gemini.generate_content(
-            prompt,
-            generation_config=generation_config
-        )
-        text_response = response.text.strip()
-        if hasattr(response, 'usage_metadata'):
-            used_tokens = response.usage_metadata.total_token_count
+            generation_config = {"temperature": temperature}
+            response = client.generate_content(
+                prompt,
+                generation_config=generation_config
+            )
+            return response.text.strip()
 
-    # Списание токенов после успешного ответа
-    if chat_id and used_tokens > 0:
-        database.decrease_tokens(chat_id, used_tokens)
-
-    return text_response
+    except Exception as e:
+        print(f"❌ Ошибка в ask_ai (Провайдер: {user_provider}): {e}")
+        raise e
 
 
 # Модель для распознавания картинок
@@ -64,7 +71,8 @@ def translate_word_ai(word: str, target_lang: str, chat_id: int, is_russian: boo
     else:
         prompt = aiPrompts.word_translation_from_foreign_prompt(word, target_lang)
 
-    answer = ask_ai(prompt, temperature=0.3)
+    # 🔥 Исправлено: теперь передаем chat_id, чтобы ИИ мог выбрать провайдера
+    answer = ask_ai(prompt, temperature=0.3, chat_id=chat_id)
 
     if answer == "ERROR_NONSENSE":
         return {"error": "nonsense"}
@@ -76,7 +84,7 @@ def translate_word_ai(word: str, target_lang: str, chat_id: int, is_russian: boo
 
     parts = answer.split("||")
 
-    # 🔥 Убираем случайные квадратные скобки, если ИИ их добавил
+    # Убираем случайные квадратные скобки, если ИИ их добавил
     original_word = parts[0].strip().replace("[", "").replace("]", "") if len(parts) > 0 else word
 
     meanings_data = []
@@ -87,7 +95,7 @@ def translate_word_ai(word: str, target_lang: str, chat_id: int, is_russian: boo
         if "~~~" in translation_part:
             meanings_str, examples_str = translation_part.split("~~~")
 
-            # 🔥 Очищаем значения и примеры от скобок
+            # Очищаем значения и примеры от скобок
             meanings_list = [m.replace("[", "").replace("]", "").strip() for m in meanings_str.split("|") if m.strip()]
             examples_list = [e.replace("[", "").replace("]", "").strip() for e in examples_str.split("|") if e.strip()]
 
@@ -165,11 +173,7 @@ def help_intensity_ai(russian_phrase: str, foreign_phrase: str, chat_id: int = N
 
 
 def extract_words_from_image_ai(base64_image: str, target_lang: str, chat_id: int = None) -> list:
-    if chat_id:
-        user_config = database.get_user_config(chat_id)
-        if user_config.get("tokens_left", 0) <= 0:
-            raise Exception("⚠️ Лимит токенов исчерпан.")
-
+    # Очищено от проверок токенов
     prompt = aiPrompts.extract_words_from_image_prompt(target_lang)
     image_bytes = base64.b64decode(base64_image)
     image = PIL.Image.open(io.BytesIO(image_bytes))
@@ -180,10 +184,6 @@ def extract_words_from_image_ai(base64_image: str, target_lang: str, chat_id: in
     response = vision_model.generate_content([prompt, image])
     ai_text = response.text.strip()
 
-    if chat_id and hasattr(response, 'usage_metadata'):
-        used_tokens = response.usage_metadata.total_token_count
-        database.decrease_tokens(chat_id, used_tokens)
-
     if ai_text.startswith("```json"): ai_text = ai_text[7:]
     if ai_text.startswith("```"): ai_text = ai_text[3:]
     if ai_text.endswith("```"): ai_text = ai_text[:-3]
@@ -192,8 +192,6 @@ def extract_words_from_image_ai(base64_image: str, target_lang: str, chat_id: in
 
 
 def transcribe_audio_ai(audio_file_path: str) -> str:
-    # Whisper не отдает токены в таком же формате, тарифицируется по секундам.
-    # Оставляем функцию без изменений, лимиты здесь лучше считать по времени аудио.
     with open(audio_file_path, "rb") as audio_file:
         transcript = loader.ai_client_openai.audio.transcriptions.create(
             model=config.AUDIO_MODEL,
@@ -214,54 +212,26 @@ def generate_strict_grammar_task_ai(lang_name: str, target_word: str, difficulty
         return lines[0] if lines else "Ошибка генерации"
     except Exception as e:
         print(f"❌ Ошибка в generate_strict_grammar_task_ai: {e}")
-        if "Лимит" in str(e): raise e
         return "Произошла ошибка при составлении задания."
 
 
 def free_chat_ai(history: list, lang_name: str, chat_id: int = None) -> str:
-    if chat_id:
-        user_config = database.get_user_config(chat_id)
-        if user_config.get("tokens_left", 0) <= 0:
-            return "⚠️ Лимит токенов исчерпан. Пожалуйста, пополните баланс."
-
     system_content = aiPrompts.generate_free_chat_system_prompt(lang_name)
 
-    if loader.API_TYPE == "openai":
-        messages = [{"role": "system", "content": system_content}]
-        for msg in history[-10:]:
-            messages.append({"role": msg.role, "content": msg.content})
+    # Формируем историю в виде текста
+    chat_history_str = f"Системные инструкции: {system_content}\n\nИстория диалога:\n"
+    for msg in history[-10:]:
+        role = "Пользователь" if msg.role == "user" else "Ассистент"
+        chat_history_str += f"{role}: {msg.content}\n"
+    chat_history_str += "Ассистент:"
 
-        try:
-            response = loader.ai_client_openai.chat.completions.create(
-                model=loader.CURRENT_MODEL,
-                messages=messages,
-                temperature=0.7,
-                max_tokens=1024
-            )
-            raw_text = response.choices[0].message.content.strip()
-
-            if chat_id and response.usage:
-                database.decrease_tokens(chat_id, response.usage.total_tokens)
-
-            return re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
-        except Exception as e:
-            print(f"❌ Ошибка в free_chat_ai (OpenAI): {e}")
-            return "Извини, я на секунду потерял связь. Повторишь? 😅"
-
-    else:
-        chat_history_str = f"Системные инструкции: {system_content}\n\nИстория диалога:\n"
-        for msg in history[-10:]:
-            role = "Пользователь" if msg.role == "user" else "Ассистент"
-            chat_history_str += f"{role}: {msg.content}\n"
-        chat_history_str += "Ассистент:"
-
-        try:
-            raw_text = ask_ai(chat_history_str, temperature=0.7, chat_id=chat_id)
-            return re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
-        except Exception as e:
-            print(f"❌ Ошибка в free_chat_ai (Gemini): {e}")
-            if "Лимит" in str(e): return str(e)
-            return "Извини, я на секунду потерял связь. Повторишь? 😅"
+    try:
+        # 🔥 Исправлено: теперь чат работает через универсальный адаптер
+        raw_text = ask_ai(chat_history_str, temperature=0.7, chat_id=chat_id)
+        return re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
+    except Exception as e:
+        print(f"❌ Ошибка в free_chat_ai: {e}")
+        return "Извини, я на секунду потерял связь. Повторишь? 😅"
 
 
 def get_word_details_ai(word: str, target_lang: str, chat_id: int = None):
@@ -304,3 +274,9 @@ def translate_and_extract_words_ai(text: str, target_lang: str, chat_id: int = N
     except Exception as e:
         print(f"❌ Ошибка парсинга JSON: {e}")
         return {"translation": "Ошибка обработки текста.", "words": []}
+
+
+def get_ai_identity(chat_id: int = None) -> str:
+    """Функция для отладки, которая опрашивает ИИ о его личности."""
+    prompt = aiPrompts.debug_ai_identity_prompt()
+    return ask_ai(prompt, temperature=0.3, chat_id=chat_id)

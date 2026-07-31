@@ -1,6 +1,13 @@
 /* ==========================================
    МАТОВОЕ СТЕКЛО С АКЦЕНТОМ СЛЕВА СВЕРХУ И ПРИГЛУШЕННЫМ НИЗОМ
    ========================================== */
+/* 1. Шестеренка настроек цвет */
+.icon-dark {
+border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.01);
+    background: linear-gradient(135deg, rgba(180, 51, 255, 0.01) 0%, transparent 100%) !important;
+        color: #545556  ;
+}
 
 /* 1. Большие карточки (экран онбординга) */
 .card {
@@ -31,25 +38,34 @@
 }
 
 /* ==========================================
-   КАРТОЧКИ МЕНЮ (Из референса)
+   КАРТОЧКИ МЕНЮ (Идеальный квадрат, как на скриншоте)
    ========================================== */
 .menu-card {
-    background: linear-gradient(135deg, rgba(40, 55, 80, 0.4) 0%, rgba(12, 18, 28, 0.5) 100%);
+    background-image:
+        radial-gradient(circle at 30% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 70%),
+        linear-gradient(135deg, rgba(40, 55, 80, 0.4) 0%, rgba(12, 18, 28, 0.5) 100%);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 20px;
-    padding: 20px 10px;
+
+    /* 🔥 Жестко задаем пропорции 1:1, чтобы карточки были идеальными квадратами */
+    aspect-ratio: 1 / 1;
+    padding: 10px;
+    gap: 12px;
+
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
     cursor: pointer;
+
     box-shadow:
-        0 10px 25px rgba(0, 0, 0, 0.25),
-        inset 0 1px 1px rgba(255, 255, 255, 0.2),
-        inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+        0 10px 25px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.15),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+
     position: relative;
     overflow: hidden;
     transition: all 0.2s ease;
@@ -69,33 +85,87 @@
 
 .menu-card:active {
     transform: scale(0.96);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* Иконка внутри карточки */
+/* ==========================================
+   КОНТЕЙНЕР ИКОНКИ (Маленькая подложка, без свечения)
+   ========================================== */
 .menu-card .convex-icon {
-    width: 54px;
-    height: 54px;
-    /* Убедимся, что стили convex-icon применяются правильно, если они не заданы глобально */
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 18px;
+    /* Возвращаем компактный размер */
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #e6d3c3; /* Цвет иконок из референса */
+
+
+    /* Базовая прозрачность */
+background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    /* Обычная стеклянная тень (без цветного свечения) */
     box-shadow:
-        0 6px 16px rgba(0, 0, 0, 0.2),
-        inset 0 1px 2px rgba(255, 255, 255, 0.3),
-        inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+        0 6px 12px rgba(0, 0, 0, 0.15),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
+
+/* Пропорциональный размер самой SVG-иконки внутри подложки */
+.menu-card .convex-icon svg {
+    width: 25px;
+    height: 25px;
+
+
+    /* 🔥 ВОЗВРАЩАЕМ ОРИГИНАЛЬНЫЙ БЕЖЕВЫЙ ЦВЕТ ДЛЯ САМОЙ ИКОНКИ */
+
+
+
+}
+
+
 
 /* Текст внутри карточки */
 .menu-title {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
     color: var(--text-color); /* Используем переменную из твоей темы */
 }
+/* ==========================================
+   ОТТЕНКИ ЖЁЛТОГО ДЛЯ СЛОВ (Насыщенные, только контур и SVG)
+   ========================================== */
+/* --- Оттенки Жёлтого --- */
+.icon-yellow-1 {
+    background: linear-gradient(135deg, rgba(200, 200, 20, 0.12) 0%, transparent 100%) !important;
+    color: #f9e59e
+
+}
+
+.icon-yellow-2 {
+    background: linear-gradient(135deg, rgba(255, 170, 0, 0.12) 0%, transparent 100%) !important;
+    color: #fbf1d1
+}
+
+.icon-yellow-3 {
+    background: linear-gradient(135deg, rgba(255, 136, 0, 0.12) 0%, transparent 100%) !important;
+    color: #ffffff;
+}
+
+/* --- Оттенки Фиолетового --- */
+.icon-purple-1 {
+    background: linear-gradient(135deg, rgba(196, 102, 255, 0.12) 0%, transparent 100%) !important;
+  color: #c4aff3
+}
+
+.icon-purple-2 {
+    background: linear-gradient(135deg, rgba(224, 68, 255, 0.12) 0%, transparent 100%) !important;
+
+}
+
+.icon-purple-3 {
+    background: linear-gradient(135deg, rgba(140, 51, 255, 0.12) 0%, transparent 100%) !important;
+        color: #ffffff;
+}
+
+
 
 /* ==========================================
    КОНТЕЙНЕРЫ ИЗОБРАЖЕНИЙ И СКЕЛЕТОН
@@ -310,4 +380,85 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* ==========================================
+   ПЛАШКИ ЗАДАНИЙ (СЛОВО И ТЕМА) - Уменьшенные
+   ========================================== */
+.task-word-badge {
+    font-size: 11px; /* Уменьшили базовый размер шрифта */
+    background: linear-gradient(135deg, rgba(243, 229, 171, 0.01) 0%, rgba(212, 181, 149, 0.05) 100%);
+    padding: 8px 12px; /* Уменьшили внутренние отступы блоков */
+    border-radius: 10px;
+    border: 1px solid rgba(243, 229, 171, 0.15);
+    border-left: 4px solid rgba(243, 240, 240, 0.3);
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Подзаголовок "Слово:" */
+.task-word-badge b {
+    color: #fef3c7;
+    font-size: 11px; /* Принудительно задаем компактный размер */
+}
+
+/* Сам текст слова */
+.task-word-badge i {
+    color: #ffffff;
+    font-size: 12px; /* Чуть аккуратнее для значения */
+}
+
+.task-rule-badge {
+    cursor: pointer;
+    font-size: 11px; /* Уменьшили базовый размер шрифта */
+    background: linear-gradient(135deg, rgba(147, 145, 234, 0.03) 0%, rgba(76, 29, 149, 0.01) 100%);
+    padding: 8px 12px; /* Уменьшили внутренние отступы блоков */
+    border-radius: 10px;
+    border: 1px solid rgba(216, 220, 254, 0.1);
+    border-left: 4px solid rgba(243, 240, 240, 0.3);
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.02);
+}
+
+/* Подзаголовок "Тема:" */
+.task-rule-badge b {
+    color: #ad97c6;
+    font-size: 11px;
+}
+
+/* Сам текст темы */
+.task-rule-badge i {
+    color: #ffffff;
+    font-size: 12px;
+}
+
+.task-rule-badge:hover {
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.06) 0%, rgba(76, 29, 149, 0.03) 100%);
+}
+
+/* 🔥 Уменьшенная пульсирующая иконка */
+.task-rule-badge .info-pulse-badge {
+    width: 24px;  /* Уменьшили ширину контейнера кнопки */
+    height: 24px; /* Уменьшили высоту контейнера кнопки */
+    border-color: rgba(233, 213, 255, 0.5);
+    color: #e9d5ff;
+    background: rgba(196, 102, 255, 0.12);
+}
+
+/* Уменьшаем саму SVG-иконку «i» внутри кнопки */
+.task-rule-badge .info-pulse-badge svg {
+    width: 11px;
+    height: 11px;
+}
+
+.task-rule-badge .info-pulse-badge::before,
+.task-rule-badge .info-pulse-badge::after {
+    border: 1px solid rgba(233, 213, 255, 0.4);
 }

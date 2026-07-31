@@ -20,10 +20,6 @@ function shuffleArray(array) {
 }
 
 // 🔥 ГЛАВНОЕ МЕНЮ ТРЕНИРОВКИ
-// 🔥 ГЛАВНОЕ МЕНЮ ТРЕНИРОВКИ
-// 🔥 ГЛАВНОЕ МЕНЮ ТРЕНИРОВКИ
-// 🔥 ГЛАВНОЕ МЕНЮ ТРЕНИРОВКИ
-// 🔥 ГЛАВНОЕ МЕНЮ ТРЕНИРОВКИ
 function showTrainingMenu() {
     window.currentAppMode = 'training';
     setAppHeader('Тренировка слов', true);
@@ -49,10 +45,9 @@ function showTrainingMenu() {
                 <button onclick="startTraining(10)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-sizing: border-box;" onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">10 слов</button>
             </div>
 
-           
-           <!-- Фиолетовая плашка со светло-светло-фиолетовым текстом -->
+            <!-- Фиолетовая плашка со светло-светло-фиолетовым текстом -->
             <div style="width: 100%; margin-top: 20px;">
-                <button onclick="showFullDictionary()" class="btn-glass btn-glass-purple">
+                <button onclick="showFullDictionary()" class="btn-glass btn-glass-cream">
                     <span style="display: flex; align-items: center; justify-content: center; margin-bottom: 2px;">
                         ${typeof APP_ICONS !== 'undefined' && APP_ICONS.dictionary ? APP_ICONS.dictionary : '📚'}
                     </span> 
@@ -72,7 +67,10 @@ function toggleSwap() {
 
 function startTraining(count) {
     document.getElementById('input-container').style.display = 'flex';
-    document.getElementById('user-input').placeholder = "Перевод...";
+    const inputEl = document.getElementById('user-input');
+    inputEl.placeholder = "Перевод...";
+
+    setTimeout(() => inputEl.focus(), 10);
 
     const chatContainer = document.getElementById('chat-messages');
     chatContainer.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--hint-color);"><i>⏳ Загрузка слов...</i></div>';
@@ -82,7 +80,6 @@ function startTraining(count) {
             if (window.currentAppMode !== 'training') return;
 
             if (data.success && data.words && data.words.length > 0) {
-                // 🔥 Добавили hintShown: false при старте тренировки
                 trainingState.activeRound = shuffleArray(data.words.map(w => ({ ...w, correctGuesses: 0, hintShown: false })));
                 trainingState.nextRound = [];
                 trainingState.currentIndex = 0;
@@ -90,6 +87,12 @@ function startTraining(count) {
                 trainingState.completedWords = 0;
 
                 showCurrentWord();
+
+                setTimeout(() => {
+                    const activeInput = document.getElementById('user-input');
+                    if (activeInput) activeInput.focus();
+                }, 50);
+
             } else {
                 chatContainer.innerHTML = '<div style="text-align:center; padding: 20px;">Нет слов для тренировки.</div>';
             }
@@ -102,9 +105,13 @@ function startTraining(count) {
 
 function showFlashMessage(htmlContent, delay = 1000) {
     const chatContainer = document.getElementById('chat-messages');
+
+    // 🔥 Зафиксировали высоту ошибки тоже в 260px, чтобы она не прыгала
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 250px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; margin-top: 15px;">
-            ${htmlContent}
+        <div style="display: flex; flex-direction: column; width: 100%; margin-top: 15px;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 260px; min-height: 260px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box; overflow: hidden;">
+                ${htmlContent}
+            </div>
         </div>`;
 
     setTimeout(() => {
@@ -114,14 +121,13 @@ function showFlashMessage(htmlContent, delay = 1000) {
     }, delay);
 }
 
-// 🔥 КАРТОЧКА СЛОВА: Кнопки теперь встроены внутрь в едином стеклянном стиле
+// 🔥 КАРТОЧКА СЛОВА (с динамическим размером шрифта)
 function showCurrentWord() {
     const chatContainer = document.getElementById('chat-messages');
 
-if (trainingState.currentIndex >= trainingState.activeRound.length) {
+    if (trainingState.currentIndex >= trainingState.activeRound.length) {
         if (trainingState.nextRound.length === 0) {
 
-            // 1. Считаем локально, сколько слов выучено, ДО запроса к API
             const previousWords = window.userProfile ? (window.userProfile.words_today || 0) : 0;
             const goal = window.userProfile?.words_per_day || 5;
 
@@ -131,12 +137,10 @@ if (trainingState.currentIndex >= trainingState.activeRound.length) {
 
             const pbTitle = (window.userProfile && window.userProfile.language === 'de') ? 'Wortschatz lernen' : 'Изучение слов';
 
-            // 2. Сразу обновляем локальный профиль, чтобы при выходе в меню были свежие цифры
             if (window.userProfile) {
                 window.userProfile.words_today = newWords;
             }
 
-            // 3. Отправляем прогресс на сервер (без вызова initProgressBars() внутри!)
             apiFetch('/train/finish', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -146,8 +150,6 @@ if (trainingState.currentIndex >= trainingState.activeRound.length) {
                 })
             });
 
-            // 4. Отрисовываем финальную карточку с ОДНИМ баром
-            const chatContainer = document.getElementById('chat-messages');
             chatContainer.innerHTML = `
                 <div class="pb-main-container" style="flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-top: 15px; padding: 30px 20px;">
                     
@@ -173,7 +175,6 @@ if (trainingState.currentIndex >= trainingState.activeRound.length) {
 
             document.getElementById('input-container').style.display = 'none';
 
-            // 5. Запускаем анимацию
             setTimeout(() => {
                 const bar = document.getElementById('final-pb-fill');
                 if (bar) bar.style.width = `${newPercent}%`;
@@ -198,7 +199,6 @@ if (trainingState.currentIndex >= trainingState.activeRound.length) {
 
             }, 100);
 
-            // 6. Автоматический выход через 5 секунд (при выходе меню перерисуется само!)
             setTimeout(() => {
                 if (typeof exitToMainMenu === 'function') {
                     exitToMainMenu();
@@ -206,12 +206,7 @@ if (trainingState.currentIndex >= trainingState.activeRound.length) {
             }, 5000);
 
             return;
-        }
-
-        // ... далее идет ветка else { trainingState.activeRound = shuffleArray(...) }
-
-        // ... далее идет ветка else { trainingState.activeRound = shuffleArray(...) }
-         else {
+        } else {
             trainingState.activeRound = shuffleArray([...trainingState.nextRound.map(w => ({ ...w, hintShown: false }))]);
             trainingState.nextRound = [];
             trainingState.currentIndex = 0;
@@ -221,7 +216,6 @@ if (trainingState.currentIndex >= trainingState.activeRound.length) {
     const wordObj = trainingState.activeRound[trainingState.currentIndex];
     const basePrompt = trainingState.swapped ? wordObj.ru : wordObj.foreign;
 
-    // 🔥 Если подсказка активна, показываем первые 2 буквы + "..."
     let question = basePrompt;
     if (wordObj.hintShown) {
         const targetAnswer = String(trainingState.swapped ? wordObj.foreign : wordObj.ru || '');
@@ -232,35 +226,42 @@ if (trainingState.currentIndex >= trainingState.activeRound.length) {
         }
     }
 
+    // 🔥 ЛОГИКА ДИНАМИЧЕСКОГО ШРИФТА (Уменьшается, если текст длинный)
+    const textLen = question.length;
+    let dynamicFontSize = '28px'; // Базовый размер стал меньше (был 32px)
+    if (textLen > 15) dynamicFontSize = '24px';
+    if (textLen > 25) dynamicFontSize = '20px';
+    if (textLen > 35) dynamicFontSize = '17px';
+    if (textLen > 50) dynamicFontSize = '14px';
+
     const leftToGuess = 3 - (wordObj.correctGuesses || 0);
     const wordsLeft = trainingState.totalWords - trainingState.completedWords;
 
     chatContainer.innerHTML = `
         <div style="display: flex; flex-direction: column; width: 100%; margin-top: 15px;">
             
-            <!-- Сама карточка слова -->
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: 260px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px 20px; position: relative; box-sizing: border-box; width: 100%;">
+            <!-- 🔥 ЖЕСТКО ЗАФИКСИРОВАНА ВЫСОТА height: 260px И ДОБАВЛЕН overflow: hidden -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 260px; min-height: 260px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px 20px; position: relative; box-sizing: border-box; width: 100%; overflow: hidden;">
                 
                 <div style="position: absolute; top: 15px; left: 0; width: 100%; text-align: center; font-size: 12px; color: var(--hint-color); text-transform: uppercase; letter-spacing: 1px;">
                     Осталось слов: <b>${wordsLeft}</b> из ${trainingState.totalWords}
                 </div>
 
-                <!-- Контент слова -->
-                <div style="font-size: 32px; font-weight: bold; color: ${wordObj.hintShown ? 'var(--button-color)' : 'var(--text-color)'}; text-align: center; margin-top: 40px; margin-bottom: 20px; word-wrap: break-word; width: 100%; flex-grow: 1; display: flex; align-items: center; justify-content: center;">
+                <!-- 🔥 ДОБАВЛЕН ID ДЛЯ УДОБНОГО ПОИСКА И ДИНАМИЧЕСКИЙ РАЗМЕР -->
+                <div id="training-word-display" style="font-size: ${dynamicFontSize}; font-weight: bold; color: ${wordObj.hintShown ? 'var(--button-color)' : 'var(--text-color)'}; text-align: center; margin-top: 30px; margin-bottom: 10px; word-wrap: break-word; overflow-wrap: break-word; width: 100%; flex-grow: 1; display: flex; align-items: center; justify-content: center; line-height: 1.2;">
                     ${question}
                 </div>
                 
-                <div style="font-size: 13px; color: rgba(255, 255, 255, 0.6); background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); padding: 6px 14px; border-radius: 12px; margin-bottom: 25px;">
+                <div style="font-size: 13px; color: rgba(255, 255, 255, 0.6); background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); padding: 6px 14px; border-radius: 12px; margin-bottom: 20px;">
                     Осталось угадать: <b style="color: var(--text-color);">${leftToGuess}</b>
                 </div>
 
-                <!-- Блок с кнопками ВНУТРИ карточки -->
-                <div style="display: flex; gap: 10px; width: 100%;">
-                    <button onclick="showHelp()" class="btn-glass-orange-soft">
+                <div style="display: flex; gap: 10px; width: 100%; margin-top: auto;">
+                    <button onclick="showHelp()" onmousedown="event.preventDefault()" class="btn-glass-orange-soft">
                         ${wordObj.hintShown ? 'Скрыть' : 'Подсказка'}
                     </button>
                     
-                    <button onclick="toggleSwap()" class="btn-glass-secondary">
+                    <button onclick="toggleSwap()" onmousedown="event.preventDefault()" class="btn-glass-secondary">
                         Поменять
                     </button>
                 </div>
@@ -279,7 +280,6 @@ function handleTrainingInput(text) {
         const inputEl = document.getElementById('user-input');
         const chatContainer = document.getElementById('chat-messages');
 
-        // УДАЛЯЕМ СИНЮЮ ПЛАШКУ (ПУЗЫРЬ СООБЩЕНИЯ)
         if (chatContainer.lastElementChild && chatContainer.lastElementChild.style.alignSelf === 'flex-end') {
             chatContainer.lastElementChild.remove();
         }
@@ -299,30 +299,36 @@ function handleTrainingInput(text) {
                 trainingState.nextRound.push({ ...wordObj });
             }
 
-            // 🔥 ПРОВЕРЯЕМ: Будет ли это слово последним в тренировке?
             const willFinish = (trainingState.currentIndex + 1 >= trainingState.activeRound.length) && (trainingState.nextRound.length === 0);
 
-            // 1. Подсвечиваем слово
-            const wordDiv = chatContainer.querySelector('div[style*="font-size: 32px"]');
+            // 🔥 Теперь ищем слово по четкому ID, а не по стилю 32px
+            const wordDiv = document.getElementById('training-word-display');
             if (wordDiv) {
+                // Вычисляем размер шрифта для правильного ответа, чтобы он влез в карточку
+                const ansLen = correctAnswer.length;
+                let newSize = '28px';
+                if (ansLen > 15) newSize = '24px';
+                if (ansLen > 25) newSize = '20px';
+                if (ansLen > 35) newSize = '17px';
+                if (ansLen > 50) newSize = '14px';
+
                 wordDiv.innerText = correctAnswer;
+                wordDiv.style.fontSize = newSize; // 🔥 Применяем новый размер
                 wordDiv.style.transition = 'all 0.2s ease-out';
                 wordDiv.style.color = '#34c759';
                 wordDiv.style.textShadow = '0 0 15px rgba(52, 199, 89, 0.4)';
                 wordDiv.style.transform = 'scale(1.05)';
             }
 
-            // 2. Очищаем поле и решаем судьбу клавиатуры
             if (inputEl) {
                 inputEl.value = '';
                 if (willFinish) {
-                    inputEl.blur(); // 🔥 Если финал - плавно прячем клавиатуру прямо сейчас
+                    inputEl.blur();
                 } else {
-                    setTimeout(() => inputEl.focus(), 10); // 🔥 Если нет - держим фокус
+                    setTimeout(() => inputEl.focus(), 10);
                 }
             }
 
-            // 3. Короткая пауза (400мс), затем следующее слово или финал
             setTimeout(() => {
                 trainingState.currentIndex++;
                 trainingState.isAnimating = false;
@@ -335,7 +341,18 @@ function handleTrainingInput(text) {
                 setTimeout(() => inputEl.focus(), 10);
             }
 
-            showFlashMessage(`<div style="font-size: 50px; margin-bottom: 10px;">❌</div><div style="font-size: 16px; color: #ff3b30; text-align: center;">Ошибка! Правильно:</div><div style="font-size: 26px; font-weight: bold; color: var(--text-color); margin-top: 10px; text-align: center;">${correctAnswer}</div>`, 2000);
+            // 🔥 Динамический шрифт для правильного ответа внутри окна ошибки
+            let flashSize = '26px';
+            if (correctAnswer.length > 15) flashSize = '22px';
+            if (correctAnswer.length > 25) flashSize = '18px';
+            if (correctAnswer.length > 35) flashSize = '15px';
+
+            showFlashMessage(`
+                <div style="font-size: 40px; margin-bottom: 5px;">❌</div>
+                <div style="font-size: 14px; color: #ff3b30; text-align: center;">Ошибка! Правильно:</div>
+                <div style="font-size: ${flashSize}; font-weight: bold; color: var(--text-color); margin-top: 10px; text-align: center; word-wrap: break-word; width: 100%; box-sizing: border-box; line-height: 1.2;">${correctAnswer}</div>
+            `, 2000);
+
             apiFetch('/train/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: user.id, word_id: wordObj.id, is_correct: false }) });
 
             trainingState.nextRound.push({ ...wordObj });
@@ -352,10 +369,8 @@ function showHelp() {
 
         const wordObj = trainingState.activeRound[trainingState.currentIndex];
 
-        // Переключаем состояние подсказки в противоположное
         wordObj.hintShown = !wordObj.hintShown;
 
-        // Если подсказку только что открыли, сбрасываем прогресс и фиксируем ошибку
         if (wordObj.hintShown) {
             wordObj.correctGuesses = 0;
             apiFetch('/train/check', {
@@ -370,10 +385,8 @@ function showHelp() {
             setTimeout(() => inputEl.focus(), 10);
         }
 
-        // Мгновенно перерисовываем карточку без задержек
         showCurrentWord();
     } catch (error) {
         document.getElementById('chat-messages').innerHTML = `<div style="text-align:center; padding: 20px;">⚠️ Внутренняя ошибка скрипта.</div>`;
     }
 }
-

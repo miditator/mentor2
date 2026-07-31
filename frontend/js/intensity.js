@@ -10,7 +10,7 @@ let intensityState = {
     langName: "" // 'английский' или 'немецкий'
 };
 
-// 🔥 УНИВЕРСАЛЬНЫЙ HTML ДЛЯ АНИМИРОВАННОЙ ИКОНКИ ЗАГРУЗКИ
+// 🔥 УНИВЕРСАЛЬНЫЙ HTML ДЛЯ АНИМИРОВАННОЙ ИКОНКИ ЗАГРУЗКИ В СТИЛЕ КАРТОЧЕК ЗАДАНИЙ
 const intensityLoaderHTML = `
     <style>
         @keyframes pulseIntensitySmall {
@@ -19,7 +19,7 @@ const intensityLoaderHTML = `
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
     </style>
-    <div style="display: flex; justify-content: center; align-items: center; width: 48px; height: 48px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; color: #34d399; animation: pulseIntensitySmall 2s infinite; margin-bottom: 12px;">
+    <div style="display: flex; justify-content: center; align-items: center; width: 48px; height: 48px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; color: #34d399; animation: pulseIntensitySmall 2s infinite; margin: 0 auto 12px auto;">
         <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M5 26H27" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
             <path d="M6 22L12 15L18 19L26 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -54,9 +54,9 @@ function showIntensitySetupMode() {
 
     const chatContainer = document.getElementById('chat-messages');
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 220px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.04); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 1px 1px 0 rgba(255, 255, 255, 0.08), inset -1px -1px 0 rgba(0, 0, 0, 0.25); padding: 25px 20px; margin-top: 5px; text-align: center;">
+        <div class="card" style="margin-top: 5px;">
             
-            <div style="width: 56px; height: 56px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.1); color: #34d399;">
+            <div style="width: 56px; height: 56px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.1); color: #34d399;">
                 <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M5 26H27" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
                     <path d="M6 22L12 15L18 19L26 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -64,13 +64,13 @@ function showIntensitySetupMode() {
                 </svg>
             </div>
 
-            <div style="font-size: 18px; font-weight: bold; color: var(--text-color); margin-bottom: 10px;">Режим Интенсива</div>
+            <div style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 6px;">Режим Интенсива</div>
             
-            <div style="background: rgba(0, 0, 0, 0.3); padding: 8px 14px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(255, 255, 255, 0.04);">
+            <div style="background: rgba(0, 0, 0, 0.25); padding: 10px 14px; border-radius: 12px; margin-bottom: 8px; font-size: 13px; color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(255, 255, 255, 0.04);">
                 Тренируем: <b>${langName} ${langFlag}</b> &nbsp;|&nbsp; Уровень: <b>${difficulty}</b>
             </div>
 
-            <div style="font-size: 13px; color: rgba(255, 255, 255, 0.5); line-height: 1.4;">
+            <div style="font-size: 13px; color: var(--hint-color); line-height: 1.4;">
                 Напиши любое слово на <b>${langPrepositional}</b> языке. ИИ придумает с ним 5 предложений твоего уровня сложности!
             </div>
         </div>
@@ -78,7 +78,7 @@ function showIntensitySetupMode() {
     userInput.focus();
 }
 
-// 2. ЗАПУСК ГЕНЕРАЦИИ (ПОДДЕРЖИВАЕТ ЗНАЧЕНИЯ ИЗ СЛОВАРЯ И РУЧНОЙ ВВОД)
+// 2. ЗАПУСК ГЕНЕРАЦИИ
 function startIntensity(word, meanings = []) {
     intensityState.word = word.trim();
     if (!intensityState.word) return;
@@ -92,9 +92,9 @@ function startIntensity(word, meanings = []) {
     if ((langCode === 'en' && !isEnglishOnly) || (langCode === 'de' && !isGermanOnly)) {
         document.getElementById('text-input-row').style.display = 'none';
         chatContainer.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 200px; background-color: var(--secondary-bg-color); border-radius: 14px; padding: 20px; margin-top: 10px; text-align: center;">
+            <div class="card" style="margin-top: 10px; align-items: center;">
                 <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
-                <div style="font-size: 15px; color: #ff3b30; font-weight: bold;">Упс! Неверная раскладка.</div>
+                <div style="font-size: 15px; color: #ff3b30; font-weight: 500;">Упс! Неверная раскладка.</div>
                 <div style="font-size: 13px; color: var(--hint-color); margin-top: 8px;">Пожалуйста, введи слово на ${langCode === 'en' ? 'английском' : 'немецком'} языке.</div>
             </div>
         `;
@@ -108,20 +108,19 @@ function startIntensity(word, meanings = []) {
 
     const difficulty = window.userProfile?.difficulty || 'A1';
     window.currentAppMode = 'intensity_active';
-    document.getElementById('text-input-row').style.display = 'none';
 
     let loadingText = meanings.length > 0
         ? `ИИ генерирует 5 фраз со словом <b>${intensityState.word}</b>,<br>используя разные его значения...`
         : `ИИ генерирует 5 фраз со словом <b>${intensityState.word}</b>...`;
 
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 200px; background-color: var(--secondary-bg-color); border-radius: 14px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 15px; margin-top: 10px; text-align: center;">
+        <div class="card" style="margin-top: 10px;">
             ${intensityLoaderHTML}
             <div style="font-size: 14px; color: var(--hint-color); line-height: 1.4;">${loadingText}</div>
         </div>
     `;
 
-   apiFetch('/intensity/start', {
+    apiFetch('/intensity/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -131,7 +130,6 @@ function startIntensity(word, meanings = []) {
             meanings: meanings
         })
     }).then(data => {
-        // 🔥 ПЕРЕХВАТЧИК ЛИМИТОВ
         if (!data.success && window.isRateLimitError(data.error)) {
             return window.showLimitCard();
         }
@@ -140,19 +138,19 @@ function startIntensity(word, meanings = []) {
             intensityState.phrases = data.phrases;
             showNextIntensityPhrase();
         } else {
-            chatContainer.innerHTML = `<div style="text-align:center; padding: 20px;">❌ Ошибка: ${data.error}</div>`;
+            chatContainer.innerHTML = `<div class="card" style="margin-top: 10px;">❌ Ошибка: ${data.error}</div>`;
             document.getElementById('text-input-row').style.display = 'flex';
             window.currentAppMode = 'intensity_setup';
         }
     }).catch(err => {
         if (window.isRateLimitError(err)) return window.showLimitCard();
-        chatContainer.innerHTML = `<div style="text-align:center; padding: 20px;">⚠️ Ошибка сети.</div>`;
+        chatContainer.innerHTML = `<div class="card" style="margin-top: 10px;">⚠️ Ошибка сети.</div>`;
         document.getElementById('text-input-row').style.display = 'flex';
         window.currentAppMode = 'intensity_setup';
     });
 }
 
-// 3. ПОКАЗ ОЧЕРЕДНОЙ ФРАЗЫ (КОМПАКТНАЯ КАРТОЧКА)
+// 3. ПОКАЗ ОЧЕРЕДНОЙ ФРАЗЫ (ЕДИНСТВЕННАЯ ЖЁЛТАЯ КНОПКА "ПОДСКАЗКА")
 function showNextIntensityPhrase() {
     if (intensityState.currentIndex >= 5) {
         showIntensityResult();
@@ -172,53 +170,61 @@ function showNextIntensityPhrase() {
     const langName = langCode === 'de' ? 'немецкий' : 'английский';
     const langFlag = langCode === 'de' ? '🇩🇪' : '🇬🇧';
 
+    intensityState.helpClicks = 0;
+
+    // Жёлтая кнопка "Подсказка", отцентрированная и имеющая размер половины строки
+    let buttons = `
+        <div style="display: flex; justify-content: center; width: 100%;">
+            <button onclick="showIntensityHelp()" onmousedown="event.preventDefault()" class="btn-glass-orange-soft" style="width: 50%;">Подсказка</button>
+        </div>
+    `;
+
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--secondary-bg-color); border-radius: 14px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 12px 15px; margin-top: 10px; width: 100%; box-sizing: border-box;">
+        <div class="card" style="margin-top: 10px; text-align: left;">
             
-            <!-- Шапка: Иконка и Прогресс -->
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px;">
-                <div style="display: flex; justify-content: center; align-items: center; width: 28px; height: 28px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; color: #34d399;">
-                    <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 26H27" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                        <path d="M6 22L12 15L18 19L26 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M19 8H26V15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+            <!-- Шапка: Прогресс -->
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 4px;">
+                <div style="font-size: 11px; color: var(--hint-color); text-transform: uppercase; letter-spacing: 0.5px;">
+                    Переведи на ${langName} ${langFlag}:
                 </div>
-                <div style="font-size: 11px; font-weight: bold; color: var(--text-color); background: rgba(112, 132, 153, 0.15); padding: 5px 10px; border-radius: 8px; text-transform: uppercase;">
+                <div style="font-size: 11px; color: var(--text-color); background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); padding: 4px 10px; border-radius: 10px; text-transform: uppercase;">
                     Фраза ${intensityState.currentIndex + 1} / 5
                 </div>
             </div>
 
             <!-- Задание -->
-            <div style="font-size: 11px; color: var(--hint-color); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; width: 100%; text-align: left;">
-                Переведи на ${langName} ${langFlag}:
-            </div>
-
-            <div style="font-size: 17px; font-weight: bold; color: var(--text-color); margin-bottom: 12px; width: 100%; text-align: left; line-height: 1.2;">
+            <div style="font-size: 20px; font-weight: 500; color: var(--text-color); margin-bottom: 14px; line-height: 1.3; word-wrap: break-word;">
                 ${currentTask.translation}
             </div>
 
-            <div style="font-size: 13px; color: var(--text-color); background: rgba(112, 132, 153, 0.1); padding: 8px 12px; border-radius: 8px; border-left: 3px solid var(--button-color); text-align: left; width: 100%; box-sizing: border-box;">
-                <b>⚙️ Условие:</b> ${currentTask.rule}
+            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 6px;">
+                <!-- ИНТЕРАКТИВНОЕ ПРАВИЛО -->
+                <div class="task-rule-badge" onclick="showTaskRuleTooltip('${currentTask.rule.replace(/'/g, "\\'")}')">
+                    <span><b style="font-size: 13px;">Тема:</b> <i>${currentTask.rule}</i></span>
+                    <div class="info-pulse-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 16v-4"></path>
+                            <path d="M12 8h.01"></path>
+                        </svg>
+                    </div>
+                </div>
             </div>
             
-            <button onclick="showIntensityHelp()" style="width: 100%; margin-top: 12px; padding: 10px; background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.3); border-radius: 8px; color: #ff9f0a; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s;">
-                💡 Не знаю (показать ответ)
-            </button>
+            <div style="width: 100%; margin-top: 10px;">
+                ${buttons}
+            </div>
         </div>
     `;
 }
 
-// 4. ПРОВЕРКА ОТВЕТА (КОМПАКТНО)
-// 4. ПРОВЕРКА ОТВЕТА (КОМПАКТНО)
+// 4. ПРОВЕРКА ОТВЕТА
 function handleIntensityInput(text) {
     const currentTask = intensityState.phrases[intensityState.currentIndex];
-
-    document.getElementById('text-input-row').style.display = 'none';
     const chatContainer = document.getElementById('chat-messages');
 
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 200px; background-color: var(--secondary-bg-color); border-radius: 14px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 15px; margin-top: 10px; text-align: center;">
+        <div class="card" style="margin-top: 10px;">
             ${intensityLoaderHTML}
             <div style="font-size: 14px; color: var(--hint-color);">ИИ-Ментор проверяет твой перевод...</div>
         </div>
@@ -234,63 +240,73 @@ function handleIntensityInput(text) {
             user_answer: text
         })
     }).then(data => {
-        // 🔥 ПЕРЕХВАТЧИК ЛИМИТОВ
         if (!data.success && window.isRateLimitError(data.error)) {
             return window.showLimitCard();
         }
 
         if (data.success) {
             let resultHTML = '';
+            let buttonHTML = '';
 
             if (data.is_correct) {
                 intensityState.score++;
 
-                // 🔥 МГНОВЕННОЕ ОБНОВЛЕНИЕ ПРОГРЕСС-БАРА ФРАЗ
                 if (window.userProfile) {
                     window.userProfile.phrases_today = (window.userProfile.phrases_today || 0) + 1;
-                    if (typeof initProgressBars === 'function') {
-                        initProgressBars();
-                    }
                 }
 
                 resultHTML = `
-                    <div style="font-size: 11px; color: #34c759; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">✅ Верно:</div>
-                    <div style="background: rgba(52, 199, 89, 0.1); padding: 12px; border-radius: 10px; border-left: 3px solid #34c759; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 15px;">
-                        <div style="font-size: 14px; color: var(--text-color);">${data.feedback}</div>
+                    <div style="font-size: 11px; color: #34c759; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">✅ Отлично:</div>
+                    <div style="background: rgba(52, 199, 89, 0.1); padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(52, 199, 89, 0.3); text-align: left; width: 100%; box-sizing: border-box;">
+                        <div style="font-size: 15px; color: var(--text-color);">${text}</div>
                     </div>
                 `;
+
+                buttonHTML = `
+                    <div style="margin-top: 15px; font-size: 13px; color: var(--hint-color); text-align: center;">
+                        Переходим дальше... ⏳
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    if (window.currentAppMode === 'intensity_active') {
+                        nextIntensityStep();
+                    }
+                }, 1500);
+
             } else {
                 resultHTML = `
                     <div style="font-size: 11px; color: #ff3b30; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">❌ Ошибка:</div>
-                    <div style="background: rgba(255, 59, 48, 0.1); padding: 12px; border-radius: 10px; border-left: 3px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 15px;">
+                    <div style="background: rgba(255, 59, 48, 0.1); padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(255, 59, 48, 0.3); border-left: 4px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 15px;">
                         <div style="font-size: 14px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
                     </div>
                 `;
+
+                buttonHTML = `
+                    <button onclick="nextIntensityStep()" onmousedown="event.preventDefault()" class="btn-glass btn-glass-blue" style="width: 100%; height: 48px;">
+                        Дальше ➡️
+                    </button>
+                `;
             }
 
-            // Отрисовываем карточку с результатом и кнопкой перехода
             chatContainer.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--secondary-bg-color); border-radius: 14px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 15px; margin-top: 10px; width: 100%; box-sizing: border-box; text-align: left;">
+                <div class="card" style="margin-top: 10px; text-align: left;">
                     
                     <div style="font-size: 11px; color: var(--hint-color); font-weight: bold; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">Задание:</div>
-                    <div style="font-size: 16px; font-weight: bold; color: var(--text-color); margin-bottom: 15px; word-wrap: break-word; width: 100%;">
+                    <div style="font-size: 18px; font-weight: 500; color: var(--text-color); margin-bottom: 15px; word-wrap: break-word; width: 100%;">
                         ${currentTask.translation}
                     </div>
                     
                     ${resultHTML}
-
-                    <button onclick="nextIntensityStep()" class="btn-glass btn-glass-blue" style="width: 100%; height: 46px;">
-                        Дальше ➡️
-                    </button>
+                    ${buttonHTML}
                 </div>
             `;
-
         } else {
-            chatContainer.innerHTML = `<div style="text-align:center; padding: 20px;">❌ Ошибка: ${data.error}</div>`;
+            chatContainer.innerHTML = `<div class="card" style="margin-top: 10px;">❌ Ошибка: ${data.error}</div>`;
         }
     }).catch(err => {
         if (window.isRateLimitError(err)) return window.showLimitCard();
-        chatContainer.innerHTML = `<div style="text-align:center; padding: 20px;">⚠️ Ошибка сети.</div>`;
+        chatContainer.innerHTML = `<div class="card" style="margin-top: 10px;">⚠️ Ошибка сети.</div>`;
     });
 }
 
@@ -302,10 +318,11 @@ function nextIntensityStep() {
 // 5. ФИНАЛЬНЫЙ ЭКРАН
 function showIntensityResult() {
     const chatContainer = document.getElementById('chat-messages');
+
     document.getElementById('text-input-row').style.display = 'none';
 
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 200px; background-color: var(--secondary-bg-color); border-radius: 14px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 15px; margin-top: 10px; text-align: center;">
+        <div class="card" style="margin-top: 10px;">
             ${intensityLoaderHTML}
             <div style="font-size: 14px; color: var(--hint-color);">Считаем результаты и обновляем прогресс...</div>
         </div>
@@ -323,57 +340,122 @@ function showIntensityResult() {
         let medal = "";
         let progressMsg = "";
 
+        let oldPercent = 0;
+        let newPercent = 0;
+        const langCode = window.userProfile?.language || 'en';
+        const pbTitle = langCode === 'de' ? 'Wortfortschritt' : 'Прогресс слова';
+
+        if (window.userProfile) {
+            const previousWords = window.userProfile.words_today || 0;
+            const goal = window.userProfile.words_per_day || 5;
+
+            oldPercent = Math.min(Math.round((previousWords / goal) * 100), 100);
+
+            if (intensityState.score >= 3 && data.updated !== false) {
+                const newWords = previousWords + 1;
+                newPercent = Math.min(Math.round((newWords / goal) * 100), 100);
+                window.userProfile.words_today = newWords;
+            } else {
+                newPercent = oldPercent;
+            }
+        }
+
         if (intensityState.score === 5) {
             medal = "🥇 Идеально! Истинный мастер контекста!";
-            progressMsg = "🔥 <b>+20% к выученности</b><br><span style='font-size: 12px; color: var(--hint-color);'>Бонус к сроку следующего повторения!</span>";
+            progressMsg = "🔥 <b>Слово успешно закреплено!</b><br><span style='font-size: 12px; color: var(--hint-color);'>Идет в зачет дневной нормы.</span>";
         } else if (intensityState.score >= 3) {
             medal = "🥈 Неплохо, но есть над чем поработать.";
-            progressMsg = "🔄 <b>Процент не изменен</b><br><span style='font-size: 12px; color: var(--hint-color);'>Штрафов нет! Для повышения нужно 5 из 5.</span>";
+            progressMsg = "🔥 <b>Слово засчитано!</b><br><span style='font-size: 12px; color: var(--hint-color);'>Но для идеала нужно 5 из 5.</span>";
         } else {
             medal = "🥉 Нужно повторить правила, ИИ заметил ошибки.";
             progressMsg = "🔄 <b>Процент не изменен</b><br><span style='font-size: 12px; color: var(--hint-color);'>Без штрафов, но стоит тренироваться чаще.</span>";
         }
 
         if (data.success && data.updated === false) {
-            progressMsg = "<i>(Слово не из словаря, прогресс не записан)</i>";
+            progressMsg = `
+                <div style="margin-bottom: 12px; font-size: 13px; color: var(--text-color);">
+                    Слова <b>${intensityState.word}</b> ещё нет в твоём словаре.
+                </div>
+                <button onclick="goToTranslatorForWord('${intensityState.word.replace(/'/g, "\\'")}')" class="btn-glass btn-glass-green" style="width: 100%;">
+                    ➕ Перевести и добавить
+                </button>
+            `;
+            newPercent = oldPercent;
         }
 
         chatContainer.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--secondary-bg-color); border-radius: 14px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px 15px; margin-top: 10px; text-align: center;">
-                <div style="font-size: 50px; margin-bottom: 10px;">🏆</div>
-                <div style="font-size: 18px; font-weight: bold; color: var(--text-color); margin-bottom: 10px;">Интенсив завершен!</div>
+            <div class="card" style="margin-top: 10px;">
+                
+                <div style="font-size: 22px; font-weight: 500; color: var(--text-color); margin-bottom: 15px;">Интенсив завершен!</div>
+                
+                <div class="pb-main-container" style="flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-bottom: 15px; padding: 20px 15px; width: 100%; box-sizing: border-box;">
+                    <div class="pb-avatar" style="margin: 0 auto 15px auto; width: 76px; height: 76px;">
+                        <img src="frontend/img/mentor.jpg" alt="Mentor" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="pb-row" style="width: 100%;">
+                        <div class="pb-header">
+                            <span class="pb-title">${pbTitle}</span>
+                            <span class="pb-value" id="intensity-pb-value">${oldPercent}%</span>
+                        </div>
+                        <div class="pb-track">
+                            <div class="pb-fill" id="intensity-pb-fill" style="width: ${oldPercent}%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="font-size: 15px; color: var(--text-color); margin-bottom: 5px;">Твой результат: <b>${intensityState.score} из 5</b></div>
                 <div style="font-size: 13px; color: var(--hint-color); margin-bottom: 15px; line-height: 1.3;">${medal}</div>
                 
-                <div style="background: rgba(112, 132, 153, 0.1); border-radius: 10px; padding: 12px; width: 100%; margin-bottom: 20px; box-sizing: border-box; line-height: 1.4;">
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 14px; width: 100%; margin-bottom: 20px; box-sizing: border-box; line-height: 1.4;">
                     ${progressMsg}
                 </div>
                 
-                <button onclick="exitToMainMenu()" style="width: 100%; padding: 12px; background: var(--button-color); border: none; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;">
+                <button onclick="exitToMainMenu()" class="btn-glass" style="width: 100%;">
                     Вернуться в меню
                 </button>
+           </div>
+        `;
+
+        if (newPercent > oldPercent) {
+            setTimeout(() => {
+                const bar = document.getElementById('intensity-pb-fill');
+                if (bar) bar.style.width = `${newPercent}%`;
+
+                const valueEl = document.getElementById('intensity-pb-value');
+                const duration = 1000;
+                const startTime = performance.now();
+
+                function updateCounter(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+                    const currentVal = Math.round(oldPercent + (newPercent - oldPercent) * easeProgress);
+                    if (valueEl) valueEl.innerText = `${currentVal}%`;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCounter);
+                    }
+                }
+                requestAnimationFrame(updateCounter);
+            }, 100);
+        }
+
+    }).catch(err => {
+        chatContainer.innerHTML = `
+            <div class="card" style="margin-top: 10px;">
+                ⚠️ Результат не сохранен из-за ошибки сети.<br><br>
+                <button onclick="exitToMainMenu()" class="btn-glass">В меню</button>
             </div>
         `;
-    }).catch(err => {
-        chatContainer.innerHTML = `<div style="text-align:center; padding: 20px;">⚠️ Результат не сохранен из-за ошибки сети.</div>
-        <button onclick="exitToMainMenu()" style="width: 100%; padding: 12px; background: var(--button-color); border: none; border-radius: 10px; color: #fff;">В меню</button>`;
     });
 }
 
-// 6. ФУНКЦИЯ ПОМОЩИ (СДАЧИ) - КОМПАКТНО
-// 6. ФУНКЦИЯ ПОМОЩИ (СДАЧИ) - КОМПАКТНО
+// 6. ФУНКЦИЯ ПОМОЩИ (ЕДИНСТВЕННАЯ СИНЯЯ КНОПКА "ДАЛЬШЕ" ПОСЛЕ ПОДСКАЗКИ)
 function showIntensityHelp() {
     const currentTask = intensityState.phrases[intensityState.currentIndex];
 
-    document.getElementById('text-input-row').style.display = 'none';
-    const chatContainer = document.getElementById('chat-messages');
-
-    chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 200px; background-color: var(--secondary-bg-color); border-radius: 14px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 15px; margin-top: 10px; text-align: center;">
-            ${intensityLoaderHTML}
-            <div style="font-size: 14px; color: var(--hint-color);">ИИ готовит разбор грамматики...</div>
-        </div>
-    `;
+    window.showAiLoader("Ментор подбирает подсказку...");
 
     apiFetch('/intensity/help', {
         method: 'POST',
@@ -384,36 +466,62 @@ function showIntensityHelp() {
             foreign_phrase: currentTask.phrase
         })
     }).then(data => {
-        // 🔥 ПЕРЕХВАТЧИК ЛИМИТОВ
         if (!data.success && window.isRateLimitError(data.error)) {
             return window.showLimitCard();
         }
 
         if (data.success) {
-            // 🔥 Рендерим полученный ответ и кнопку перехода к следующей фразе
-            chatContainer.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--secondary-bg-color); border-radius: 14px; border: 1px solid rgba(112, 132, 153, 0.2); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 15px; margin-top: 10px; width: 100%; box-sizing: border-box; text-align: left;">
-                    
-                    <div style="font-size: 11px; color: #ff9f0a; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">💡 Правильный ответ:</div>
-                    <div style="font-size: 16px; font-weight: bold; color: var(--text-color); margin-bottom: 12px; background: rgba(255, 159, 10, 0.1); padding: 10px 12px; border-radius: 10px; border-left: 3px solid #ff9f0a; word-wrap: break-word; width: 100%; box-sizing: border-box;">
-                        ${currentTask.phrase}
-                    </div>
+            const chatContainer = document.getElementById('chat-messages');
 
-                    <div style="font-size: 11px; color: var(--hint-color); font-weight: bold; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">Разбор:</div>
-                    <div style="font-size: 13px; color: var(--text-color); line-height: 1.4; margin-bottom: 15px; background: rgba(112, 132, 153, 0.1); padding: 10px 12px; border-radius: 10px; width: 100%; box-sizing: border-box;">
-                        ${data.explanation}
-                    </div>
-
-                    <button onclick="nextIntensityStep()" style="width: 100%; padding: 12px; background: var(--button-color); border: none; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;">
-                        Дальше ➡️
-                    </button>
+            // Синяя кнопка "Дальше", отцентрированная и имеющая размер половины строки
+            let buttons = `
+                <div style="display: flex; justify-content: center; width: 100%;">
+                    <button onclick="nextIntensityStep()" onmousedown="event.preventDefault()" class="btn-glass btn-glass-blue" style="width: 50%;">Дальше</button>
                 </div>
             `;
+
+            chatContainer.innerHTML = `
+                <div class="card" style="margin-top: 10px; text-align: left;">
+                    <div style="font-size: 20px; font-weight: 500; color: var(--text-color); margin-bottom: 14px; word-wrap: break-word;">${currentTask.translation}</div>
+                    
+                    <div style="background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.3); padding: 12px; border-radius: 12px; text-align: left; margin-bottom: 15px; width: 100%; box-sizing: border-box;">
+                        <div style="font-size: 14px; font-weight: bold; color: #ff9f0a; margin-bottom: 4px;">💡 Подсказка:</div>
+                        <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.explanation}</div>
+                    </div>
+
+                    <div style="width: 100%; margin-top: 5px;">
+                        ${buttons}
+                    </div>
+                </div>
+            `;
+            document.getElementById('text-input-row').style.display = 'flex';
         } else {
-            chatContainer.innerHTML = `<div style="text-align:center; padding: 20px;">❌ Ошибка: ${data.error}</div>`;
+            const chatContainer = document.getElementById('chat-messages');
+            chatContainer.innerHTML = `<div class="card" style="margin-top: 10px;">❌ Ошибка: ${data.error}</div>`;
         }
     }).catch(err => {
         if (window.isRateLimitError(err)) return window.showLimitCard();
-        chatContainer.innerHTML = `<div style="text-align:center; padding: 20px;">⚠️ Ошибка сети.</div>`;
+        const chatContainer = document.getElementById('chat-messages');
+        chatContainer.innerHTML = `<div class="card" style="margin-top: 10px;">⚠️ Ошибка сети.</div>`;
+    }).finally(() => {
+        window.hideAiLoader();
     });
+}
+
+// ==========================================
+// ПЕРЕХОД В ПЕРЕВОДЧИК ИЗ ИНТЕНСИВА
+// ==========================================
+function goToTranslatorForWord(word) {
+    if (typeof exitToMainMenu === 'function') {
+        exitToMainMenu();
+    }
+
+    const translatorInput = document.getElementById('quick-translator-input');
+    if (translatorInput) {
+        translatorInput.value = word;
+    }
+
+    if (typeof startQuickTranslation === 'function') {
+        startQuickTranslation();
+    }
 }
