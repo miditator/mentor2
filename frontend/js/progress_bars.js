@@ -77,8 +77,18 @@ window.checkMentorIdentity = function() {
     const tooltip = document.getElementById('mentor-identity-tooltip');
     if (!tooltip) return;
 
+    // Берем системное имя провайдера из профиля (как оно сохранено в БД)
     const currentProvider = window.userProfile?.ai_provider || 'groq';
-    const providerName = currentProvider.toLowerCase() === 'gemini' ? 'Google Gemini' : 'Groq (Claude / Llama)';
+
+    // Создаем словарь с красивыми названиями моделей
+    const providerNames = {
+        'groq': 'Groq (Llama)',
+        'gemini': 'Gemini 2.5',
+        'oss_120b': 'OSS 120B'
+    };
+
+    // Если провайдер есть в словаре — берем его имя, иначе выводим системный ID
+    const providerName = providerNames[currentProvider] || currentProvider;
 
     tooltip.style.borderLeftColor = '#38bdf8';
     tooltip.innerHTML = `

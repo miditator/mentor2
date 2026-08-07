@@ -31,6 +31,12 @@ LLM_PROVIDERS = {
         "model": "llama-3.3-70b-versatile",
         "type": "openai"
     },
+    "oss_120b": {
+        "api_key": GROQ_KEY,
+        "base_url": "https://api.groq.com/openai/v1",
+        "model": "openai/gpt-oss-120b",
+        "type": "openai"
+    },
     "openai": {
         "api_key": os.getenv("OPENAI_API_KEY", "sk-proj-твой-ключ"),
         "base_url": None,

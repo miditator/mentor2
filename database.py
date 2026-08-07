@@ -100,6 +100,7 @@ def init_db():
                    ''')
 
     # --- МИГРАЦИИ ---
+    # --- МИГРАЦИИ ---
     try:
         cursor.execute("ALTER TABLE user_settings ADD COLUMN words_per_day INTEGER DEFAULT 5")
     except sqlite3.OperationalError:
@@ -114,22 +115,22 @@ def init_db():
         cursor.execute("ALTER TABLE user_dictionary RENAME COLUMN word_en TO word_foreign")
     except sqlite3.OperationalError:
         pass
+
     try:
         cursor.execute("ALTER TABLE user_settings ADD COLUMN username TEXT")
     except sqlite3.OperationalError:
         pass
-
 
     try:
         cursor.execute("ALTER TABLE user_settings ADD COLUMN phrases_per_day INTEGER DEFAULT 10")
     except sqlite3.OperationalError:
         pass
 
-        # 🔥 НОВАЯ МИГРАЦИЯ ДЛЯ ПРОВАЙДЕРА ИИ 🔥
-        try:
-            cursor.execute("ALTER TABLE user_settings ADD COLUMN ai_provider TEXT DEFAULT 'groq'")
-        except sqlite3.OperationalError:
-            pass
+    # 🔥 ИСПРАВЛЕННАЯ МИГРАЦИЯ ДЛЯ ПРОВАЙДЕРА ИИ 🔥
+    try:
+        cursor.execute("ALTER TABLE user_settings ADD COLUMN ai_provider TEXT DEFAULT 'groq'")
+    except sqlite3.OperationalError:
+        pass
 
     conn.commit()
     conn.close()

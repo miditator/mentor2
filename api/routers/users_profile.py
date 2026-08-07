@@ -1,0 +1,62 @@
+from fastapi import APIRouter
+import database
+from api.schemas import *
+
+# 🔥 ДОБАВЛЕН ИМПОРТ ФУНКЦИИ ИЗ utils.py
+from utils import start_or_resume_timer
+
+router = APIRouter(prefix="/api", tags=["Users_Profile"])
+
+
+@router.get("/profile")
+def get_user_profile(chat_id: int, username: str = "Пользователь"):
+    # 🔥 НОВОЕ: Запускаем или возобновляем таймер при каждом открытии профиля
+    start_or_resume_timer(chat_id)
+
+    database.update_user_setting(chat_id, "username", username)
+
+    config_data = database.get_user_config(chat_id)
+    is_new = not config_data or not config_data.get("source_lang") or not config_data.get("difficulty")
+
+    if is_new:
+        return {"success": True, "is_new_user": True, "username": username}
+
+    words = database.get_full_dictionary(chat_id)
+    words_count = len(words) if words else 0
+    active_task = database.get_active_task(chat_id)
+
+    phrases_today = database.get_today_completions_count(chat_id)
+    words_today = database.get_today_word_completions_count(chat_id)
+
+    words_per_day = config_data.get("words_per_day", 5)
+    phrases_per_day = config_data.get("phrases_per_day", 10)
+
+    return {
+        "success": True,
+        "is_new_user": False,
+        "language": config_data.get("source_lang"),
+        "difficulty": config_data.get("difficulty"),
+        "words_count": words_count,
+        "words_per_day": words_per_day,
+        "phrases_per_day": phrases_per_day,
+        "words_today": words_today,
+        "phrases_today": phrases_today,
+        "username": config_data.get("username", username),
+        "active_task": active_task,
+        "ai_provider": config_data.get("ai_provider", "groq")
+    }
+
+
+@router.post("/onboarding")
+def save_onboarding(data: OnboardingData):
+    try:
+        database.update_user_setting(data.chat_id, "source_lang", data.language)
+        database.update_user_setting(data.chat_id, "difficulty", data.difficulty)
+
+        # Вызов функции для генерации стартовых слов
+        from handlers.buttons import seed_initial_words_via_ai
+        seed_initial_words_via_ai(data.chat_id, data.language)
+
+        return {"success": True}
+    except Exception as e:
+        return {"success": False, "error": str(e)}

@@ -677,7 +677,7 @@ function startGrammarTraining(rule) {
         <div style="font-size: 32px; margin-bottom: 10px;">⏳</div>
         <div style="font-size: 15px; color: var(--hint-color);">ИИ составляет предложение по правилу <br><b>${rule}</b>...</div>
     `);
-    window.showAiLoader("ИИ сосотавляет задание...")
+    window.showAiLoader("ИИ составляет задание...")
 
     // Передаем принудительно вычисленную сложность (difficulty) вместо юзерской
     apiFetch(`/grammar/new?chat_id=${user.id}&rule=${encodeURIComponent(rule)}&difficulty=${encodeURIComponent(difficultyForApi)}`)

@@ -14,40 +14,41 @@ import database
 
 # Универсальный адаптер для работы с любыми провайдерами
 def ask_ai(prompt: str, temperature: float = 0.7, chat_id: int = None) -> str:
-    """
-    Универсальный адаптер. Сам решает, куда слать запрос,
-    основываясь на личном выборе пользователя в настройках.
-    Никаких проверок токенов здесь нет.
-    """
     user_provider = "groq"  # Значение по умолчанию
 
-    # 1. Просто узнаем, какую сеть выбрал юзер
+    # 1. Узнаем, какую сеть выбрал юзер
     if chat_id:
         user_config = database.get_user_config(chat_id)
-        if user_config:
-            user_provider = user_config.get("ai_provider", "groq")
-    print(f"\n🚀 [AI ROUTER] Запрос от chat_id: {chat_id} | Нейросеть: {user_provider.upper()} 🚀\n")
+        if user_config and user_config.get("ai_provider"):
+            user_provider = user_config.get("ai_provider")
+
+    # 2. Получаем настройки конкретного провайдера из конфига
+    provider_config = config.LLM_PROVIDERS.get(user_provider, config.LLM_PROVIDERS["groq"])
+    api_type = provider_config["type"]
+    model_name = provider_config["model"]
+
+    print(f"\n🚀 [AI ROUTER] Запрос от chat_id: {chat_id} | Нейросеть: {user_provider.upper()} ({model_name}) 🚀\n")
 
     try:
-        # 2. Запрос в Groq (Claude / Llama)
-        if user_provider == "groq":
+        # Универсальный обработчик для всех OpenAI-совместимых сетей (Groq, GPT-OSS и др.)
+        if api_type == "openai":
             from openai import OpenAI
             client = OpenAI(
-                api_key=config.LLM_PROVIDERS["groq"]["api_key"],
-                base_url=config.LLM_PROVIDERS["groq"]["base_url"]
+                api_key=provider_config["api_key"],
+                base_url=provider_config.get("base_url")
             )
             response = client.chat.completions.create(
-                model=config.LLM_PROVIDERS["groq"]["model"],
+                model=model_name,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=temperature
             )
             return response.choices[0].message.content.strip()
 
-        # 3. Запрос в Gemini
-        elif user_provider == "gemini":
+        # Обработчик для Gemini
+        elif api_type == "gemini":
             import google.generativeai as genai
-            genai.configure(api_key=config.LLM_PROVIDERS["gemini"]["api_key"])
-            client = genai.GenerativeModel(config.LLM_PROVIDERS["gemini"]["model"])
+            genai.configure(api_key=provider_config["api_key"])
+            client = genai.GenerativeModel(model_name)
 
             generation_config = {"temperature": temperature}
             response = client.generate_content(
@@ -71,7 +72,6 @@ def translate_word_ai(word: str, target_lang: str, chat_id: int, is_russian: boo
     else:
         prompt = aiPrompts.word_translation_from_foreign_prompt(word, target_lang)
 
-    # 🔥 Исправлено: теперь передаем chat_id, чтобы ИИ мог выбрать провайдера
     answer = ask_ai(prompt, temperature=0.3, chat_id=chat_id)
 
     if answer == "ERROR_NONSENSE":
@@ -84,8 +84,17 @@ def translate_word_ai(word: str, target_lang: str, chat_id: int, is_russian: boo
 
     parts = answer.split("||")
 
-    # Убираем случайные квадратные скобки, если ИИ их добавил
-    original_word = parts[0].strip().replace("[", "").replace("]", "") if len(parts) > 0 else word
+    # Убираем случайные квадратные скобки
+    raw_word = parts[0].strip().replace("[", "").replace("]", "") if len(parts) > 0 else word
+
+    # 🔥 НОВАЯ ЛОГИКА: Вытаскиваем пояснение и склеиваем его с исходным словом пользователя
+    original_word = raw_word
+    explanation = ""
+    match = re.search(r'^(.*?)\s*\((.*?)\)$', raw_word)
+    if match:
+        original_word = match.group(1).strip()
+        # Добавляем само слово, которое ввел юзер, перед пояснением
+        explanation = f"{word} — {match.group(2).strip()}"
 
     meanings_data = []
 
@@ -95,7 +104,6 @@ def translate_word_ai(word: str, target_lang: str, chat_id: int, is_russian: boo
         if "~~~" in translation_part:
             meanings_str, examples_str = translation_part.split("~~~")
 
-            # Очищаем значения и примеры от скобок
             meanings_list = [m.replace("[", "").replace("]", "").strip() for m in meanings_str.split("|") if m.strip()]
             examples_list = [e.replace("[", "").replace("]", "").strip() for e in examples_str.split("|") if e.strip()]
 
@@ -105,8 +113,7 @@ def translate_word_ai(word: str, target_lang: str, chat_id: int, is_russian: boo
                     "example": examples_list[i] if i < len(examples_list) else ""
                 })
         else:
-            meanings_list = [m.replace("[", "").replace("]", "").strip() for m in translation_part.split("|") if
-                             m.strip()]
+            meanings_list = [m.replace("[", "").replace("]", "").strip() for m in translation_part.split("|") if m.strip()]
             for m in meanings_list:
                 meanings_data.append({"meaning": m, "example": ""})
 
@@ -117,7 +124,7 @@ def translate_word_ai(word: str, target_lang: str, chat_id: int, is_russian: boo
         "details": {
             "word": original_word,
             "transcription": "",
-            "part_of_speech": "",
+            "part_of_speech": explanation, # 🔥 Теперь тут будет: "went — Past Simple от went"
             "meanings": meanings_data
         }
     }
@@ -172,9 +179,15 @@ def help_intensity_ai(russian_phrase: str, foreign_phrase: str, chat_id: int = N
     return ask_ai(prompt, temperature=0.3, chat_id=chat_id)
 
 
-def extract_words_from_image_ai(base64_image: str, target_lang: str, chat_id: int = None) -> list:
-    # Очищено от проверок токенов
+def extract_words_from_image_ai(base64_image: str, target_lang: str, chat_id: int = None) -> dict:
+    if chat_id:
+        user_config = database.get_user_config(chat_id)
+        if user_config.get("tokens_left", 0) <= 0:
+            raise Exception("⚠️ Лимит токенов исчерпан.")
+
+    # 🔥 Вызываем промпт из отдельного файла
     prompt = aiPrompts.extract_words_from_image_prompt(target_lang)
+
     image_bytes = base64.b64decode(base64_image)
     image = PIL.Image.open(io.BytesIO(image_bytes))
 
@@ -184,11 +197,20 @@ def extract_words_from_image_ai(base64_image: str, target_lang: str, chat_id: in
     response = vision_model.generate_content([prompt, image])
     ai_text = response.text.strip()
 
+    if chat_id and hasattr(response, 'usage_metadata'):
+        used_tokens = response.usage_metadata.total_token_count
+        database.decrease_tokens(chat_id, used_tokens)
+
+    # Очистка от возможных Markdown-оберток
     if ai_text.startswith("```json"): ai_text = ai_text[7:]
     if ai_text.startswith("```"): ai_text = ai_text[3:]
     if ai_text.endswith("```"): ai_text = ai_text[:-3]
 
-    return json.loads(ai_text.strip())
+    try:
+        return json.loads(ai_text.strip())
+    except json.JSONDecodeError as e:
+        print(f"❌ Ошибка парсинга JSON из картинки: {e}")
+        return {"original": "", "translation": "", "words": []}
 
 
 def transcribe_audio_ai(audio_file_path: str) -> str:
@@ -200,9 +222,9 @@ def transcribe_audio_ai(audio_file_path: str) -> str:
     return transcript.text
 
 
-def generate_strict_grammar_task_ai(lang_name: str, target_word: str, difficulty: str, specific_rule: str,
-                                    chat_id: int = None) -> str:
-    prompt = aiPrompts.generate_strict_grammar_prompt(lang_name, target_word, difficulty, specific_rule)
+def generate_strict_grammar_task_ai(lang_name: str, target_word: str, difficulty: str, specific_rule: str, history: list = None, chat_id: int = None) -> str:
+    # 🔥 НОВОЕ: Передаем историю в промпт
+    prompt = aiPrompts.generate_strict_grammar_prompt(lang_name, target_word, difficulty, specific_rule, history)
     try:
         full_prompt = f"[Системная инструкция: Ты возвращаешь только 1 строку текста. Никаких Markdown, никаких тегов.]\n\n{prompt}"
         raw_text = ask_ai(full_prompt, temperature=0.3, chat_id=chat_id)
@@ -216,7 +238,13 @@ def generate_strict_grammar_task_ai(lang_name: str, target_word: str, difficulty
 
 
 def free_chat_ai(history: list, lang_name: str, chat_id: int = None) -> str:
-    system_content = aiPrompts.generate_free_chat_system_prompt(lang_name)
+    # 🔥 АВТО-ПЕРЕКЛЮЧЕНИЕ ПРОМПТА: Проверяем, есть ли в истории диалога маркер разбора ошибки
+    is_error_chat = any("У меня вопрос по моей ошибке" in msg.content for msg in history)
+
+    if is_error_chat:
+        system_content = aiPrompts.error_analysis_chat_prompt(lang_name)
+    else:
+        system_content = aiPrompts.generate_free_chat_system_prompt(lang_name)
 
     # Формируем историю в виде текста
     chat_history_str = f"Системные инструкции: {system_content}\n\nИстория диалога:\n"
@@ -226,7 +254,6 @@ def free_chat_ai(history: list, lang_name: str, chat_id: int = None) -> str:
     chat_history_str += "Ассистент:"
 
     try:
-        # 🔥 Исправлено: теперь чат работает через универсальный адаптер
         raw_text = ask_ai(chat_history_str, temperature=0.7, chat_id=chat_id)
         return re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
     except Exception as e:
@@ -254,18 +281,9 @@ def get_word_details_ai(word: str, target_lang: str, chat_id: int = None):
 
 
 def translate_and_extract_words_ai(text: str, target_lang: str, chat_id: int = None) -> dict:
-    prompt = (
-        f"Переведи следующий текст на русский язык.\n"
-        f"Текст ({target_lang}): \"{text}\"\n\n"
-        f"Также извлеки из него все значимые слова на языке {target_lang} (переведи их в начальную форму/лемматизируй) и напиши их перевод.\n"
-        f"Верни ответ СТРОГО в формате JSON, без оберток Markdown:\n"
-        f"{{\n"
-        f"  \"translation\": \"красивый литературный перевод всего текста\",\n"
-        f"  \"words\": [\n"
-        f"    {{\"word\": \"слово\", \"translation\": \"перевод слова\"}}\n"
-        f"  ]\n"
-        f"}}"
-    )
+    # 🔥 Теперь мы берем промпт из файла aiPrompts.py
+    prompt = aiPrompts.translate_and_extract_text_prompt(text, target_lang)
+
     raw_json = ask_ai(prompt, temperature=0.3, chat_id=chat_id)
     raw_json = raw_json.replace("```json", "").replace("```", "").strip()
 
@@ -280,3 +298,19 @@ def get_ai_identity(chat_id: int = None) -> str:
     """Функция для отладки, которая опрашивает ИИ о его личности."""
     prompt = aiPrompts.debug_ai_identity_prompt()
     return ask_ai(prompt, temperature=0.3, chat_id=chat_id)
+
+
+def get_error_analysis_ai(message: str, lang_name: str, chat_id: int = None) -> str:
+    """Функция для одиночного вопроса по ошибке без сохранения контекста чата."""
+    system_prompt = aiPrompts.error_analysis_chat_prompt(lang_name)
+
+    # Формируем итоговый запрос, объединяя инструкции и сообщение пользователя
+    full_prompt = f"Системные инструкции: {system_prompt}\n\nСообщение пользователя:\n{message}"
+
+    try:
+        raw_text = ask_ai(full_prompt, temperature=0.4, chat_id=chat_id)
+        # Очищаем от тегов размышлений, если провайдер их вернул
+        return re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
+    except Exception as e:
+        print(f"❌ Ошибка в get_error_analysis_ai: {e}")
+        return "Произошла ошибка при анализе. Попробуйте еще раз."

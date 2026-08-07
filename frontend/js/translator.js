@@ -198,6 +198,12 @@ function toggleSingleWordSave(btn, word, translation) {
                 btn.style.background = 'rgba(16, 185, 129, 0.25)';
                 btn.style.borderColor = 'rgba(16, 185, 129, 0.5)';
                 btn.style.color = '#a7f3d0';
+                // 🔥 ФОРСИРОВАННОЕ ОБНОВЛЕНИЕ СЧЕТЧИКА НА ЭКРАНЕ
+                const mpWords = document.getElementById('mp-words');
+                if (mpWords) {
+                    const currentCount = parseInt(mpWords.innerText) || 0;
+                    mpWords.innerText = currentCount + 1;
+                }
             } else {
                 btn.innerHTML = '⚠️ Уже в словаре';
                 btn.style.background = 'rgba(255, 159, 10, 0.25)';
@@ -242,7 +248,7 @@ function renderTranslationResult(original, translation, newWords) {
 
     if (newWords && newWords.length > 0) {
         wordsHtml = `
-            <div style="margin-top: 20px; text-align: left;">
+            <div style="margin-top: 20px; text-align: left; padding-bottom: 80px;">
                 <div style="font-size: 11px; color: var(--hint-color); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; font-weight: bold;">Незнакомые слова из текста:</div>
                 <div id="smart-translator-words-list" style="display: flex; flex-direction: column; gap: 8px;">
         `;
@@ -268,8 +274,10 @@ function renderTranslationResult(original, translation, newWords) {
 
         wordsHtml += `
                 </div>
-                <button id="save-selected-words-btn" onclick="saveSelectedWords()" class="btn-glass btn-glass-purple" style="margin-top: 15px; width: 100%; height: 46px; display: none; -webkit-tap-highlight-color: transparent;">Сохранить выбранные</button>
-            </div>`;
+            </div>
+            <!-- 🔥 ПЛАВАЮЩАЯ ЗЕЛЕНАЯ КНОПКА СОХРАНЕНИЯ -->
+            <button id="save-selected-words-btn" onclick="saveSelectedWords()" class="btn-glass btn-glass-green" style="position: fixed; bottom: 30px; left: 5%; width: 90%; height: 52px; display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); font-size: 16px; -webkit-tap-highlight-color: transparent;">Сохранить выбранные</button>
+        `;
     } else {
         wordsHtml = `
             <div style="margin-top: 20px; text-align: center; padding: 15px; background: rgba(168, 129, 243, 0.08); border-radius: 14px; border: 1px solid rgba(168, 129, 243, 0.2);">
@@ -279,10 +287,15 @@ function renderTranslationResult(original, translation, newWords) {
     }
 
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; width: 100%; margin-top: 15px;">
-            <div style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box; width: 100%;">
+        <div style="display: flex; flex-direction: column; width: 100%; margin-top: 15px; position: relative;">
+            <div style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box; width: 100%; position: relative;">
                 
-                <div style="text-align: left;">
+                <!-- 🔥 КРЕСТИК ЗАКРЫТИЯ ВМЕСТО КНОПКИ ОТМЕНЫ -->
+                <button onclick="exitToMainMenu()" class="btn-glass btn-glass-neutral" style="position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; padding: 0; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; -webkit-tap-highlight-color: transparent;">
+                    <span style="font-size: 14px; opacity: 0.8;">✕</span>
+                </button>
+
+                <div style="text-align: left; padding-right: 30px;">
                     <div style="font-size: 11px; color: var(--hint-color); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Оригинал:</div>
                     <div style="font-size: 15px; color: rgba(255,255,255,0.7); margin-bottom: 16px; word-wrap: break-word; line-height: 1.4;">${original}</div>
                     
@@ -368,6 +381,12 @@ function saveSelectedWords() {
             saveBtn.style.background = 'rgba(16, 185, 129, 0.25)';
             saveBtn.style.borderColor = 'rgba(16, 185, 129, 0.5)';
             saveBtn.style.color = '#a7f3d0';
+
+            const mpWords = document.getElementById('mp-words');
+            if (mpWords && data.added_count) {
+                const currentCount = parseInt(mpWords.innerText) || 0;
+                mpWords.innerText = currentCount + data.added_count;
+            }
 
             selectedBtns.forEach(btn => {
                 btn.onclick = null;

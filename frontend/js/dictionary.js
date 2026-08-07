@@ -670,7 +670,7 @@ function saveSelectedMeanings(foreignWord) {
     const selectedBtns = list.querySelectorAll('button[data-selected="true"]');
     if (selectedBtns.length === 0) return;
 
-    // 🔥 Жесткая очистка слова от возможных HTML-тегов или лишних символов
+    // Жесткая очистка слова от возможных HTML-тегов или лишних символов
     let cleanForeignWord = String(foreignWord).replace(/<[^>]*>/g, '').trim();
 
     const chosenMeanings = [];
@@ -708,28 +708,36 @@ function saveSelectedMeanings(foreignWord) {
     saveBtn.innerHTML = '⏳ Сохраняю...';
     saveBtn.style.pointerEvents = 'none';
 
-    apiFetch('/words/add', {
+    // 🔥 ИСПРАВЛЕНИЕ: Отправляем на /words/edit вместо /words/add для обновления слова
+    apiFetch('/words/edit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             chat_id: user.id,
-            foreign: cleanForeignWord,
-            ru: combinedTranslation
+            word: cleanForeignWord,               // Ключ для /words/edit
+            new_translation: combinedTranslation  // Ключ для /words/edit
         })
     }).then(data => {
-        // 🔥 Проверяем просто success (даже если слово уже было в базе, бэкенд возвращает success: true)
         if (data && data.success) {
             saveBtn.innerHTML = '✅ Успешно сохранено!';
             saveBtn.style.background = 'rgba(16, 185, 129, 0.25)';
             saveBtn.style.borderColor = 'rgba(16, 185, 129, 0.5)';
             saveBtn.style.color = '#a7f3d0';
 
+            // Синхронизируем локальный массив с новыми данными
+            let wordObj = dictionaryWords.find(w => (w.word_foreign || w.foreign || w[0]) === cleanForeignWord);
+            if (wordObj) {
+                if (wordObj.word_ru !== undefined) wordObj.word_ru = combinedTranslation;
+                else if (wordObj.ru !== undefined) wordObj.ru = combinedTranslation;
+                else if (wordObj[1] !== undefined) wordObj[1] = combinedTranslation;
+            }
+
             selectedBtns.forEach(btn => {
                 btn.onclick = null;
                 btn.style.pointerEvents = 'none';
             });
 
-            // Закрываем модальное окно и обновляем словарь через 1.2 секунды
+            // Закрываем модальное окно и обновляем словарь
             setTimeout(() => {
                 if (typeof closeWordDetails === 'function') {
                     closeWordDetails();

@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.profile import router as profile_router # Импортируем наш роутер
+from api.routers import all_routers
 import database
 
 
@@ -19,6 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 🚀 ПОДКЛЮЧАЕМ НАШИ РОУТЕРЫ
-app.include_router(profile_router)
+# Циклом добавляем все роутеры в приложение
+for r in all_routers:
+    app.include_router(r)
 

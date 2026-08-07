@@ -275,23 +275,35 @@ def start_chat_onboarding_callback(call):
 # ==========================================
 # ОБРАБОТКА ОТВЕТОВ ВИКТОРИНЫ ПО ТАЙМЕРУ
 # ==========================================
-@bot.callback_query_handler(func=lambda call: call.data.startswith("quiz_"))
+# ==========================================
+# ОБРАБОТКА ОТВЕТОВ ВИКТОРИНЫ ПО ТАЙМЕРУ
+# ==========================================
+@bot.callback_query_handler(func=lambda call: call.data.startswith("qans_"))
 def handle_quiz_timer_answer(call):
     chat_id = call.message.chat.id
     message_id = call.message.message_id
 
-    if call.data == "quiz_T":
-        # Уведомляем пользователя всплывающим уведомлением
+    # Парсим callback_data (формат: qans_1_123)
+    parts = call.data.split('_')
+    is_correct = (parts[1] == '1')
+    word_id = int(parts[2])
+
+    # ОБНОВЛЯЕМ ПРОГРЕСС В БАЗЕ СЛОВ
+    database.update_word_progress(word_id, is_correct)
+
+    if is_correct:
+        # Уведомляем пользователя обычным тостом
         bot.answer_callback_query(call.id, "✅ Правильно!")
 
-        # Просто удаляем сообщение с викториной и больше ничего не делаем
+        # Просто удаляем сообщение с викториной, как было раньше
         try:
             bot.delete_message(chat_id, message_id)
         except Exception as e:
             print(f"Не удалось удалить сообщение викторины: {e}")
     else:
-        # При неверном ответе показываем подсказку
-        bot.answer_callback_query(call.id, "❌ Неверно! Попробуй вспомнить еще раз.", show_alert=True)
+        # При неверном ответе показываем окно (alert) и оставляем викторину висеть
+        alert_text = "❌ Неверно, попробуй ещё раз!\n\nСлово сброшено в самый начальный цикл повторения."
+        bot.answer_callback_query(call.id, alert_text, show_alert=True)
 
 
 # ==========================================

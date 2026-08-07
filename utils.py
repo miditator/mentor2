@@ -105,47 +105,44 @@ def send_text_task(chat_id):
 
 
 def send_quiz_task(chat_id):
-    """Задание Б: Викторина на перевод слова из словаря (без лишних кнопок)"""
+    """Задание Б: Викторина на перевод слова из словаря с интервальным повторением"""
     user_config = database.get_user_config(chat_id)
     target_lang = user_config.get("source_lang", "en") if user_config else "en"
-    lang_label = "Английского" if target_lang == "en" else "Немецкого"
+    lang_label = "Английский" if target_lang == "en" else "Немецкий"
 
-    words = database.get_full_dictionary(chat_id, specific_lang=target_lang)
-    if not words or len(words) < 3:
-        return False  # Недостаточно слов для вариантов ответа
-
-    chosen_words = random.sample(words, min(3, len(words)))
-    target_word = chosen_words[0]
-
-    # Безопасно извлекаем иностранное слово и перевод (поддерживает и словари, и списки)
-    def get_word_prop(w, key, index):
-        if isinstance(w, dict):
-            return w.get(key) or w.get(f"word_{key}")
-        try:
-            return w[index]
-        except (KeyError, TypeError, IndexError):
-            return None
-
-    target_foreign = get_word_prop(target_word, 'foreign', 0)
-    target_ru = get_word_prop(target_word, 'ru', 1)
-
-    options = [get_word_prop(w, 'ru', 1) for w in chosen_words]
-    options = [opt for opt in options if opt]
-
-    if len(options) < 3 or not target_foreign or not target_ru:
+    # 🔥 1. Умная выборка: берем ТОЛЬКО 1 слово, время повторения которого пришло
+    target_words = database.get_words_for_training(chat_id, limit_new=1)
+    if not target_words:
         return False
 
+    # Распаковываем кортеж из get_words_for_training (id, word_foreign, word_ru, score)
+    target_id, target_foreign, target_ru, _ = target_words[0]
+
+    # 🔥 2. Получаем 2 неправильных варианта для кнопок
+    # Чтобы не нагружать БД, запрашиваем весь словарь и отфильтровываем целевое слово
+    all_words = database.get_full_dictionary(chat_id, specific_lang=target_lang)
+    wrong_options = [w for w in all_words if w['id'] != target_id]
+
+    if len(wrong_options) < 2:
+        return False  # Мало слов для вариантов ответа
+
+    chosen_wrong = random.sample(wrong_options, min(2, len(wrong_options)))
+
+    # 3. Собираем варианты ответа и перемешиваем
+    options = [target_foreign] + [w['foreign'] for w in chosen_wrong]
     random.shuffle(options)
 
-    # Инлайн-кнопки с вариантами ответа
+    # 4. Создаем инлайн-кнопки с передачей ID слова
     markup = InlineKeyboardMarkup(row_width=1)
     for opt in options:
-        cb_data = "quiz_T" if opt == target_ru else "quiz_F"
+        is_correct = (opt == target_foreign)
+        # Формат: "qans_1_123" (где 1 = True, 0 = False, 123 = word_id)
+        cb_data = f"qans_1_{target_id}" if is_correct else f"qans_0_{target_id}"
         markup.add(InlineKeyboardButton(text=str(opt).capitalize(), callback_data=cb_data))
 
     bot.send_message(
         chat_id,
-        f"🧠 <b>Викторина из словаря!</b>\nКак переводится слово <b>{target_foreign}</b> с {lang_label.lower()}?",
+        f"⏱ <b>Минутка для перевода:</b>\n«{target_ru}»",
         reply_markup=markup,
         parse_mode="HTML"
     )

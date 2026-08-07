@@ -111,7 +111,7 @@ function sendImageToAi(base64Image) {
         if (data.success) {
             if (data.words && data.words.length > 0) {
                 pendingImageWords = data.words;
-                renderImageWordsCheckboxes();
+                renderImageWordsCheckboxes(data.original, data.translation);
             } else if (data.all_known) {
                 showImageCard(`
                     <div class="ic-icon-large">🧠</div>
@@ -149,43 +149,85 @@ function sendImageToAi(base64Image) {
 }
 
 // 4. Отрисовываем чекбоксы
-function renderImageWordsCheckboxes() {
-    let checkboxesHtml = pendingImageWords.map((w, index) => `
-        <label class="word-checkbox-label">
-            <input type="checkbox" value="${index}" checked>
-            <div class="word-checkbox-text">
-                <span class="word-checkbox-foreign">${w.foreign}</span>
-                <span class="word-checkbox-ru">${w.ru}</span>
+// 4. Отрисовываем результаты сканирования (ТОЧНО КАК В ПЕРЕВОДЧИКЕ ТЕКСТА)
+function renderImageWordsCheckboxes(original, translation) {
+    let wordsHtml = `
+        <div style="margin-top: 20px; text-align: left; padding-bottom: 80px;">
+            <div id="image-words-list" style="display: flex; flex-direction: column; gap: 8px;">
+    `;
+
+    pendingImageWords.forEach((w) => {
+        const safeWord = (w.foreign || w.word || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+        const safeTranslation = (w.ru || w.translation || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+        wordsHtml += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.2); padding: 12px 15px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.05);">
+                <div>
+                    <div style="font-weight: 600; color: var(--text-color); font-size: 15px; margin-bottom: 3px;">${w.foreign || w.word}</div>
+                    <div style="font-size: 13px; color: rgba(255,255,255,0.6);">${w.ru || w.translation}</div>
+                </div>
+                <button onclick="toggleImageWordState(this)" 
+                        data-selected="false"
+                        data-word="${safeWord}"
+                        data-translation="${safeTranslation}"
+                        style="width: 36px; height: 36px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.6); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; outline: none; font-size: 14px; -webkit-tap-highlight-color: transparent;">➕</button>
             </div>
-        </label>
-    `).join('');
+        `;
+    });
+
+    wordsHtml += `
+            </div>
+        </div>
+        
+        <!-- 🔥 ПЛАВАЮЩАЯ ЗЕЛЕНАЯ КНОПКА СОХРАНЕНИЯ -->
+        <button id="save-image-words-btn" onclick="confirmImageWords()" class="btn-glass btn-glass-green" style="position: fixed; bottom: 30px; left: 5%; width: 90%; height: 52px; display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); font-size: 16px; -webkit-tap-highlight-color: transparent;">Сохранить выбранные</button>
+    `;
 
     showImageCard(`
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
-            <div class="image-words-title">
-                📸 Найдено ${pendingImageWords.length} слов, которых нет у тебя в словаре
+        <div style="display: flex; flex-direction: column; width: 100%; position: relative;">
+            
+            <!-- 🔥 КРЕСТИК ЗАКРЫТИЯ -->
+            <button onclick="exitToMainMenu()" class="btn-glass btn-glass-neutral" style="position: absolute; top: -10px; right: -10px; width: 34px; height: 34px; padding: 0; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; -webkit-tap-highlight-color: transparent;">
+                <span style="font-size: 14px; opacity: 0.8;">✕</span>
+            </button>
+
+            <div style="text-align: left; padding-right: 30px;">
+                <div style="font-size: 11px; color: var(--hint-color); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Распознанный текст:</div>
+                <div style="font-size: 15px; color: rgba(255,255,255,0.7); margin-bottom: 16px; word-wrap: break-word; line-height: 1.4;">${original || "Текст не найден"}</div>
+                
+                <div style="font-size: 11px; color: #dfcbf7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-weight: bold;">Перевод:</div>
+                <div style="font-size: 17px; color: var(--text-color); word-wrap: break-word; line-height: 1.4; font-weight: 500;">${translation || "Перевод не найден"}</div>
             </div>
-            <div id="image-words-container" class="image-words-scroll-box">
-                ${checkboxesHtml}
-            </div>
-            <div class="image-card-buttons-row">
-                <button onclick="confirmImageWords()" class="btn-success-save">✅ Сохранить</button>
-                <button onclick="exitToMainMenu()" class="btn-cancel-exit">❌ Отмена</button>
-            </div>
+            
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 20px 0;">
+            
+            <div style="font-size: 14px; font-weight: bold; color: var(--button-color); margin-bottom: 5px; text-align: left;">📸 Найдено ${pendingImageWords.length} слов</div>
+            ${wordsHtml}
         </div>
     `);
 }
 
 // 5. Сохраняем выбранные слова в словарь
+// 5. Сохраняем выбранные слова в словарь
 function confirmImageWords() {
-    const checkedBoxes = document.querySelectorAll('#image-words-container input[type="checkbox"]:checked');
-    if (checkedBoxes.length === 0) {
-        alert("Выбери хотя бы одно слово для сохранения!");
-        return;
-    }
+    const list = document.getElementById('image-words-list');
+    const saveBtn = document.getElementById('save-image-words-btn');
+    if (!list || !saveBtn) return;
 
-    const wordsToSave = Array.from(checkedBoxes).map(cb => pendingImageWords[parseInt(cb.value)]);
-    showImageCard(`<div class="ic-icon-medium">💾</div><div class="word-checkbox-ru">Сохраняем слова...</div>`);
+    const selectedBtns = list.querySelectorAll('button[data-selected="true"]');
+    if (selectedBtns.length === 0) return;
+
+    const wordsToSave = [];
+    selectedBtns.forEach(btn => {
+        wordsToSave.push({
+            foreign: btn.getAttribute('data-word'),
+            ru: btn.getAttribute('data-translation')
+        });
+    });
+
+    // Изменяем текст плавающей кнопки
+    saveBtn.innerHTML = '⏳ Сохраняю...';
+    saveBtn.style.pointerEvents = 'none';
 
     apiFetch('/words/add_multiple', {
         method: 'POST',
@@ -194,25 +236,67 @@ function confirmImageWords() {
     })
     .then(data => {
         if(data.success) {
-            showImageCard(`
-                <div class="ic-icon-success">✅</div>
-                <div class="ic-title-success">Успешно сохранено!</div>
-                <div class="word-checkbox-ru">Добавлено слов: ${wordsToSave.length} шт.</div>
-            `);
+            saveBtn.innerHTML = '✅ Успешно сохранено!';
+            saveBtn.style.background = 'rgba(16, 185, 129, 0.9)'; // Делаем зеленую кнопку ярче
 
+            // Обновляем счетчик слов в главном меню
+            const mpWords = document.getElementById('mp-words');
+            if (mpWords && data.added_count) {
+                const currentCount = parseInt(mpWords.innerText) || 0;
+                mpWords.innerText = currentCount + data.added_count;
+            }
+
+            selectedBtns.forEach(btn => {
+                btn.onclick = null;
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.6';
+            });
+
+            const unselectedBtns = list.querySelectorAll('button[data-selected="false"]');
+            unselectedBtns.forEach(btn => {
+                btn.parentElement.style.opacity = '0.3';
+                btn.onclick = null;
+            });
+
+            // Возврат в меню через 1.2 секунды
             setTimeout(() => {
-                apiFetch(`/profile?chat_id=${user.id}`).then(profileData => {
-                    if (typeof updateProfileUI === 'function') updateProfileUI(profileData);
-                    exitToMainMenu();
-                });
-            }, 1500);
+                exitToMainMenu();
+            }, 1200);
+
         } else {
-            showImageCard(`❌ Ошибка сохранения: ${data.error}`);
-            setTimeout(renderImageWordsCheckboxes, 2500);
+            saveBtn.innerHTML = '❌ Ошибка';
+            saveBtn.style.pointerEvents = 'auto';
         }
     })
     .catch(err => {
-        showImageCard(`❌ Ошибка сети: ${err.message}`);
-        setTimeout(renderImageWordsCheckboxes, 2500);
+        saveBtn.innerHTML = '⚠️ Ошибка сети';
+        saveBtn.style.pointerEvents = 'auto';
     });
+}
+
+// Функция для переключения состояния крестика (аналог toggleLocalWordState из переводчика)
+function toggleImageWordState(btn) {
+    const isSelected = btn.getAttribute('data-selected') === 'true';
+
+    if (!isSelected) {
+        btn.setAttribute('data-selected', 'true');
+        btn.style.background = 'rgba(16, 185, 129, 0.35)';
+        btn.style.borderColor = 'rgba(16, 185, 129, 0.8)';
+        btn.style.color = '#34d399';
+        btn.style.transform = 'scale(1.1)';
+        setTimeout(() => btn.style.transform = 'scale(1)', 150);
+    } else {
+        btn.setAttribute('data-selected', 'false');
+        btn.style.background = 'rgba(255, 255, 255, 0.08)';
+        btn.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+        btn.style.color = 'rgba(255, 255, 255, 0.6)';
+    }
+
+    const list = document.getElementById('image-words-list');
+    const saveBtn = document.getElementById('save-image-words-btn');
+    if (list && saveBtn) {
+        // Показываем кнопку сохранения, только если выбран хотя бы один крестик
+        const hasSelected = list.querySelector('button[data-selected="true"]') !== null;
+        saveBtn.style.display = hasSelected ? 'flex' : 'none';
+    }
 }

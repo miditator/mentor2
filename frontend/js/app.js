@@ -227,6 +227,7 @@ function switchScreen(screenId) {
 }
 
 // Обновление мини-плашки профиля
+// Обновление мини-плашки профиля
 function updateProfileUI(data) {
     window.userProfile = data;
 
@@ -248,14 +249,19 @@ function updateProfileUI(data) {
         } else {
             avatarContainer.innerHTML = '👤';
         }
-
-
     }
+
     const settingsBtn = document.getElementById('settings-btn-icon');
-        if (settingsBtn && typeof APP_ICONS !== 'undefined') {
-            settingsBtn.innerHTML = APP_ICONS.settings;
-        }
-    document.getElementById('mini-profile').style.display = 'flex';
+    if (settingsBtn && typeof APP_ICONS !== 'undefined') {
+        settingsBtn.innerHTML = APP_ICONS.settings;
+    }
+
+    // 🔥 ИСПРАВЛЕНИЕ: Показываем плашку ТОЛЬКО если мы находимся в главном меню.
+    // Если мы в настройках или где-то еще, она обновится в фоне, но не вылезет поверх экрана!
+    if (window.currentAppMode === 'menu') {
+        document.getElementById('mini-profile').style.display = 'flex';
+    }
+
     isProfileVisible = true;
 }
 
@@ -386,6 +392,37 @@ apiFetch(`/profile?chat_id=${user.id}&username=${telegramName}`)
     .catch(err => console.error(err));
 
 function exitToMainMenu() {
+    // 🔥 ПЕРЕХВАТ ВЫХОДА ИЗ ТРЕНИРОВКИ ГРАММАТИКИ
+    // Если мы находимся внутри тренировки, возвращаем пользователя в меню выбора правил
+    if (window.currentAppMode === 'grammar_training' && typeof showGrammarMenu === 'function') {
+        showGrammarMenu();
+        return;
+    }
+    // 3. 🔥 ПЕРЕХВАТ ВОЗВРАТА ИЗ ЧАТА ОБРАТНО В КАРТОЧКУ С ОШИБКОЙ
+    if (window.currentAppMode === 'live_chat' && window.modeBeforeChat && window.htmlBeforeChat) {
+        window.currentAppMode = window.modeBeforeChat; // Возвращаем режим (task или intensity)
+
+        const chatContainer = document.getElementById('chat-messages');
+        if (chatContainer) chatContainer.innerHTML = window.htmlBeforeChat; // Восстанавливаем карточку
+
+        // Восстанавливаем правильный заголовок в зависимости от режима
+        setAppHeader(
+            window.currentAppMode === 'task' ? 'Фраза для тренировки' :
+            window.currentAppMode === 'intensity_active' ? 'Интенсив со словом' :
+            'Тренировка грамматики', true
+        );
+
+        // Сбрасываем сохраненку
+        window.modeBeforeChat = null;
+        window.htmlBeforeChat = null;
+
+        // Прячем нижнюю строку ввода (так как в карточке ошибки свои кнопки)
+        if (document.getElementById('text-input-row')) document.getElementById('text-input-row').style.display = 'none';
+
+        return; // ⛔️ Останавливаем выход в главное меню
+    }
+
+    // Стандартная логика возврата в главное меню для всех остальных разделов
     window.currentAppMode = 'menu';
     setAppHeader(`${window.currentUsername || 'Студент'}! 👋`, false);
 
@@ -605,12 +642,59 @@ window.hideAiLoader = function() {
 };
 
 // ==========================================
+// 🔥 ГЛОБАЛЬНЫЙ ПЕРЕХОД В ЧАТ ПРИ ОШИБКЕ
+// ==========================================
+window.triggerInlineErrorChat = function(originalPhrase, wrongAnswer) {
+    const inlineInput = document.getElementById('inline-error-chat-input');
+    if (!inlineInput || !inlineInput.value.trim()) return;
+    const text = inlineInput.value.trim();
+
+    // 🔥 СОХРАНЯЕМ ТЕКУЩЕЕ СОСТОЯНИЕ (Снапшот экрана перед уходом в чат)
+    window.modeBeforeChat = window.currentAppMode;
+    window.htmlBeforeChat = document.getElementById('chat-messages').innerHTML;
+
+    // 1. Переключаем режим на живой чат
+    window.currentAppMode = 'live_chat';
+    if (typeof setAppHeader === 'function') setAppHeader('Чат с Ментором', true);
+
+    // 2. Очищаем экран (убираем карточку с ошибкой)
+    const chatContainer = document.getElementById('chat-messages');
+    if (chatContainer) chatContainer.innerHTML = '';
+
+    // 3. Возвращаем основную строку ввода Telegram
+    const inputContainer = document.getElementById('input-container');
+    const textInputRow = document.getElementById('text-input-row');
+    if (inputContainer) inputContainer.style.display = 'flex';
+    if (textInputRow) textInputRow.style.display = 'flex';
+
+    // 4. Формируем единое сообщение, чтобы ИИ понимал весь контекст
+    const contextMessage = `У меня вопрос по моей ошибке.\nИсходное задание: "${originalPhrase}"\nМой неверный перевод: "${wrongAnswer}"\n\nМой вопрос: ${text}`;
+
+    // 5. Вставляем текст в основное поле ввода и эмулируем клик "Отправить"
+    const mainInput = document.getElementById('user-input');
+    if (mainInput) {
+        mainInput.value = contextMessage;
+        const sendBtn = document.getElementById('btn-send');
+        if (sendBtn) {
+            sendBtn.click();
+        }
+    }
+};
+
+// ==========================================
 // 💡 ЛОКАЛЬНАЯ ИНФОРМАЦИЯ О ПРОВАЙДЕРЕ (БЕЗ ЗАПРОСА К ИИ)
 // ==========================================
 function showMentorInfo() {
-    // 1. Читаем текущего провайдера прямо из локального профиля
+    // 1. Читаем текущего провайдера из локального профиля
     const currentProvider = window.userProfile?.ai_provider || 'groq';
-    const providerName = currentProvider.toLowerCase() === 'gemini' ? 'Google Gemini' : 'Groq (Claude / Llama)';
+
+    const providerNames = {
+        'groq': 'Groq (Llama)',
+        'gemini': 'Gemini 2.5',
+        'oss_120b': 'OSS 120B'
+    };
+
+    const providerName = providerNames[currentProvider] || currentProvider;
 
     // 2. Переводим приложение в режим просмотра (скрываем лишние поля ввода)
     window.currentAppMode = 'mentor_info';
@@ -624,29 +708,93 @@ function showMentorInfo() {
     if (!chatContainer) return;
 
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 15px;">
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 30px 20px; text-align: center; width: 100%; box-sizing: border-box;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 20px; box-sizing: border-box;">
+            <div class="glass-box" style="display: flex; flex-direction: column; align-items: center; width: 85%; max-width: 260px; padding: 20px 15px; text-align: center; box-sizing: border-box; margin: 0 auto;">
                 
                 <!-- Аватарка ментора -->
-                <div style="width: 76px; height: 76px; border-radius: 50%; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);">
+                <div style="width: 56px; height: 56px; border-radius: 50%; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);">
                     <img src="frontend/img/mentor.jpg" alt="Mentor" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 
-                <div style="font-size: 18px; font-weight: bold; color: var(--text-color); margin-bottom: 8px;">
+                <div style="font-size: 15px; font-weight: 600; color: var(--text-color); margin-bottom: 6px;">
                     Статус ментора
                 </div>
                 
-                <div style="font-size: 14px; color: rgba(255, 255, 255, 0.8); line-height: 1.6; margin-bottom: 25px;">
+                <div style="font-size: 13px; color: rgba(255, 255, 255, 0.7); line-height: 1.4; margin-bottom: 20px;">
                     Сейчас у вас выбран провайдер:<br>
-                    <b style="color: #38bdf8; font-size: 16px;">${providerName}</b>
+                    <b style="color: #38bdf8; font-size: 14px; display: block; margin-top: 4px;">${providerName}</b>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                    <button onclick="exitToMainMenu()" class="btn-glass" style="width: 100%; padding: 12px; border-radius: 14px; font-size: 14px; cursor: pointer;">
-                        🏠 Вернуться в меню
-                    </button>
-                </div>
+                <button onclick="exitToMainMenu()" class="btn-glass btn-glass-neutral" style="width: 100%; height: 42px; font-size: 13px; padding: 0;">
+                    Вернуться в меню
+                </button>
             </div>
         </div>
     `;
+}
+
+// ==========================================
+// 🔥 ЛОГИКА ОНБОРДИНГА (ПЕРВЫЙ ЗАПУСК)
+// ==========================================
+
+let onboardingSelection = {
+    language: 'en',
+    difficulty: 'A1'
+};
+
+// Функция вызывается при выборе языка на первом экране онбординга
+function selectLanguage(lang) {
+    onboardingSelection.language = lang;
+
+    // Прячем шаг языков, показываем шаг сложности
+    document.getElementById('step-language').style.display = 'none';
+    document.getElementById('step-difficulty').style.display = 'flex';
+
+    // Меняем тексты заголовков
+    document.getElementById('onboard-title').innerText = 'Выберите уровень';
+    document.getElementById('onboard-subtitle').innerText = 'Шаг 2 из 2: Ваш уровень владения?';
+}
+
+// Функция вызывается при выборе сложности на втором экране онбординга
+function selectDifficulty(diff) {
+    onboardingSelection.difficulty = diff;
+
+    if (typeof showAiLoader === 'function') {
+        showAiLoader("Сохраняем настройки...");
+    }
+
+    // Отправляем выбранные параметры на бэкенд в эндпоинт /onboarding
+    fetch(`${BASE_URL}/onboarding`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: user.id,
+            language: onboardingSelection.language,
+            difficulty: onboardingSelection.difficulty
+        })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Ошибка при сохранении настроек");
+        return res.json();
+    })
+    .then(() => {
+        // После успешной записи переходим на главный экран
+        switchScreen('screen-main');
+
+        // Запрашиваем актуальный профиль с сервера, чтобы обновить плашку статов
+        return apiFetch(`/profile?chat_id=${user.id}&username=${encodeURIComponent(user.first_name || 'Студент')}`);
+    })
+    .then(data => {
+        updateProfileUI(data);
+        setAppHeader(`${window.currentUsername || user.first_name || 'Студент'}! 👋`, false);
+    })
+    .catch(err => {
+        console.error("Ошибка онбординга:", err);
+        alert("Не удалось сохранить настройки в базу. Проверьте соединение.");
+    })
+    .finally(() => {
+        if (typeof hideAiLoader === 'function') {
+            hideAiLoader();
+        }
+    });
 }

@@ -99,7 +99,7 @@ function showNewTaskMode(forceNew = true) {
     }
 
     const url = `/tasks/new?chat_id=${user.id}&rule=${encodeURIComponent(randomRule)}${forceNew ? '&force=true' : ''}`;
-    window.showAiLoader("ИИ сосотавляет задание...")
+    window.showAiLoader("ИИ составляет задание...")
 
     apiFetch(url)
         .then(data => {
@@ -142,7 +142,7 @@ function showNewTaskMode(forceNew = true) {
                         </div>
                         
                         <!-- 🔥 ИНТЕРАКТИВНОЕ ПРАВИЛО -->
-                        <div class="task-rule-badge" onclick="showTaskRuleTooltip('${taskState.rule.replace(/'/g, "\\'")}')">
+                        <div class="task-rule-badge" onmousedown="event.preventDefault()" onclick="showTaskRuleTooltip('${taskState.rule.replace(/'/g, "\\'")}')">
                             <span><b style="font-size: 15px;">Тема:</b> <i>${taskState.rule}</i></span>
                             <div class="info-pulse-badge">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -267,7 +267,6 @@ function handleTaskInput(text) {
                 const newPhrases = previousPhrases + 1;
                 newPercent = Math.min(Math.round((newPhrases / goal) * 100), 100);
 
-                // 🔥 Обновляем локально без вызова initProgressBars(), чтобы не ломать видимость верхнего блока
                 if (window.userProfile) {
                     window.userProfile.phrases_today = newPhrases;
                 }
@@ -294,10 +293,27 @@ function handleTaskInput(text) {
                     </div>
                 `;
             } else {
+                // Экранируем кавычки для обеих строк
+                const safePhraseAttr = taskState.phrase.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeAnswerAttr = text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
                 middleContent = `
-                    <div style="font-size: 32px; margin-bottom: 8px;">❌</div>
-                    <div style="background: rgba(255, 59, 48, 0.1); padding: 12px; border-radius: 10px; border-left: 4px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box;">
+                    <div style="font-size: 11px; color: #ff3b30; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">❌ Твой ответ:</div>
+                    <div style="background: rgba(255, 59, 48, 0.1); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255, 59, 48, 0.3); text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 12px;">
+                        <div style="font-size: 15px; color: var(--text-color);">${text}</div>
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--hint-color); font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">Разбор ошибки:</div>
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 12px 16px; border-radius: 10px; border-left: 4px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 15px;">
                         <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
+                    </div>
+                    
+                    <!-- 🔥 Встроенное поле для чата с ИИ (ПЕРЕДАЕМ ДВА АРГУМЕНТА) -->
+                    <div style="width: 100%; margin-bottom: 5px; position: relative;">
+                        <input type="text" id="inline-error-chat-input" onkeypress="if(event.key==='Enter') triggerInlineErrorChat('${safePhraseAttr}', '${safeAnswerAttr}')" placeholder="Спросить ИИ об ошибке..." style="width: 100%; height: 46px; padding: 0 45px 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-size: 14px; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
+                        <button onclick="triggerInlineErrorChat('${safePhraseAttr}', '${safeAnswerAttr}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; background: var(--button-color); border: none; border-radius: 10px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        </button>
                     </div>
                 `;
             }
@@ -421,7 +437,7 @@ function showExistingTask(activeTask) {
                         </div>
                         
                         <!-- 🔥 ИНТЕРАКТИВНОЕ ПРАВИЛО -->
-                        <div class="task-rule-badge" onclick="showTaskRuleTooltip('${taskState.rule.replace(/'/g, "\\'")}')">
+                        <div class="task-rule-badge" onmousedown="event.preventDefault()" onclick="showTaskRuleTooltip('${taskState.rule.replace(/'/g, "\\'")}')">
                             <span><b style="font-size: 15px;">Тема:</b> <i>${taskState.rule}</i></span>
                             <div class="info-pulse-badge">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
