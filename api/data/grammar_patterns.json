@@ -1,0 +1,72 @@
+{
+  "action_template": {
+    "description": "Для фактов, рутины и планов (Present/Past/Future Simple, Modals)",
+    "mix": {
+      "verbs": 3,
+      "nouns": 2,
+      "adverbs": 2,
+      "adjectives": 0
+    },
+    "exclude": []
+  },
+  "process_template": {
+    "description": "Для процессов в моменте (Continuous tenses)",
+    "mix": {
+      "verbs": 3,
+      "nouns": 2,
+      "adjectives": 1,
+      "adverbs": 0
+    },
+    "exclude": ["stative_verbs"]
+  },
+  "experience_template": {
+    "description": "Для результатов и опыта (Perfect tenses)",
+    "mix": {
+      "verbs": 2,
+      "nouns": 3,
+      "adverbs": 2,
+      "adjectives": 0
+    },
+    "exclude": []
+  },
+  "description_template": {
+    "description": "Для описаний свойств (Comparatives, Superlatives, Adjective order)",
+    "mix": {
+      "adjectives": 4,
+      "nouns": 3,
+      "verbs": 0,
+      "adverbs": 0
+    },
+    "exclude": []
+  },
+  "location_template": {
+    "description": "Для предлогов места и движения",
+    "mix": {
+      "nouns": 4,
+      "verbs": 2,
+      "adjectives": 1,
+      "adverbs": 0
+    },
+    "exclude": []
+  },
+  "conditional_template": {
+    "description": "Для сложных условных конструкций (If/When clauses)",
+    "mix": {
+      "verbs": 3,
+      "nouns": 3,
+      "adjectives": 1,
+      "adverbs": 1
+    },
+    "exclude": []
+  },
+  "default_mix": {
+    "description": "Универсальный сбалансированный микс (Если правило не требует специфики)",
+    "mix": {
+      "verbs": 2,
+      "nouns": 2,
+      "adjectives": 1,
+      "adverbs": 1
+    },
+    "exclude": []
+  }
+}

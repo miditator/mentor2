@@ -6,6 +6,16 @@
     <title>ИИ-Ментор</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+<!-- ДОБАВИТЬ ВМЕСТО НИХ: -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+
     <!-- Подключаем современные шрифты Inter и Plus Jakarta Sans из Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +24,7 @@
     <link rel="stylesheet" href="frontend/css/style.css?v=1.8">
     <link rel="stylesheet" href="frontend/css/cards.css?v=7">
     <link rel="stylesheet" href="frontend/css/buttons.css?v=3">
-    <link rel="stylesheet" href="frontend/css/progressBars.css?v=1.1">
+    <link rel="stylesheet" href="frontend/css/progressBars.css?v=1.5">
 
 </head>
 <body>
@@ -286,6 +296,8 @@
 
 <!-- БЛОКИ ИНПУТА ДЛЯ ДРУГИХ РЕЖИМОВ -->
             <div id="input-container" style="padding: 15px; border-top: 1px solid rgba(255, 255, 255, 0.04); display: none; flex-direction: column; gap: 12px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.85) 0%, rgba(8, 12, 18, 0.95) 100%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+
+
                 <div id="text-input-row" style="display: flex; width: 100%;">
                     <div style="position: relative; display: flex; align-items: center; width: 100%;">
                         <!-- Кнопка микрофона слева -->
@@ -360,8 +372,7 @@
         <!-- 🔥 Добавлено height: 70vh; (высота ~2/3 экрана) -->
         <div id="rule-modal-window" style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); width: 100%; height: 80vh; max-height: 85vh; border-radius: 24px 24px 0 0; border: 1px solid rgba(255, 255, 255, 0.06); border-bottom: none; padding: 25px 20px; box-sizing: border-box; overflow-y: auto; position: relative; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.6); display: flex; flex-direction: column;">
 
-            <button onclick="closeRuleExplanation()" style="position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 50%; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-color); font-size: 16px; transition: 0.2s;">✕</button>
-
+<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); closeRuleExplanation();" onclick="closeRuleExplanation()" style="position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 50%; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-color); font-size: 16px; transition: 0.2s;">✕</button>
             <h2 id="rule-modal-title" style="margin: 0 0 15px 0; font-size: 24px; color: var(--text-color); padding-right: 40px; line-height: 1.2;">Правило</h2>
 
             <div id="rule-modal-content" style="font-size: 15px; color: var(--text-color); line-height: 1.5; background: rgba(112, 132, 153, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(112, 132, 153, 0.2); margin-bottom: 20px;"></div>
@@ -376,8 +387,7 @@
     <div id="task-rule-tooltip" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 3000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.2s; padding: 20px; box-sizing: border-box;">
         <div style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.98) 0%, rgba(8, 12, 18, 1) 100%); width: 100%; max-width: 340px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; box-sizing: border-box; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.6);">
 
-            <button onmousedown="event.preventDefault()"  onclick="closeTaskRuleTooltip()" style="position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, 0.1); border: none; border-radius: 50%; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-color); font-size: 12px;">✕</button>
-
+<button onmousedown="event.preventDefault()" ontouchstart="event.preventDefault(); closeTaskRuleTooltip();" onclick="closeTaskRuleTooltip()" style="position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, 0.1); border: none; border-radius: 50%; width: 26px; height: 26px; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-color); font-size: 12px;">✕</button>
             <div id="task-rule-tooltip-title" style="margin: 0 0 10px 0; font-size: 16px; font-weight: bold; color: var(--button-color); padding-right: 25px;"></div>
 
             <div id="task-rule-tooltip-content" style="font-size: 14px; color: rgba(255, 255, 255, 0.9); line-height: 1.4; max-height: 50vh; overflow-y: auto;"></div>
@@ -440,21 +450,25 @@
     <script src="frontend/js/api.js?v=1.0.9"></script>
     <script src="frontend/js/icons.js?v=1.0.2"></script>
     <script src="frontend/js/onboarding.js?v=1.0.7"></script>
-    <script src="frontend/js/tasks.js?v=3.2"></script>
+    <script src="frontend/js/tasks.js?v=6.6"></script>
     <script src="frontend/js/add_word.js?v=1.0.9"></script>
     <script src="frontend/js/training.js?v=5"></script>
     <script src="frontend/js/image_words.js?v=7"></script>
-    <script src="frontend/js/grammar.js?v=1"></script>
-    <script src="frontend/js/dictionary.js?v=4"></script>
+    <script src="frontend/js/grammar.js?v=5"></script>
+    <script src="frontend/js/dictionary.js?v=6"></script>
     <script src="frontend/js/chat.js?v=1.0.4"></script>
     <script src="frontend/js/idioms_db.js?v=1.2"></script>
-    <script src="frontend/js/progress_bars.js?v=3.2"></script>
+    <script src="frontend/js/progress_bars.js?v=4"></script>
 
     <script src="frontend/js/app.js?v=5.3"></script>
     <script src="frontend/js/settings.js?v=1.9"></script>
-    <script src="frontend/js/intensity.js?v=2"></script>
-    <script src="frontend/js/translator.js?v=3"></script>
+    <script src="frontend/js/intensity.js?v=2.4"></script>
+    <script src="frontend/js/translator.js?v=7"></script>
     <script src="frontend/js/reader.js?v1.6"></script>
+   <script type="module" src="frontend/js/3d_scene/main_scene.js?v=2.5"></script>
+
+
+
 
 </body>
 </html>

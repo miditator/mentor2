@@ -22,25 +22,25 @@ ACTIVE_LLM_PROVIDER = "groq"  # "gemini", "groq" или "openai"
 LLM_PROVIDERS = {
     "gemini": {
         "api_key": GEMINI_KEY,
-        "model": "gemini-2.5-flash",  # Обновил до твоей актуальной модели
+        "models": "gemini-2.5-flash",  # Обновил до твоей актуальной модели
         "type": "gemini"
     },
     "groq": {
         "api_key": GROQ_KEY,
         "base_url": "https://api.groq.com/openai/v1",
-        "model": "llama-3.3-70b-versatile",
+        "models": "llama-3.3-70b-versatile",
         "type": "openai"
     },
     "oss_120b": {
         "api_key": GROQ_KEY,
         "base_url": "https://api.groq.com/openai/v1",
-        "model": "openai/gpt-oss-120b",
+        "models": "openai/gpt-oss-120b",
         "type": "openai"
     },
     "openai": {
         "api_key": os.getenv("OPENAI_API_KEY", "sk-proj-твой-ключ"),
         "base_url": None,
-        "model": "gpt-4o-mini",
+        "models": "gpt-4o-mini",
         "type": "openai"
     }
 }
@@ -50,7 +50,7 @@ LLM_PROVIDERS = {
 # и они всегда будут соответствовать выбранному ACTIVE_LLM_PROVIDER.
 active_provider_config = LLM_PROVIDERS[ACTIVE_LLM_PROVIDER]
 
-MODEL = active_provider_config["model"]
+MODEL = active_provider_config["models"]
 API_KEY = active_provider_config["api_key"]
 API_TYPE = active_provider_config["type"]
 BASE_URL = active_provider_config.get("base_url")

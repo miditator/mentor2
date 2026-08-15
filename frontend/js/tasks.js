@@ -98,8 +98,9 @@ function showNewTaskMode(forceNew = true) {
         randomRule = allowedRules[Math.floor(Math.random() * allowedRules.length)];
     }
 
-    const url = `/tasks/new?chat_id=${user.id}&rule=${encodeURIComponent(randomRule)}${forceNew ? '&force=true' : ''}`;
-    window.showAiLoader("ИИ составляет задание...")
+// 🔥 Переключаем на Lego-эндпоинт с поддержкой паттернов и маркеров.
+// Плашка чекбокса удалена, по умолчанию используем системный словарь Oxford.
+    const url = `/grammar/new-lego?chat_id=${user.id}&rule=${encodeURIComponent(randomRule)}&pattern_tag=default_mix&only_my_vocab=false${forceNew ? '&force=true' : ''}`;
 
     apiFetch(url)
         .then(data => {
@@ -107,6 +108,16 @@ function showNewTaskMode(forceNew = true) {
             if (data.success) {
                 taskState.phrase = data.phrase;
                 taskState.targetWord = data.target_word || "базовое слово";
+
+                let warningHtml = '';
+               if (data.warning) {
+                warningHtml = `
+                    <div style="background: rgba(255, 159, 10, 0.12); border: 1px solid rgba(255, 159, 10, 0.3); padding: 10px 14px; border-radius: 12px; text-align: left; margin-bottom: 14px; width: 100%; box-sizing: border-box;">
+                        <div style="font-size: 13px; color: #ff9f0a; line-height: 1.4;">
+                            ${data.warning}
+                        </div>
+                    </div>`;
+}
 
                 const langName = lang === 'de' ? 'немецкий' : 'английский';
                 let finalRule = data.rule || "General Grammar";
@@ -133,15 +144,16 @@ function showNewTaskMode(forceNew = true) {
                 `;
 
                 showTaskCard(`
-                    <!-- 🔥 Текст задания сделан крупнее и жирнее (font-weight: 900) -->
-                    <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 16px; word-wrap: break-word; line-height: 1.3;">${data.phrase}</div>
+                    <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 14px; word-wrap: break-word; line-height: 1.3;">${data.phrase}</div>
+                    
+                    <!-- 🔥 Выводим плашку с предупреждением о замене слова, если она есть -->
+                    ${warningHtml}
                     
                     <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
                         <div class="task-word-badge">
                             <b style="font-size: 15px;">Слово:</b> <i>${taskState.targetWord.split('(')[0].trim()}</i>
                         </div>
                         
-                        <!-- 🔥 ИНТЕРАКТИВНОЕ ПРАВИЛО -->
                         <div class="task-rule-badge" onmousedown="event.preventDefault()" onclick="showTaskRuleTooltip('${taskState.rule.replace(/'/g, "\\'")}')">
                             <span><b style="font-size: 15px;">Тема:</b> <i>${taskState.rule}</i></span>
                             <div class="info-pulse-badge">
@@ -188,6 +200,7 @@ function showTaskHelp() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             chat_id: user.id,
+            original_phrase: taskState.phrase,
             step: step,
             rule: taskState.rule,
             target_word: taskState.targetWord
@@ -370,6 +383,15 @@ function showTaskRuleTooltip(ruleName) {
     const title = document.getElementById('task-rule-tooltip-title');
     const content = document.getElementById('task-rule-tooltip-content');
 
+    // 🔥 Тот же фикс для Фраз и Интенсива
+    const keepFocus = function(event) {
+        if (event.target === modal) {
+            event.preventDefault(); // Клавиатура остается на месте!
+        }
+    };
+    modal.onmousedown = keepFocus;
+    modal.ontouchstart = keepFocus;
+
     const lang = window.userProfile?.language || 'en';
     let explanationText = "Объяснение пока не добавлено.";
     if (typeof grammarExplanations !== 'undefined' && grammarExplanations[lang] && grammarExplanations[lang][ruleName]) {
@@ -385,10 +407,13 @@ function showTaskRuleTooltip(ruleName) {
 
 function closeTaskRuleTooltip() {
     const modal = document.getElementById('task-rule-tooltip');
-    modal.style.opacity = '0';
-    setTimeout(() => modal.style.display = 'none', 200);
+    if (modal) {
+        modal.style.opacity = '0';
+        setTimeout(() => modal.style.display = 'none', 200);
+    }
 }
 
+// 🔥 Рендер уже существующего (активного) задания из базы без повторного запроса к ИИ
 // 🔥 Рендер уже существующего (активного) задания из базы без повторного запроса к ИИ
 function showExistingTask(activeTask) {
     window.currentAppMode = 'task';
@@ -422,33 +447,33 @@ function showExistingTask(activeTask) {
     const lang = window.userProfile?.language || 'en';
     const langName = lang === 'de' ? 'немецкий' : 'английский';
 
-                let buttons = `
-                    <button onclick="showTaskHelp()" onmousedown="event.preventDefault()" class="btn-glass-orange-soft" style="flex: 1;">Подсказка</button>
-                    <button onclick="showNewTaskMode(true)" onmousedown="event.preventDefault()" class="btn-glass-secondary" style="flex: 1;">Поменять</button>
-                `;
+    let buttons = `
+        <button onclick="showTaskHelp()" onmousedown="event.preventDefault()" class="btn-glass-orange-soft" style="flex: 1;">Подсказка</button>
+        <button onclick="showNewTaskMode(true)" onmousedown="event.preventDefault()" class="btn-glass-secondary" style="flex: 1;">Поменять</button>
+    `;
 
-                showTaskCard(`
-                    <!-- 🔥 Текст задания сделан крупнее и жирнее (font-weight: 900) -->
-                    <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 16px; word-wrap: break-word; line-height: 1.3;">${data.phrase}</div>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                        <div class="task-word-badge">
-                            <b style="font-size: 15px;">Слово:</b> <i>${taskState.targetWord.split('(')[0].trim()}</i>
-                        </div>
-                        
-                        <!-- 🔥 ИНТЕРАКТИВНОЕ ПРАВИЛО -->
-                        <div class="task-rule-badge" onmousedown="event.preventDefault()" onclick="showTaskRuleTooltip('${taskState.rule.replace(/'/g, "\\'")}')">
-                            <span><b style="font-size: 15px;">Тема:</b> <i>${taskState.rule}</i></span>
-                            <div class="info-pulse-badge">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M12 16v-4"></path>
-                                    <path d="M12 8h.01"></path>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                `, buttons);
+    showTaskCard(`
+        <!-- 🔥 ИСПРАВЛЕНО: Используем taskState.phrase вместо data.phrase -->
+        <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 16px; word-wrap: break-word; line-height: 1.3;">${taskState.phrase}</div>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+            <div class="task-word-badge">
+                <b style="font-size: 15px;">Слово:</b> <i>${taskState.targetWord.split('(')[0].trim()}</i>
+            </div>
+            
+            <!-- 🔥 ИНТЕРАКТИВНОЕ ПРАВИЛО -->
+            <div class="task-rule-badge" onmousedown="event.preventDefault()" onclick="showTaskRuleTooltip('${taskState.rule.replace(/'/g, "\\'")}')">
+                <span><b style="font-size: 15px;">Тема:</b> <i>${taskState.rule}</i></span>
+                <div class="info-pulse-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4"></path>
+                        <path d="M12 8h.01"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    `, buttons);
 
     if (userInput) userInput.focus();
 }

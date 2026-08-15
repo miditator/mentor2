@@ -17,6 +17,7 @@ import handlers.intensity
 def send_welcome(message):
     web_app_url = "https://mentorapp.duckdns.org/"
 
+
     # Создаем клавиатуру с шириной в 1 столбец, чтобы кнопки были друг под другом
     markup = InlineKeyboardMarkup(row_width=1)
 
@@ -35,6 +36,7 @@ def send_welcome(message):
     )
 
 if __name__ == "__main__":
+    database.init_db()
     bot.add_custom_filter(telebot.custom_filters.StateFilter(bot))
     print("🚀 Архитектурный ИИ-Ментор успешно запущен!")
     bot.infinity_polling()

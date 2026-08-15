@@ -9,7 +9,7 @@ const grammarRulesDict = {
             "This, that, these, those",
             "Possessive adjectives and subject pronouns (I/my, you/your, etc.)",
             "A/an, plurals: Singular and plural forms",
-            "Adjectives: Old, interesting, expensive, etc.",
+            "Adjectives",
             "Present simple: I do, I don't, Do I?",
             "Questions: Word order and question words",
             "Adverbs of frequency with present simple",
@@ -42,6 +42,9 @@ const grammarRulesDict = {
             "Basic word order in English",
             "The difference between 'this' and 'it'"
         ],
+
+
+
             "A2": [
         "Asking questions in English: Question forms",
         "Subject questions, questions with preposition",
@@ -72,7 +75,7 @@ const grammarRulesDict = {
         "Might, might not: Possibility",
         "Prepositions of movement: Along, across, over, etc.",
         "So, neither: So am I, neither do I, etc.",
-        "Review of all pre-intermediate verb tenses (CEFR A2)",
+
         "Past perfect",
         "Reported speech / Indirect speech",
         "Verbs with two objects",
@@ -267,7 +270,7 @@ const grammarExplanations = {
         "This, that, these, those": "<b>Указательные местоимения (<span style='color: #38bdf8;'>This, That, These, Those</span>)</b><br>Помогают указать на удаленность предметов от говорящего в пространстве или времени.<br>• В единственном числе: <span style='color: #38bdf8;'>this</span> (близко), <span style='color: #38bdf8;'>that</span> (далеко).<br>• Во множественном числе: <span style='color: #38bdf8;'>these</span> (близко), <span style='color: #38bdf8;'>those</span> (далеко).<br><b>Пример:</b> <span style='color: #38bdf8;'>This</span> is my pen, and <span style='color: #38bdf8;'>that</span> is yours.",
         "Possessive adjectives and subject pronouns (I/my, you/your, etc.)": "<b>Личные и притяжательные местоимения</b><br>• <span style='color: #38bdf8;'>Subject pronouns</span> (I, you, he...) выполняют действие в предложении.<br>• <span style='color: #38bdf8;'>Possessive adjectives</span> (my, your, his...) показывают принадлежность и всегда стоят перед существительным.<br><b>Пример:</b> <span style='color: #38bdf8;'>I</span> love <span style='color: #38bdf8;'>my</span> job.",
         "A/an, plurals: Singular and plural forms": "<b>Артикли <span style='color: #38bdf8;'>a/an</span> и множественное число</b><br>• Неопределенный артикль <span style='color: #38bdf8;'>a / an</span> используется только с исчисляемыми существительными в единственном числе.<br>• Во множественном числе артикль опускается, а к слову добавляется окончание <span style='color: #38bdf8;'>-s / -es</span>.<br><b>Пример:</b> <span style='color: #38bdf8;'>A cat</span> — two <span style='color: #38bdf8;'>cats</span>.",
-        "Adjectives: Old, interesting, expensive, etc.": "<b>Прилагательные (<span style='color: #38bdf8;'>Adjectives</span>)</b><br>Описывают качества предметов или людей. В английском языке качественные прилагательные неизменяемы по родам и падежам и почти всегда стоят <span style='color: #38bdf8;'>перед существительным</span>.<br><b>Пример:</b> It is an <span style='color: #38bdf8;'>expensive</span> car.",
+        "Adjectives": "<b>Прилагательные (<span style='color: #38bdf8;'>Adjectives</span>)</b><br>Описывают качества предметов или людей. В английском языке качественные прилагательные неизменяемы по родам и падежам и почти всегда стоят <span style='color: #38bdf8;'>перед существительным</span>.<br><b>Пример:</b> It is an <span style='color: #38bdf8;'>expensive</span> car.",
         "Present simple: I do, I don't, Do I?": "<b><span style='color: #38bdf8;'>Present Simple</span> (Простое настоящее время)</b><br>Используется для описания регулярных действий и фактов. В отрицаниях и вопросах задействуются вспомогательные глаголы <span style='color: #38bdf8;'>do / does</span>.<br><b>Пример:</b> <span style='color: #38bdf8;'>Do</span> you work? No, I <span style='color: #38bdf8;'>don't</span>.",
         "Questions: Word order and question words": "<b>Порядок слов в вопросах (<span style='color: #38bdf8;'>Wh-questions</span>)</b><br>Вопросительное слово (What, Where, When) ставится в самом начале, затем идет вспомогательный глагол (<span style='color: #38bdf8;'>do/does/is</span>), подлежащее и смысловой глагол.<br><b>Пример:</b> <span style='color: #38bdf8;'>Where do</span> you live?",
         "Adverbs of frequency with present simple": "<b>Наречия частотности (<span style='color: #38bdf8;'>Adverbs of frequency</span>)</b><br>Слова вроде always, usually, sometimes, never показывают, как часто происходит действие. Они ставятся <span style='color: #38bdf8;'>перед смысловым глаголом</span>, но <span style='color: #38bdf8;'>после глагола to be</span>.<br><b>Пример:</b> I <span style='color: #38bdf8;'>always</span> wake up early. He <span style='color: #38bdf8;'>is</span> <span style='color: #38bdf8;'>always</span> late.",
@@ -330,7 +333,6 @@ const grammarExplanations = {
         "Might, might not: Possibility": "<b>Выражение вероятности через <span style='color: #38bdf8;'>Might</span></b><br>Обозначение неуверенного предположения или возможности события с шансом около 50%.",
         "Prepositions of movement: Along, across, over, etc.": "<b>Предлоги направления и движения</b><br>Ориентирование в пространстве при перемещении (along — вдоль, across — поперек, over — через).",
         "So, neither: So am I, neither do I, etc.": "<b>Сокращенные согласия (<span style='color: #38bdf8;'>So do I / Neither do I</span>)</b><br>Инструменты быстрого подтверждения схожести мнений в утвердительных и отрицательных контекстах.",
-        "Review of all pre-intermediate verb tenses (CEFR A2)": "<b>Комплексный обзор времен уровня A2</b><br>Сводный урок по всем базовым временным формам прединтермедиэйт уровня.",
         "Past perfect": "<b><span style='color: #38bdf8;'>Past Perfect</span> (Предпрошедшее время)</b><br>Описывает действие, которое завершилось раньше другого конкретного момента или события в прошлом.",
         "Reported speech / Indirect speech": "<b>Косвенная речь (<span style='color: #38bdf8;'>Reported Speech</span>)</b><br>Правила трансформации прямых высказываний в косвенные с учетом сдвига времен назад.",
         "Verbs with two objects": "<b>Глаголы с двумя дополнениями</b><br>Структуры предложений, содержащие прямые и косвенные объекты (например, дать кому-то что-то).",
@@ -660,8 +662,8 @@ function startGrammarTraining(rule) {
     }
 
     // Если уровень найден, вытаскиваем чистый маркер сложности (например, "A1"), иначе берем правило целиком
-    const difficultyForApi = detectedLevel ? detectedLevel.split(" ")[0] : "A1";
-
+// 🔥 ФИКС: Убираем символ плюса (B1+ -> B1), так как в словаре Оксфорда нет уровня B1+
+    const difficultyForApi = detectedLevel ? detectedLevel.replace("+", "").split(" ")[0] : "A1";
     // Экранируем кавычки для безопасной подстановки в onclick кнопок
     const safeRule = rule.replace(/'/g, "\\'");
 
@@ -680,30 +682,42 @@ function startGrammarTraining(rule) {
     window.showAiLoader("ИИ составляет задание...")
 
     // Передаем принудительно вычисленную сложность (difficulty) вместо юзерской
-    apiFetch(`/grammar/new?chat_id=${user.id}&rule=${encodeURIComponent(rule)}&difficulty=${encodeURIComponent(difficultyForApi)}`)
-        .then(data => {
-            if (window.currentAppMode !== 'grammar_training') return; // Охранник
+    // Передаем параметр only_my_vocab на бэкенд
+apiFetch(`/grammar/new-lego?chat_id=${user.id}&rule=${encodeURIComponent(rule)}&pattern_tag=default_mix&difficulty=${encodeURIComponent(difficultyForApi)}&only_my_vocab=false`)        .then(data => {            if (window.currentAppMode !== 'grammar_training') return; // Охранник
 
             if (data.success) {
                 grammarState.phrase = data.phrase;
                 grammarState.targetWord = data.target_word || "базовое слово";
 
+                // 🔥 Подготавливаем плашку с предупреждением
+                let warningHtml = '';
+                if (data.warning) {
+                    warningHtml = `
+                        <div style="background: rgba(255, 159, 10, 0.12); border: 1px solid rgba(255, 159, 10, 0.3); padding: 10px 14px; border-radius: 12px; text-align: left; margin-bottom: 14px; width: 100%; box-sizing: border-box;">
+                            <div style="font-size: 13px; color: #ff9f0a; line-height: 1.4;">
+                                ${data.warning}
+                            </div>
+                        </div>`;
+                }
+
+                const safeRule = rule.replace(/'/g, "\\'");
                 let buttons = `
                     <button onclick="showGrammarHelp()" onmousedown="event.preventDefault()" class="btn-glass-orange-soft" style="flex: 1;">Подсказка</button>
                     <button onclick="startGrammarTraining('${safeRule}')" onmousedown="event.preventDefault()" class="btn-glass-secondary" style="flex: 1;">Поменять</button>
                 `;
 
                 showGrammarCard(`
-                    <!-- Текст задания сделан крупнее и жирнее (font-weight: 900) -->
                     <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 16px; word-wrap: break-word; line-height: 1.3;">${data.phrase}</div>
+                    
+                    <!-- 🔥 Выводим предупреждение -->
+                    ${warningHtml}
                     
                     <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
                         <div class="task-word-badge">
                             <b style="font-size: 15px;">Слово:</b> <i>${grammarState.targetWord.split('(')[0].trim()}</i>
                         </div>
                         
-                        <!-- ИНТЕРАКТИВНОЕ ПРАВИЛО -->
-                        <div class="task-rule-badge" onclick="explainRule('${safeRule}')">
+                        <div class="task-rule-badge" onmousedown="event.preventDefault()" onclick="explainRule('${safeRule}')">
                             <span><b style="font-size: 15px;">Тема:</b> <i>${grammarState.rule}</i></span>
                             <div class="info-pulse-badge">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -717,13 +731,19 @@ function startGrammarTraining(rule) {
                 `, buttons);
                 document.getElementById('user-input').focus();
             } else {
+                // 🔥 Перехват лимитов токенов
+                const errorText = (data.error || "").toLowerCase();
+                if (errorText.includes('лимит') || errorText.includes('токен') || errorText.includes('429') || errorText.includes('quota')) {
+                    if (typeof window.showLimitCard === 'function') {
+                        return window.showLimitCard();
+                    }
+                }
                 showGrammarCard(`<div style="font-size: 32px; margin-bottom: 8px;">❌</div><div>Ошибка генерации: ${data.error}</div>`);
             }
         }).catch(err => {
             showGrammarCard(`<div style="font-size: 32px; margin-bottom: 8px;">⚠️</div><div>Ошибка связи с сервером.</div>`);
         })
           .finally(() => {
-        // 🔥 Плавное скрытие анимированного бабла мыслей
         window.hideAiLoader();
     });
 }
@@ -869,36 +889,40 @@ function explainRule(ruleName) {
     const trainBtn = document.getElementById('rule-modal-train-btn');
     const iconSpan = document.getElementById('rule-train-icon');
 
-    // Вставляем иконку интенсивности в кнопку, если она доступна
+    // 🔥 Идеальный фикс фона для Android
+    // Запрещаем сброс фокуса только если тапнули по темной пустоте
+    const keepFocus = function(event) {
+        if (event.target === modal) {
+            event.preventDefault(); // Клавиатура остается на месте!
+        }
+    };
+    modal.onmousedown = keepFocus;
+    modal.ontouchstart = keepFocus;
+
     if (iconSpan && typeof APP_ICONS !== 'undefined' && APP_ICONS.intensity) {
         iconSpan.innerHTML = APP_ICONS.intensity;
     }
 
-    // 🔥 ПРОВЕРКА РЕЖИМА: Скрываем кнопку "Тренировать", если мы уже в тренировке
     if (trainBtn) {
         if (window.currentAppMode === 'grammar_training') {
             trainBtn.style.display = 'none';
         } else {
-            trainBtn.style.display = 'flex'; // Возвращаем кнопку для меню
+            trainBtn.style.display = 'flex';
         }
     }
 
-    // Получаем текст правила из нашего статического словаря
     const lang = window.userProfile?.language || 'en';
     let explanationText = "Краткое объяснение для этого правила пока не добавлено.";
     if (typeof grammarExplanations !== 'undefined' && grammarExplanations[lang] && grammarExplanations[lang][ruleName]) {
         explanationText = grammarExplanations[lang][ruleName];
     }
 
-    // Заполняем данные
     title.innerText = ruleName;
     content.innerHTML = explanationText;
 
-    // Настраиваем действие кнопки "Тренировать правило"
     if (trainBtn) {
         trainBtn.onclick = () => {
             closeRuleExplanation();
-            // Даем модалке время уехать вниз перед отрисовкой нового экрана (300мс)
             setTimeout(() => {
                 if (typeof startGrammarTraining === 'function') {
                     startGrammarTraining(ruleName);
@@ -907,7 +931,6 @@ function explainRule(ruleName) {
         };
     }
 
-    // Показываем окно с анимацией выезда снизу
     modal.style.display = 'flex';
     setTimeout(() => {
         modal.style.opacity = '1';

@@ -1,0 +1,138 @@
+{
+  "Expressing purpose with 'to' and 'for'": {
+    "type": "mandatory_choice",
+    "markers": ["to", "for", "in order to", "so as to"]
+  },
+  "However, although, because, so, and time connectors": {
+    "type": "mandatory_choice",
+    "markers": ["however", "although", "because", "so", "while", "when"]
+  },
+  "'Will' vs 'be going to': Future forms": {
+    "type": "mandatory_choice",
+    "markers": ["will", "going to"]
+  },
+  "Defining relative clauses: Who, which, that, where": {
+    "type": "mandatory_choice",
+    "markers": ["who", "which", "that", "where", "whose"]
+  },
+  "Present perfect: Form and use": {
+    "type": "mandatory_choice",
+    "markers": ["already", "just", "yet", "ever", "never", "recently", "lately"]
+  },
+  "Something, anything, nothing, etc.": {
+    "type": "mandatory_choice",
+    "markers": ["something", "anything", "nothing", "everything", "someone", "anyone", "no one", "everyone"]
+  },
+  "Too, too much, too many, enough": {
+    "type": "mandatory_choice",
+    "markers": ["too", "too much", "too many", "enough"]
+  },
+  "Much, many, little, few, some, any: Quantifiers": {
+    "type": "mandatory_choice",
+    "markers": ["much", "many", "little", "few", "a little", "a few", "some", "any"]
+  },
+  "Most, most of, the most": {
+    "type": "mandatory_choice",
+    "markers": ["most", "most of", "the most"]
+  },
+  "Have to, don't have to, must, mustn't": {
+    "type": "mandatory_choice",
+    "markers": ["have to", "don't have to", "must", "mustn't"]
+  },
+  "Should, shouldn't": {
+    "type": "mandatory_choice",
+    "markers": ["should", "shouldn't", "ought to"]
+  },
+  "Used to, didn't use to: Past habits and states": {
+    "type": "mandatory_choice",
+    "markers": ["used to", "didn't use to", "never used to"]
+  },
+  "Might, might not: Possibility": {
+    "type": "mandatory_choice",
+    "markers": ["might", "might not", "may", "may not"]
+  },
+  "Prepositions of movement: Along, across, over, etc.": {
+    "type": "mandatory_choice",
+    "markers": ["along", "across", "over", "through", "past", "towards", "into", "out of"]
+  },
+  "So, neither: So am I, neither do I, etc.": {
+    "type": "mandatory_choice",
+    "markers": ["so do I", "neither do I", "so am I", "neither am I", "so did I", "neither did I"]
+  },
+  "No longer, any longer, anymore": {
+    "type": "mandatory_choice",
+    "markers": ["no longer", "any longer", "anymore"]
+  },
+  "On time vs In time, At the end vs In the end": {
+    "type": "mandatory_choice",
+    "markers": ["on time", "in time", "at the end", "in the end"]
+  },
+  "During, for, while": {
+    "type": "mandatory_choice",
+    "markers": ["during", "for", "while"]
+  },
+  "Another, other, others, the other, the others": {
+    "type": "mandatory_choice",
+    "markers": ["another", "other", "others", "the other", "the others"]
+  },
+  "Usually, used to, be used to, get used to": {
+    "type": "mandatory_choice",
+    "markers": ["usually", "used to", "be used to", "get used to"]
+  },
+  "Modal verbs of deduction: Must, may, might, could, can't": {
+    "type": "mandatory_choice",
+    "markers": ["must be", "may be", "might be", "could be", "can't be"]
+  },
+  "Both, either, neither: Quantifiers": {
+    "type": "mandatory_choice",
+    "markers": ["both", "either", "neither"]
+  },
+  "So, such, such a, so much, so many": {
+    "type": "mandatory_choice",
+    "markers": ["so", "such", "such a", "so much", "so many"]
+  },
+  "Had better... It's time...": {
+    "type": "mandatory_choice",
+    "markers": ["had better", "it's time", "it's high time"]
+  },
+  "For, since, from: What's the difference?": {
+    "type": "mandatory_choice",
+    "markers": ["for", "since", "from"]
+  },
+  "Would rather & Would sooner": {
+    "type": "mandatory_choice",
+    "markers": ["would rather", "would sooner"]
+  },
+  "Wishes and regrets: I wish/if only": {
+    "type": "mandatory_choice",
+    "markers": ["I wish", "if only"]
+  },
+  "Likely, unlikely, bound, definitely, probably: Probability": {
+    "type": "mandatory_choice",
+    "markers": ["likely to", "unlikely to", "bound to", "definitely", "probably"]
+  },
+  "Whatever, whenever, wherever, whoever, however": {
+    "type": "mandatory_choice",
+    "markers": ["whatever", "whenever", "wherever", "whoever", "however"]
+  },
+  "Already, still, yet: What's the difference?": {
+    "type": "mandatory_choice",
+    "markers": ["already", "still", "yet"]
+  },
+  "Needn't, don't need to, didn't need to, needn't have": {
+    "type": "mandatory_choice",
+    "markers": ["needn't", "don't need to", "didn't need to", "needn't have"]
+  },
+  "Pretty, rather, quite, fairly: Adverbs of degree": {
+    "type": "mandatory_choice",
+    "markers": ["pretty", "rather", "quite", "fairly"]
+  },
+  "Unless, even if, provided, as long as, etc.: Other expressions in conditionals": {
+    "type": "mandatory_choice",
+    "markers": ["unless", "even if", "provided that", "as long as", "on condition that"]
+  },
+  "Other ways to express future: Be about to, be due to, etc.": {
+    "type": "mandatory_choice",
+    "markers": ["be about to", "be due to", "be on the point of", "be to"]
+  }
+}

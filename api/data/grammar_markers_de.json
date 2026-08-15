@@ -1,0 +1,70 @@
+{
+  "Modalverben (können, müssen, wollen, dürfen)": {
+    "type": "mandatory_choice",
+    "markers": ["können", "müssen", "wollen", "dürfen", "sollen", "mögen"]
+  },
+  "Possessivartikel": {
+    "type": "mandatory_choice",
+    "markers": ["mein", "dein", "sein", "ihr", "unser", "euer", "Ihr"]
+  },
+  "Negation (nicht / kein)": {
+    "type": "mandatory_choice",
+    "markers": ["nicht", "kein", "keine", "keinen", "nichts", "niemand"]
+  },
+  "Fragesätze (W-Fragen & Ja/Nein-Fragen)": {
+    "type": "mandatory_choice",
+    "markers": ["wer", "was", "wann", "wo", "warum", "wie", "welche", "woher", "wohin"]
+  },
+  "Präpositionen mit Akkusativ (für, ohne, gegen)": {
+    "type": "mandatory_choice",
+    "markers": ["für", "ohne", "gegen", "durch", "um", "bis", "entlang"]
+  },
+  "Präteritum (nur sein, haben & Modalverben)": {
+    "type": "mandatory_choice",
+    "markers": ["war", "hatte", "musste", "konnte", "wollte", "durfte", "sollte"]
+  },
+  "Dativ & Präpositionen mit Dativ (aus, bei, mit, nach...)": {
+    "type": "mandatory_choice",
+    "markers": ["aus", "bei", "mit", "nach", "seit", "von", "zu", "außer", "gegenüber"]
+  },
+  "Wechselpräpositionen (Ort: Wo? vs. Wohin?)": {
+    "type": "mandatory_choice",
+    "markers": ["in", "an", "auf", "neben", "hinter", "über", "unter", "vor", "zwischen"]
+  },
+  "Nebensätze (weil, dass, wenn)": {
+    "type": "mandatory_choice",
+    "markers": ["weil", "dass", "wenn", "als", "ob", "damit"]
+  },
+  "Konjunktiv II (Wünsche, Ratschläge, Höflichkeit)": {
+    "type": "mandatory_choice",
+    "markers": ["würde", "hätte", "wäre", "sollte", "könnte"]
+  },
+  "Infinitiv mit zu & um...zu": {
+    "type": "mandatory_choice",
+    "markers": ["um ... zu", "ohne ... zu", "anstatt ... zu", "zu"]
+  },
+  "Konjunktionen (obwohl, trotzdem, deshalb)": {
+    "type": "mandatory_choice",
+    "markers": ["obwohl", "trotzdem", "deshalb", "da", "denn", "darum", "deswegen"]
+  },
+  "Zweiteilige Konnektoren (entweder...oder, weder...noch)": {
+    "type": "mandatory_choice",
+    "markers": ["entweder ... oder", "weder ... noch", "sowohl ... als auch", "nicht nur ... sondern auch", "zwar ... aber"]
+  },
+  "Relativsätze (mit Präpositionen & 'was/wo')": {
+    "type": "mandatory_choice",
+    "markers": ["was", "wo", "wofür", "worüber", "womit", "worauf"]
+  },
+  "Konjunktiv I (Indirekte Rede)": {
+    "type": "mandatory_choice",
+    "markers": ["sei", "habe", "werde", "könne", "müsse"]
+  },
+  "Passiversatzformen (sich lassen, -bar, -fähig, sein zu)": {
+    "type": "mandatory_choice",
+    "markers": ["sich lassen", "sein zu"]
+  },
+  "Subjektive Bedeutung der Modalverben (Er soll krank sein)": {
+    "type": "mandatory_choice",
+    "markers": ["soll", "will", "muss", "mag", "kann", "könnte"]
+  }
+}

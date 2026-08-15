@@ -116,9 +116,10 @@ function renderDictionaryPage() {
     const listWrapper = document.getElementById('dict-list-wrapper');
     if (!listWrapper) return;
 
-    if (dictionaryCurrentPage === 0) {
-        listWrapper.innerHTML = '';
-    }
+    // 🔥 ИСПРАВЛЕНИЕ ДУБЛИКАТОВ:
+    // Мы ВЕГДА очищаем список перед отрисовкой, потому что pageWords
+    // содержит сразу ВСЕ слова с первой по текущую страницу (благодаря slice(0, end))
+    listWrapper.innerHTML = '';
 
     const end = (dictionaryCurrentPage + 1) * WORDS_PER_PAGE;
     const pageWords = filteredDictionaryWords.slice(0, end);
@@ -136,7 +137,6 @@ function renderDictionaryPage() {
         let score = w.score !== undefined ? w.score : (w[2] || 0);
         let percent = Math.round((score / 5) * 100);
 
-        // Определяем нужный класс CSS вместо inline-цветов
         let percentClass = 'percent-0';
         if (percent >= 80) {
             percentClass = 'percent-high';
@@ -147,7 +147,6 @@ function renderDictionaryPage() {
         }
         let escapedWord = foreign.replace(/'/g, "\\'");
 
-        // Новая надпись
         let btnText = 'TO TRAINING';
 
         let isSelected = selectedDictWords.has(foreign);
@@ -170,9 +169,8 @@ function renderDictionaryPage() {
                 </div>
             `;
         } else {
-            // 🔥 Если 0% — бесцветный класс, если есть прогресс — рассчитываем цвет от красного к зеленому
             let badgeClass = percent === 0 ? 'dict-percent-badge is-zero' : 'dict-percent-badge has-color';
-            let percentHue = 10 + (percent * 1.2); // оттенок от ~10 (красно-оранжевый) до ~130 (зеленый)
+            let percentHue = 10 + (percent * 1.2);
 
             rightBlockHtml = `
                 <div style="display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: 90px;">
@@ -212,13 +210,20 @@ function renderDictionaryPage() {
     pageDiv.innerHTML = html;
     listWrapper.appendChild(pageDiv);
 
+    // 🔥 ИСПРАВЛЕНИЕ КНОПКИ "ПОКАЗАТЬ ЕЩЁ": используем стиль btn-glass
     if (end < filteredDictionaryWords.length) {
         const btnDiv = document.createElement('div');
         btnDiv.id = 'load-more-dict-btn';
         btnDiv.style.marginTop = '15px';
         btnDiv.style.marginBottom = '30px';
-        btnDiv.style.textAlign = 'center';
-        btnDiv.innerHTML = `<button onclick="loadNextDictionaryPage()" style="padding: 12px 25px; background: var(--button-color); border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">👇 Показать еще</button>`;
+        btnDiv.style.display = 'flex';
+        btnDiv.style.justifyContent = 'center';
+
+        btnDiv.innerHTML = `
+            <button onclick="loadNextDictionaryPage()" class="btn-glass btn-glass-neutral" style="width: auto; padding: 0 30px; height: 46px; font-size: 14px; border-radius: 14px;">
+                👇 Показать еще
+            </button>
+        `;
         listWrapper.appendChild(btnDiv);
     }
 }
@@ -447,7 +452,18 @@ function closeWordDetails() {
 
 function startIntensityFromDict(event, word) {
     if (event) event.stopPropagation();
+
+    // Подготавливаем экран интенсива
     if (typeof showIntensitySetupMode === 'function') showIntensitySetupMode();
+
+    // 🔥 ПОЛНОСТЬЮ СКРЫВАЕМ ПОЛЕ ВВОДА
+    // Слово уже передано, поэтому инпут нам сейчас не нужен
+    const inputRow = document.getElementById('text-input-row');
+    if (inputRow) {
+        inputRow.style.display = 'none';
+    }
+
+    // Запускаем генерацию фраз
     if (typeof startIntensity === 'function') startIntensity(word, currentWordMeanings);
 }
 

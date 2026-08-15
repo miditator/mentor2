@@ -4,10 +4,11 @@
 
 let intensityState = {
     word: "",
-    phrases: [],
+    currentTask: null, // 🔥 Теперь здесь лежит 1 текущая задача
     currentIndex: 0,
     score: 0,
-    langName: "" // 'английский' или 'немецкий'
+    langName: "", // 'английский' или 'немецкий'
+    meanings: []  // Сохраняем переданные значения
 };
 
 // 🔥 УНИВЕРСАЛЬНЫЙ HTML ДЛЯ АНИМИРОВАННОЙ ИКОНКИ ЗАГРУЗКИ В СТИЛЕ КАРТОЧЕК ЗАДАНИЙ
@@ -105,13 +106,25 @@ function startIntensity(word, meanings = []) {
     intensityState.score = 0;
     intensityState.currentIndex = 0;
     intensityState.langName = langCode === 'de' ? 'немецкий' : 'английский';
+    intensityState.meanings = meanings; // Запоминаем значения
 
-    const difficulty = window.userProfile?.difficulty || 'A1';
     window.currentAppMode = 'intensity_active';
 
-    let loadingText = meanings.length > 0
-        ? `ИИ генерирует 5 фраз со словом <b>${intensityState.word}</b>,<br>используя разные его значения...`
-        : `ИИ генерирует 5 фраз со словом <b>${intensityState.word}</b>...`;
+    // 🔥 Сразу запускаем загрузку первой фразы
+    loadNextIntensityTask();
+}
+
+// 🔥 НОВАЯ ФУНКЦИЯ: Запрашивает одну фразу у бэкенда
+function loadNextIntensityTask() {
+    if (intensityState.currentIndex >= 5) {
+        showIntensityResult();
+        return;
+    }
+
+    const chatContainer = document.getElementById('chat-messages');
+    document.getElementById('text-input-row').style.display = 'none';
+
+    let loadingText = `ИИ генерирует фразу ${intensityState.currentIndex + 1} из 5 со словом <b>${intensityState.word}</b>...`;
 
     chatContainer.innerHTML = `
         <div class="card" style="margin-top: 10px;">
@@ -120,6 +133,8 @@ function startIntensity(word, meanings = []) {
         </div>
     `;
 
+    const difficulty = window.userProfile?.difficulty || 'A1';
+
     apiFetch('/intensity/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -127,7 +142,7 @@ function startIntensity(word, meanings = []) {
             chat_id: user.id,
             word: intensityState.word,
             difficulty: difficulty,
-            meanings: meanings
+            meanings: intensityState.meanings
         })
     }).then(data => {
         if (!data.success && window.isRateLimitError(data.error)) {
@@ -135,8 +150,8 @@ function startIntensity(word, meanings = []) {
         }
 
         if (data.success) {
-            intensityState.phrases = data.phrases;
-            showNextIntensityPhrase();
+            intensityState.currentTask = data.task; // Сохраняем 1 фразу
+            showIntensityPhrase(); // Отрисовываем её
         } else {
             chatContainer.innerHTML = `<div class="card" style="margin-top: 10px;">❌ Ошибка: ${data.error}</div>`;
             document.getElementById('text-input-row').style.display = 'flex';
@@ -151,13 +166,8 @@ function startIntensity(word, meanings = []) {
 }
 
 // 3. ПОКАЗ ОЧЕРЕДНОЙ ФРАЗЫ (ЕДИНСТВЕННАЯ ЖЁЛТАЯ КНОПКА "ПОДСКАЗКА")
-function showNextIntensityPhrase() {
-    if (intensityState.currentIndex >= 5) {
-        showIntensityResult();
-        return;
-    }
-
-    const currentTask = intensityState.phrases[intensityState.currentIndex];
+function showIntensityPhrase() {
+    const currentTask = intensityState.currentTask; // 🔥 Берем текущую задачу
     const chatContainer = document.getElementById('chat-messages');
 
     document.getElementById('text-input-row').style.display = 'flex';
@@ -220,7 +230,7 @@ function showNextIntensityPhrase() {
 
 // 4. ПРОВЕРКА ОТВЕТА
 function handleIntensityInput(text) {
-    const currentTask = intensityState.phrases[intensityState.currentIndex];
+    const currentTask = intensityState.currentTask; // 🔥 Берем текущую задачу
     const chatContainer = document.getElementById('chat-messages');
 
     chatContainer.innerHTML = `
@@ -237,7 +247,9 @@ function handleIntensityInput(text) {
             chat_id: user.id,
             original_foreign_phrase: currentTask.phrase,
             russian_task_phrase: currentTask.translation,
-            user_answer: text
+            user_answer: text,
+            rule: currentTask.rule,            // 🔥 ДОБАВИЛИ
+            target_word: intensityState.word   // 🔥 ДОБАВИЛИ
         })
     }).then(data => {
         if (!data.success && window.isRateLimitError(data.error)) {
@@ -328,7 +340,7 @@ function handleIntensityInput(text) {
 
 function nextIntensityStep() {
     intensityState.currentIndex++;
-    showNextIntensityPhrase();
+    loadNextIntensityTask(); // 🔥 Запрашиваем следующую фразу
 }
 
 // 5. ФИНАЛЬНЫЙ ЭКРАН
@@ -468,9 +480,15 @@ function showIntensityResult() {
 }
 
 // 6. ФУНКЦИЯ ПОМОЩИ (ЕДИНСТВЕННАЯ СИНЯЯ КНОПКА "ДАЛЬШЕ" ПОСЛЕ ПОДСКАЗКИ)
+// 6. ФУНКЦИЯ ПОМОЩИ (ЕДИНАЯ ЛОГИКА ШАГ 1 / ШАГ 2)
 function showIntensityHelp() {
-    const currentTask = intensityState.phrases[intensityState.currentIndex];
+    intensityState.helpClicks = (intensityState.helpClicks || 0) + 1;
+    let step = intensityState.helpClicks;
+    const currentTask = intensityState.currentTask;
 
+    if (step > 1) {
+        document.getElementById('text-input-row').style.display = 'none';
+    }
     window.showAiLoader("Ментор подбирает подсказку...");
 
     apiFetch('/intensity/help', {
@@ -478,47 +496,66 @@ function showIntensityHelp() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             chat_id: user.id,
-            russian_phrase: currentTask.translation,
-            foreign_phrase: currentTask.phrase
+            original_phrase: currentTask.translation, // Русская
+            reference_phrase: currentTask.phrase,     // Иностранная
+            step: step,
+            rule: currentTask.rule,
+            target_word: intensityState.word
         })
     }).then(data => {
-        if (!data.success && window.isRateLimitError(data.error)) {
-            return window.showLimitCard();
-        }
+        if (window.currentAppMode !== 'intensity_active') return;
 
         if (data.success) {
             const chatContainer = document.getElementById('chat-messages');
 
-            // Синяя кнопка "Дальше", отцентрированная и имеющая размер половины строки
-            let buttons = `
-                <div style="display: flex; justify-content: center; width: 100%;">
-                    <button onclick="nextIntensityStep()" onmousedown="event.preventDefault()" class="btn-glass btn-glass-blue" style="width: 50%;">Дальше</button>
-                </div>
-            `;
-
-            chatContainer.innerHTML = `
-                <div class="card" style="margin-top: 10px; text-align: left;">
-                    <div style="font-size: 20px; font-weight: 500; color: var(--text-color); margin-bottom: 14px; word-wrap: break-word;">${currentTask.translation}</div>
-                    
-                    <div style="background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.3); padding: 12px; border-radius: 12px; text-align: left; margin-bottom: 15px; width: 100%; box-sizing: border-box;">
-                        <div style="font-size: 14px; font-weight: bold; color: #ff9f0a; margin-bottom: 4px;">💡 Подсказка:</div>
-                        <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.explanation}</div>
+            if (step === 1) {
+                let buttons = `
+                    <div style="display: flex; justify-content: center; gap: 10px; width: 100%;">
+                        <button onclick="showIntensityHelp()" onmousedown="event.preventDefault()" class="btn-glass-orange-soft" style="flex: 1; background: rgba(255, 59, 48, 0.1); border-color: rgba(255, 59, 48, 0.3); color: #ff3b30;">Сдаюсь</button>
+                        <button onclick="nextIntensityStep()" onmousedown="event.preventDefault()" class="btn-glass-secondary" style="flex: 1;">Пропустить</button>
                     </div>
+                `;
+                chatContainer.innerHTML = `
+                    <div class="card" style="margin-top: 10px; text-align: left;">
+                        <div style="font-size: 20px; font-weight: 500; color: var(--text-color); margin-bottom: 14px; word-wrap: break-word;">${currentTask.translation}</div>
+                        
+                        <div style="background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.3); padding: 12px; border-radius: 12px; text-align: left; margin-bottom: 15px; width: 100%; box-sizing: border-box;">
+                            <div style="font-size: 14px; font-weight: bold; color: #ff9f0a; margin-bottom: 4px;">💡 Подсказка:</div>
+                            <!-- 🔥 Ожидаем data.feedback, как в едином бэкенде -->
+                            <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div> 
+                        </div>
 
-                    <div style="width: 100%; margin-top: 5px;">
-                        ${buttons}
+                        <div style="width: 100%; margin-top: 5px;">
+                            ${buttons}
+                        </div>
                     </div>
-                </div>
-            `;
-            document.getElementById('text-input-row').style.display = 'flex';
+                `;
+                document.getElementById('text-input-row').style.display = 'flex';
+            } else {
+                let btnNext = `<button onclick="nextIntensityStep()" onmousedown="event.preventDefault()" class="btn-glass btn-glass-blue" style="width: 100%; height: 46px;">Дальше ➡️</button>`;
+                chatContainer.innerHTML = `
+                    <div class="card" style="margin-top: 10px; text-align: left;">
+                        <div style="font-size: 11px; color: var(--hint-color); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Исходная фраза:</div>
+                        <div style="font-size: 20px; font-weight: bold; color: var(--text-color); margin-bottom: 12px; word-wrap: break-word;">${currentTask.translation}</div>
+                        
+                        <div style="background: rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3); padding: 12px; border-radius: 10px; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 15px;">
+                            <div style="font-size: 14px; font-weight: bold; color: #34c759; margin-bottom: 4px;">📖 Правильный ответ:</div>
+                            <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
+                        </div>
+                        ${btnNext}
+                    </div>
+                `;
+            }
         } else {
             const chatContainer = document.getElementById('chat-messages');
             chatContainer.innerHTML = `<div class="card" style="margin-top: 10px;">❌ Ошибка: ${data.error}</div>`;
+            document.getElementById('text-input-row').style.display = 'flex';
         }
     }).catch(err => {
         if (window.isRateLimitError(err)) return window.showLimitCard();
         const chatContainer = document.getElementById('chat-messages');
         chatContainer.innerHTML = `<div class="card" style="margin-top: 10px;">⚠️ Ошибка сети.</div>`;
+        document.getElementById('text-input-row').style.display = 'flex';
     }).finally(() => {
         window.hideAiLoader();
     });

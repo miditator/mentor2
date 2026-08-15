@@ -681,57 +681,8 @@ window.triggerInlineErrorChat = function(originalPhrase, wrongAnswer) {
     }
 };
 
-// ==========================================
-// 💡 ЛОКАЛЬНАЯ ИНФОРМАЦИЯ О ПРОВАЙДЕРЕ (БЕЗ ЗАПРОСА К ИИ)
-// ==========================================
-function showMentorInfo() {
-    // 1. Читаем текущего провайдера из локального профиля
-    const currentProvider = window.userProfile?.ai_provider || 'groq';
 
-    const providerNames = {
-        'groq': 'Groq (Llama)',
-        'gemini': 'Gemini 2.5',
-        'oss_120b': 'OSS 120B'
-    };
 
-    const providerName = providerNames[currentProvider] || currentProvider;
-
-    // 2. Переводим приложение в режим просмотра (скрываем лишние поля ввода)
-    window.currentAppMode = 'mentor_info';
-    if (document.getElementById('input-container')) document.getElementById('input-container').style.display = 'none';
-    if (document.getElementById('text-input-row')) document.getElementById('text-input-row').style.display = 'none';
-    if (document.getElementById('mini-profile')) document.getElementById('mini-profile').style.display = 'none';
-    if (document.getElementById('main-menu-cards')) document.getElementById('main-menu-cards').style.display = 'none';
-
-    // 3. Отрисовываем красивую информационную карточку
-    const chatContainer = document.getElementById('chat-messages');
-    if (!chatContainer) return;
-
-    chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 20px; box-sizing: border-box;">
-            <div class="glass-box" style="display: flex; flex-direction: column; align-items: center; width: 85%; max-width: 260px; padding: 20px 15px; text-align: center; box-sizing: border-box; margin: 0 auto;">
-                
-                <!-- Аватарка ментора -->
-                <div style="width: 56px; height: 56px; border-radius: 50%; border: 2px solid #38bdf8; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 12px; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);">
-                    <img src="frontend/img/mentor.jpg" alt="Mentor" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                
-                <div style="font-size: 15px; font-weight: 600; color: var(--text-color); margin-bottom: 6px;">
-                    Статус ментора
-                </div>
-                
-                <div style="font-size: 13px; color: rgba(255, 255, 255, 0.7); line-height: 1.4; margin-bottom: 20px;">
-                    Сейчас у вас выбран провайдер:<br>
-                    <b style="color: #38bdf8; font-size: 14px; display: block; margin-top: 4px;">${providerName}</b>
-                </div>
-
-                <button onclick="exitToMainMenu()" class="btn-glass btn-glass-neutral" style="width: 100%; height: 42px; font-size: 13px; padding: 0;">
-                    Вернуться в меню
-                </button>
-            </div>
-        </div>
-    `;
-}
 
 // ==========================================
 // 🔥 ЛОГИКА ОНБОРДИНГА (ПЕРВЫЙ ЗАПУСК)

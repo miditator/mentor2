@@ -115,17 +115,13 @@ function startQuickTranslation() {
     }
 }
 
-// 🎨 Отрисовка карточки для ОДНОГО слова (максимум 3 значения + фиолетовая кнопка внизу)
-// 🎨 Отрисовка карточки для ОДНОГО слова (максимум 3 значения + фиолетовая кнопка внизу)
 // 🎨 Отрисовка карточки для ОДНОГО слова
 // 🎨 Отрисовка карточки для ОДНОГО слова
 function renderSingleWordResult(originalWord, details) {
     const chatContainer = document.getElementById('chat-messages');
 
-    // 🔥 Бэкенд теперь ВСЕГДА кладет иностранное слово в details.word
     let displayTitle = details.word || originalWord;
 
-    // 🔥 Бэкенд ВСЕГДА кладет русские переводы в details.meanings. Берем до 3 штук!
     let saveRu = originalWord;
     if (details.meanings && details.meanings.length > 0) {
         saveRu = details.meanings.slice(0, 3).map(m => m.meaning).join(', ');
@@ -143,16 +139,38 @@ function renderSingleWordResult(originalWord, details) {
         });
     }
 
-    // Защита от кавычек для передачи в функцию сохранения
     const safeForeignStr = displayTitle.replace(/'/g, "\\'").replace(/"/g, "&quot;");
     const safeRuStr = saveRu.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+    const currentLang = (window.userProfile && window.userProfile.language) || 'en';
+
+    // 🔥 Если ИИ исправил опечатку, покажем красивую желтую плашку над заголовком!
+    let typoBanner = '';
+    if (details.is_typo) {
+        typoBanner = `
+            <div style="background: rgba(255, 159, 10, 0.15); border: 1px solid rgba(255, 159, 10, 0.3); border-radius: 12px; padding: 10px 15px; margin-bottom: 15px; color: #ff9f0a; font-size: 13px; text-align: left; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 18px;">💡</span>
+                <span>Возможно, была опечатка. Показан перевод для слова <b>${displayTitle}</b>.</span>
+            </div>
+        `;
+    }
 
     chatContainer.innerHTML = `
         <div style="display: flex; flex-direction: column; width: 100%; margin-top: 15px;">
             <div style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box; width: 100%;">
                 
+                ${typoBanner}
+
                 <div style="text-align: left; margin-bottom: 15px;">
-                    <div style="font-size: 24px; font-weight: bold; color: var(--button-color); margin-bottom: 4px; word-break: break-word;">${displayTitle}</div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                        <div style="font-size: 24px; font-weight: bold; color: var(--button-color); word-break: break-word;">${displayTitle}</div>
+                        <div onclick="speakWord('${safeForeignStr}', '${currentLang}')" 
+                             style="font-size: 20px; cursor: pointer; padding: 6px; border-radius: 50%; background: rgba(112,132,153,0.1); display: flex; justify-content: center; align-items: center; transition: transform 0.1s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"
+                             onmousedown="this.style.transform='scale(0.9)'"
+                             onmouseup="this.style.transform='scale(1)'"
+                             title="Озвучить">
+                             🔊
+                        </div>
+                    </div>
                     <div style="font-size: 14px; color: rgba(255,255,255,0.6);">${details.transcription || ''} ${details.part_of_speech ? '• ' + details.part_of_speech : ''}</div>
                 </div>
                 
@@ -211,6 +229,18 @@ function toggleSingleWordSave(btn, word, translation) {
                 btn.style.color = '#ff9f0a';
             }
 
+            // 🔥 ВЫВОД СЕМАНТИКИ В КОНСОЛЬ ДЛЯ ДЕБАГА
+            if (data.semantic_tags && data.semantic_tags.length > 0) {
+                const logObj = {
+                    [data.word_id]: data.semantic_tags
+                };
+
+                console.log(`%c[SEMANTIC GRAPH] Разметка нового слова:`, 'color: #8b5cf6; font-weight: bold;');
+                console.log(`%cID ${data.word_id}: "${word}" (Translation: ${translation})`, 'color: #34d399; font-weight: bold;');
+                console.log(JSON.stringify(logObj, null, 2));
+                console.log(`%c✅ Успешно вшито в семантическую базу!`, 'color: #34c759;');
+            }
+
             // Ждем 1.2 секунды и возвращаемся в читалку (если пришли оттуда)
             setTimeout(() => {
                 if (window.returnToReader) {
@@ -245,6 +275,7 @@ function toggleSingleWordSave(btn, word, translation) {
 function renderTranslationResult(original, translation, newWords) {
     const chatContainer = document.getElementById('chat-messages');
     let wordsHtml = '';
+    const currentLang = (window.userProfile && window.userProfile.language) || 'en';
 
     if (newWords && newWords.length > 0) {
         wordsHtml = `
@@ -260,7 +291,17 @@ function renderTranslationResult(original, translation, newWords) {
             wordsHtml += `
                 <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.2); padding: 12px 15px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.05);">
                     <div>
-                        <div style="font-weight: 600; color: var(--text-color); font-size: 15px; margin-bottom: 3px;">${wordObj.word}</div>
+                        <!-- 🔥 ЗДЕСЬ ДОБАВЛЕН ДИНАМИК ОЗВУЧКИ ДЛЯ КАЖДОГО СЛОВА В СПИСКЕ -->
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                            <div style="font-weight: 600; color: var(--text-color); font-size: 15px;">${wordObj.word}</div>
+                            <div onclick="speakWord('${safeWord}', '${currentLang}')" 
+                                 style="font-size: 14px; cursor: pointer; padding: 4px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; justify-content: center; align-items: center; transition: transform 0.1s;"
+                                 onmousedown="this.style.transform='scale(0.9)'"
+                                 onmouseup="this.style.transform='scale(1)'"
+                                 title="Озвучить">
+                                 🔊
+                            </div>
+                        </div>
                         <div style="font-size: 13px; color: rgba(255,255,255,0.6);">${wordObj.translation}</div>
                     </div>
                     <button onclick="toggleLocalWordState(this)" 
@@ -290,7 +331,6 @@ function renderTranslationResult(original, translation, newWords) {
         <div style="display: flex; flex-direction: column; width: 100%; margin-top: 15px; position: relative;">
             <div style="background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box; width: 100%; position: relative;">
                 
-                <!-- 🔥 КРЕСТИК ЗАКРЫТИЯ ВМЕСТО КНОПКИ ОТМЕНЫ -->
                 <button onclick="exitToMainMenu()" class="btn-glass btn-glass-neutral" style="position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; padding: 0; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; -webkit-tap-highlight-color: transparent;">
                     <span style="font-size: 14px; opacity: 0.8;">✕</span>
                 </button>
@@ -399,6 +439,18 @@ function saveSelectedWords() {
                 btn.parentElement.style.opacity = '0.3';
                 btn.onclick = null;
             });
+
+            // 🔥 Вывод семантики для списка слов
+            if (data.semantic_logs && Object.keys(data.semantic_logs).length > 0) {
+                console.log(`%c[SEMANTIC GRAPH] Массовая разметка ${data.added_count} слов:`, 'color: #8b5cf6; font-weight: bold;');
+
+                for (const [id, info] of Object.entries(data.semantic_logs)) {
+                    const logObj = { [id]: info.tags };
+                    console.log(`%cID ${id}: "${info.word}"`, 'color: #34d399; font-weight: bold;');
+                    console.log(JSON.stringify(logObj, null, 2));
+                }
+                console.log(`%c✅ Все слова успешно вшиты в семантическую базу!`, 'color: #34c759;');
+            }
 
             // 🔥 ЛОГИКА ВОЗВРАТА (Ждем 1.2 секунды и возвращаемся в читалку или меню)
             setTimeout(() => {

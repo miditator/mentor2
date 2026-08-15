@@ -17,9 +17,9 @@ class AddWordData(BaseModel):
     foreign: str
     ru: str
 
-
 class TaskHelpData(BaseModel):
     chat_id: int
+    original_phrase: str
     step: int
     rule: str = None
     target_word: str = None
@@ -50,12 +50,17 @@ class IntensityCheckData(BaseModel):
     original_foreign_phrase: str
     russian_task_phrase: str
     user_answer: str
+    rule: str
+    target_word: str    
 
 
 class IntensityHelpData(BaseModel):
     chat_id: int
-    russian_phrase: str
-    foreign_phrase: str
+    original_phrase: str
+    reference_phrase: str  # В интенсиве ответ хранится на клиенте
+    step: int
+    rule: str = None
+    target_word: str = None
 
 
 class ImageWordData(BaseModel):

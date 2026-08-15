@@ -14,7 +14,6 @@ function initProgressBars() {
     };
 
     const current = content[userLang] || content.en;
-    const mentorAvatarSrc = 'frontend/img/mentor.jpg';
 
     let wordsPercent = 0;
     let phrasesPercent = 0;
@@ -32,75 +31,86 @@ function initProgressBars() {
     wordsPercent = Math.max(0, Math.min(100, wordsPercent));
     phrasesPercent = Math.max(0, Math.min(100, phrasesPercent));
 
-    containerEl.style.cssText = '';
-    containerEl.className = 'pb-main-container';
+    if (!containerEl.querySelector('.pb-wrapper')) {
+        containerEl.style.cssText = '';
+        containerEl.className = 'pb-main-container';
 
-    containerEl.innerHTML = `
-        <div class="pb-wrapper" style="position: relative;">
-            <div class="pb-bars-col">
+        containerEl.innerHTML = `
+            <div class="pb-wrapper" style="position: relative; width: 100%; min-height: 140px; border-radius: 16px; overflow: hidden; background: rgba(0,0,0,0.2); box-sizing: border-box;">
                 
-                <div class="pb-row">
-                    <div class="pb-header">
-                        <span class="pb-title">${current.row1}</span>
-                        <span class="pb-value">${wordsPercent}%</span>
-                    </div>
-                    <div class="pb-track">
-                        <!-- Верхняя полоска для слов (стандартная кремовая) -->
-                        <div class="pb-fill" style="width: ${wordsPercent}%;"></div>
-                    </div>
+                <!-- 3D ФОН -->
+                <div id="mentor-3d-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;">
+                    <div id="mentor-3d-container" style="width: 100%; height: 100%; position: relative;"></div>
                 </div>
 
-                <div class="pb-row">
-                    <div class="pb-header">
-                        <span class="pb-title">${current.row2}</span>
-                        <span class="pb-value">${phrasesPercent}%</span>
-                    </div>
-                    <div class="pb-track">
-                        <!-- Нижняя полоска для фраз с фиолетовым градиентом -->
-                        <div class="pb-fill pb-fill-purple" style="width: ${phrasesPercent}%;"></div>
-                    </div>
+                <!-- 🔥 КЛИКАБЕЛЬНЫЕ ЗОНЫ (Прозрачные блоки) -->
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex;">
+                    <!-- Левая зона (Кровать) -->
+                    <div onclick="window.triggerInteraction('bed')" style="flex: 1.2; cursor: pointer; pointer-events: auto;"></div>
+                    <!-- Центр (Кресло) -->
+                    <div onclick="window.triggerInteraction('chair')" style="flex: 1; cursor: pointer; pointer-events: auto;"></div>
+                    <!-- Правая зона (Ментор / Точка 1) -->
+                    <div onclick="window.triggerInteraction('home')" style="flex: 1.2; cursor: pointer; pointer-events: auto;"></div>
                 </div>
 
-            </div>
-            
-            <div class="pb-avatar" onclick="checkMentorIdentity()" style="cursor: pointer; transition: transform 0.2s;" onmousedown="this.style.transform='scale(0.9)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-                <img src="${mentorAvatarSrc}" alt="Mentor" style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
+                <!-- ИНТЕРФЕЙС ПРОГРЕСС-БАРОВ (Пропускает клики насквозь через pointer-events: none) -->
+                <div style="position: relative; z-index: 2; display: flex; align-items: center; width: 100%; height: 100%; padding: 0 16px; box-sizing: border-box; gap: 16px; pointer-events: none;">
+                    
+                    <div class="pb-bars-col" style="flex: 2; display: flex; flex-direction: column; gap: 12px; pointer-events: none;">
+                        <div class="pb-row">
+                            <div class="pb-header">
+                                <span class="pb-title" id="pb-title-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${current.row1}</span>
+                                <span class="pb-value" id="pb-val-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${wordsPercent}%</span>
+                            </div>
+                            <div class="pb-track" style="background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);">
+                                <div class="pb-fill" id="pb-fill-1" style="width: ${wordsPercent}%;"></div>
+                            </div>
+                        </div>
 
-            <div id="mentor-identity-tooltip" style="display: none; position: absolute; top: -10px; right: 88px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.98) 0%, rgba(8, 12, 18, 1) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-left: 3px solid #38bdf8; padding: 12px 14px; border-radius: 12px; font-size: 12px; color: rgba(255, 255, 255, 0.9); box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 100; width: 200px; line-height: 1.4; opacity: 0; transition: opacity 0.3s; pointer-events: none;">
+                        <div class="pb-row">
+                            <div class="pb-header">
+                                <span class="pb-title" id="pb-title-2" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${current.row2}</span>
+                                <span class="pb-value" id="pb-val-2" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${phrasesPercent}%</span>
+                            </div>
+                            <div class="pb-track" style="background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);">
+                                <div class="pb-fill pb-fill-purple" id="pb-fill-2" style="width: ${phrasesPercent}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pb-mentor-block" style="flex: 1; height: 100%; pointer-events: none;">
+                    </div>
+
+                </div>
+
+                <div id="mentor-identity-tooltip" style="display: none; position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.98) 0%, rgba(8, 12, 18, 1) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-left: 3px solid #38bdf8; padding: 12px 14px; border-radius: 12px; font-size: 12px; color: rgba(255, 255, 255, 0.9); box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 100; width: 200px; line-height: 1.4; opacity: 0; transition: opacity 0.3s; pointer-events: none;">
+                </div>
             </div>
-        </div>
-    `;
+        `;
+
+        if (typeof init3DMentor === 'function') {
+            init3DMentor();
+        }
+    } else {
+        document.getElementById('pb-title-1').innerText = current.row1;
+        document.getElementById('pb-val-1').innerText = `${wordsPercent}%`;
+        document.getElementById('pb-fill-1').style.width = `${wordsPercent}%`;
+
+        document.getElementById('pb-title-2').innerText = current.row2;
+        document.getElementById('pb-val-2').innerText = `${phrasesPercent}%`;
+        document.getElementById('pb-fill-2').style.width = `${phrasesPercent}%`;
+    }
 }
 
-window.checkMentorIdentity = function() {
-    const tooltip = document.getElementById('mentor-identity-tooltip');
-    if (!tooltip) return;
+// 🔥 Новый роутер кликов (связывает HTML и класс персонажа)
+window.triggerInteraction = function(target) {
+    // Показываем плашку модели только если кликнули по самому роботу (правая зона)
+    if (target === 'home' && typeof checkMentorIdentity === 'function') {
+        checkMentorIdentity();
+    }
 
-    // Берем системное имя провайдера из профиля (как оно сохранено в БД)
-    const currentProvider = window.userProfile?.ai_provider || 'groq';
-
-    // Создаем словарь с красивыми названиями моделей
-    const providerNames = {
-        'groq': 'Groq (Llama)',
-        'gemini': 'Gemini 2.5',
-        'oss_120b': 'OSS 120B'
-    };
-
-    // Если провайдер есть в словаре — берем его имя, иначе выводим системный ID
-    const providerName = providerNames[currentProvider] || currentProvider;
-
-    tooltip.style.borderLeftColor = '#38bdf8';
-    tooltip.innerHTML = `
-        <b style="color: #38bdf8; display: block; margin-bottom: 4px;">🤖 Ментор на связи:</b>
-        Активный ИИ: <b>${providerName}</b>
-    `;
-
-    tooltip.style.display = 'block';
-    setTimeout(() => tooltip.style.opacity = '1', 10);
-
-    setTimeout(() => {
-        tooltip.style.opacity = '0';
-        setTimeout(() => tooltip.style.display = 'none', 300);
-    }, 4000);
+    // Отправляем команду в Стейт-Машину персонажа, явно обращаясь к window
+    if (window.characterInstance) {
+        window.characterInstance.command(target);
+    }
 };
