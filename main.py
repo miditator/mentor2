@@ -13,6 +13,7 @@ import handlers.buttons
 import handlers.words
 import handlers.intensity
 import handlers.chat
+import utils  # 👈 Импортируем utils
 
 
 # 🔥 Текст справки и инструкции
@@ -28,11 +29,19 @@ HELP_TEXT = (
 )
 
 
+
 # ==========================================
 # ОБРАБОТКА КОМАНДЫ /start В TELEGRAM
 # ==========================================
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+
+
+    # 🔥 АВТОМАТИЧЕСКИЙ ЗАПУСК ТАЙМЕРА:
+    # Как только пользователь заходит в бота или открывает приложение,
+    # мы сразу включаем его фоновый цикл (если он спал)
+    utils.start_or_resume_timer(message.chat.id)
+
     web_app_url = "https://mentorapp.duckdns.org/"
 
     # Создаем клавиатуру с шириной в 1 столбец

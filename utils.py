@@ -98,7 +98,11 @@ def send_question_timer_loop(chat_id):
                 time.sleep(5)
                 continue
 
-            now_dt = datetime.now()
+            # Добавляем часовой пояс Киева, чтобы 10:00 всегда были локальными
+            import pytz
+            kyiv_tz = pytz.timezone('Europe/Kyiv')
+            now_dt = datetime.datetime.now(kyiv_tz)
+
             current_hour = now_dt.hour
             current_date = now_dt.date()
             is_daytime = 8 <= current_hour < 23
@@ -106,22 +110,8 @@ def send_question_timer_loop(chat_id):
             now = time.time()
             pending = PENDING_QUIZ.get(chat_id)
 
-            # --- БЛОК 1: ОБРАБОТКА НАПОМИНАНИЙ (ФАКТОВ) ---
-            if pending:
-                if now - pending["time"] > REMINDER_DELAY:
-                    if not pending.get("reminded"):
-                        if is_daytime:
-                            PENDING_QUIZ[chat_id]["reminded"] = True
-                            PENDING_QUIZ[chat_id]["time"] = now
-                            threading.Thread(target=send_fun_fact_reminder, args=(chat_id, pending["word"])).start()
-                    else:
-                        clear_pending_quiz(chat_id)
-                        LAST_TASK_TIME[chat_id] = 0
-                time.sleep(5)
-                continue
-
-            # 🔥 БЛОК 2: УТРЕННИЙ ПЛАН (ЖЕСТКО В 10:00 ИЛИ ПОЗЖЕ)
-            # Вынесли ВЫШЕ проверки интервала!
+            # 🔥 БЛОК 1: УТРЕННИЙ ПЛАН (ПРОВЕРЯЕМ ПЕРВЫМ ДЕЛОМ)
+            # Вынесли в самый верх! Теперь ничто не заблокирует 10:00.
             if current_hour >= 10 and LAST_PLAN_DATE.get(chat_id) != current_date:
                 if not GENERATION_LOCKS.get(chat_id):
                     GENERATION_LOCKS[chat_id] = True
@@ -131,25 +121,37 @@ def send_question_timer_loop(chat_id):
                             LAST_PLAN_DATE[chat_id] = current_date
                     finally:
                         GENERATION_LOCKS[chat_id] = False
-                        # Сбрасываем таймер, чтобы после плана было "окно" до следующей фразы
                         LAST_TASK_TIME[chat_id] = time.time()
+                time.sleep(5)
+                continue
+
+            # Ночью ничего не шлем (переместили сюда, чтобы Утренний план успел уйти)
+            if not is_daytime:
+                time.sleep(60)
+                continue
+
+            # --- БЛОК 2: ОБРАБОТКА НАПОМИНАНИЙ (ФАКТОВ) ---
+            if pending:
+                if now - pending["time"] > REMINDER_DELAY:
+                    if not pending.get("reminded"):
+                        PENDING_QUIZ[chat_id]["reminded"] = True
+                        PENDING_QUIZ[chat_id]["time"] = now
+                        threading.Thread(target=send_fun_fact_reminder, args=(chat_id, pending["word"])).start()
+                    else:
+                        clear_pending_quiz(chat_id)
+                        LAST_TASK_TIME[chat_id] = 0
+
+                # Если час еще не прошел — просто ждем (но План мы уже проверили выше!)
                 time.sleep(5)
                 continue
 
             # --- БЛОК 3: ОБЫЧНЫЕ ЗАДАНИЯ ПО ИНТЕРВАЛУ ---
             last_time = LAST_TASK_TIME.get(chat_id, now)
 
-            # Если интервал еще не прошел — спим
             if now - last_time < config.TASK_INTERVAL:
                 time.sleep(5)
                 continue
 
-            # Ночью ничего не шлем
-            if not is_daytime:
-                time.sleep(60)
-                continue
-
-            # Отправка карточки
             if not GENERATION_LOCKS.get(chat_id):
                 GENERATION_LOCKS[chat_id] = True
                 try:

@@ -19,8 +19,8 @@ def get_user_profile(chat_id: int):
     if is_new:
         return {"success": True, "is_new_user": True}
 
-    words = database.get_full_dictionary(chat_id)
-    words_count = len(words) if words else 0
+    # 🔥 ИСПОЛЬЗУЕМ НОВУЮ БЫСТРУЮ ФУНКЦИЮ ПОДСЧЕТА
+    words_count = database.get_user_words_count(chat_id)
     active_task = database.get_active_task(chat_id)
 
     phrases_today = database.get_today_completions_count(chat_id)
@@ -60,5 +60,16 @@ def save_onboarding(data: OnboardingData):
         seed_initial_words_via_ai(data.chat_id, data.language)
 
         return {"success": True}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+# 🔥 ВОТ ЭТОТ ЭНДПОИНТ ТЫ ЗАБЫЛ ДОБАВИТЬ:
+@router.get("/profile/word-count")
+def get_word_count_endpoint(chat_id: int):
+    """Возвращает актуальное количество слов прямиком из базы"""
+    try:
+        count = database.get_user_words_count(chat_id)
+        return {"success": True, "count": count}
     except Exception as e:
         return {"success": False, "error": str(e)}

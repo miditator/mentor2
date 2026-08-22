@@ -456,18 +456,21 @@ function showCurrentWord() {
                 statText = `+${trainingState.totalWords} слов изучено`;
             }
 
-            // Отправляем статистику на сервер
+// Отправляем статистику на сервер
             apiFetch('/train/finish', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({chat_id: user.id, count: trainingState.totalWords})
             });
 
+            // 🔥 Финальный экран с аватаркой ментора (как в tasks.js)
             chatContainer.innerHTML = `
                 <div class="pb-main-container" style="flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-top: 15px; padding: 30px 20px;">
-                    <div style="margin: 0 auto 20px auto; width: 110px; height: 110px; border-radius: 50%; overflow: hidden; background: rgba(0,0,0,0.3); border: 2px solid rgba(168, 129, 243, 0.3); position: relative;">
-                        <div id="mentor-3d-container" style="width: 100%; height: 100%; position: relative;"></div>
+                    
+                    <div class="pb-avatar" style="margin: 0 auto 20px auto; width: 110px; height: 110px;">
+                        <img src="frontend/img/mentor.jpg" alt="Mentor" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
+                    
                     <div style="font-size: 24px; font-weight: bold; color: #ffffff; margin-bottom: 6px;">Поздравляем!</div>
                     <div style="font-size: 15px; font-weight: 500; color: rgba(255, 255, 255, 0.6); margin-bottom: 25px;">Сессия завершена</div>
                     
@@ -489,16 +492,8 @@ function showCurrentWord() {
 
             document.getElementById('input-container').style.display = 'none';
 
+            // 🔥 Оставляем ТОЛЬКО анимацию загрузки прогресс-бара
             setTimeout(() => {
-                window.isMentorInitialized = false;
-                if (typeof init3DMentor === 'function') init3DMentor();
-                setTimeout(() => {
-                    if (typeof characterInstance !== 'undefined' && characterInstance) {
-                        characterInstance.setWaypoint('finish', 0, -0.5, 0);
-                        characterInstance.playKatanaThenIdle('finish', 2);
-                    }
-                }, 100);
-
                 const bar = document.getElementById('final-pb-fill');
                 if (bar) bar.style.width = `${newPercent}%`;
                 const valueEl = document.getElementById('final-pb-value');
@@ -518,6 +513,8 @@ function showCurrentWord() {
             }, 100);
             return;
         } else {
+
+
             trainingState.activeRound = shuffleArray([...trainingState.nextRound.map(w => ({...w, hintShown: false}))]);
             trainingState.nextRound = [];
             trainingState.currentIndex = 0;

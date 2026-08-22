@@ -34,9 +34,28 @@ def edit_word_translation(data: EditWordRequest):
 
 
 @router.post("/words/delete")
-def delete_word(data: DeleteWordData):
+def delete_word(data: dict):
     try:
-        database.delete_custom_word(data.chat_id, data.word)
+        chat_id = data.get("chat_id")
+        word_id = data.get("word_id")
+        word_str = data.get("word")
+
+        # Если фронтенд прислал ID, удаляем по ID (новый надежный метод)
+        if word_id:
+            database.delete_custom_word_by_id(chat_id, word_id)
+        # Резервный старый метод
+        elif word_str:
+            database.delete_custom_word(chat_id, word_str)
+
         return {"success": True}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.get("/words/word-count")
+def get_word_count_endpoint(chat_id: int):
+    """Возвращает актуальное количество слов прямиком из базы"""
+    try:
+        count = database.get_user_words_count(chat_id)
+        return {"success": True, "count": count}
     except Exception as e:
         return {"success": False, "error": str(e)}

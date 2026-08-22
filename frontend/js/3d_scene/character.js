@@ -689,6 +689,60 @@ export class MentorCharacter {
         this.mixer.addEventListener('finished', onChairWakeFinish);
     }
 
+
+    // 🔥 МЕТОД: ВЕРНУТЬСЯ К ПОВСЕДНЕВНЫМ ДЕЛАМ
+    resetToRoutine() {
+        this.isReacting = false;
+        clearTimeout(this.timerId);
+
+        // 1. Сбрасываем все статусы
+        this.isChairState = false;
+        this.isSleepingState = false;
+
+        // 2. Прячем предметы (катану и книгу)
+        if (this.katanaMesh) this.katanaMesh.visible = false;
+        if (this.bookMesh) this.bookMesh.visible = false;
+
+        // 3. Сбрасываем смещения (если он спал)
+        if (this.visualRoot) {
+            this.visualRoot.position.set(0, 0, 0);
+            this.visualRoot.rotation.set(0, 0, 0);
+            if (this.visualRootFade) this.visualRootFade.active = false;
+            if (this.visualRootPosFade) this.visualRootPosFade.active = false;
+        }
+
+        // 4. Заново определяем, где он должен быть прямо сейчас по часам!
+        if (this.movement && this.movement.waypoints) {
+            this.applyTimeBasedState(this.movement.waypoints);
+        }
+
+        // 5. Запускаем правильную базовую анимацию
+        if (this.isSleepingState) {
+            const loopAction = this.sleepActions[1];
+            if (loopAction) {
+                loopAction.reset().play();
+                if (this.currentAction) this.currentAction.crossFadeTo(loopAction, 0.5, true);
+                this.currentAction = loopAction;
+            }
+        } else if (this.isChairState) {
+            const loopAction = this.chairActions[1];
+            if (loopAction) {
+                loopAction.reset().play();
+                if (this.currentAction) this.currentAction.crossFadeTo(loopAction, 0.5, true);
+                this.currentAction = loopAction;
+                if (this.bookMesh) this.bookMesh.visible = true; // Возвращаем книгу
+            }
+        } else {
+            const idleAction = this.idleActions[0];
+            if (idleAction) {
+                idleAction.reset().play();
+                if (this.currentAction) this.currentAction.crossFadeTo(idleAction, 0.5, true);
+                this.currentAction = idleAction;
+                this.scheduleNextSwitch(); // Запускаем переключение случайных идлов
+            }
+        }
+    }
+
     // 🔥 КАТАНА С ПЕРЕХОДОМ В КОНКРЕТНЫЙ IDLE
     playKatanaThenIdle(waypointName = 'home', specificIdleIndex = 0) {
         if (!this.movement || this.katanaActions.length === 0 || this.idleActions.length === 0) {

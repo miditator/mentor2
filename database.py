@@ -912,8 +912,11 @@ def delete_custom_word(chat_id, word_foreign, specific_lang=None):
         current_lang = specific_lang
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM user_dictionary WHERE chat_id = ? AND lang = ? AND LOWER(word_foreign) = LOWER(?)",
-                   (chat_id, current_lang, word_foreign.strip()))
+
+    # 🔥 ИСПОЛЬЗУЕМ TRIM: теперь база удалит слово, даже если оно сохранилось с лишними пробелами или переносами строк
+    cursor.execute(
+        "DELETE FROM user_dictionary WHERE chat_id = ? AND lang = ? AND LOWER(TRIM(word_foreign)) = LOWER(TRIM(?))",
+        (chat_id, current_lang, word_foreign))
     conn.commit()
     conn.close()
 
@@ -1533,3 +1536,26 @@ def get_user_daily_stats(chat_id: int) -> dict:
         "review_count": review_count,
         "weaknesses": weaknesses
     }
+
+
+def get_user_words_count(chat_id, specific_lang=None):
+    if specific_lang is None:
+        user_config = get_user_config(chat_id)
+        current_lang = user_config.get("source_lang", "en") if user_config else "en"
+    else:
+        current_lang = specific_lang
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM user_dictionary WHERE chat_id = ? AND lang = ?", (chat_id, current_lang))
+    count = cursor.fetchone()[0]
+    conn.close()
+    return count
+
+def delete_custom_word_by_id(chat_id, word_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    # 🔥 Удаляем слово 100% надежно по его уникальному ID
+    cursor.execute("DELETE FROM user_dictionary WHERE chat_id = ? AND id = ?", (chat_id, word_id))
+    conn.commit()
+    conn.close()

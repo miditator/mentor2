@@ -209,6 +209,7 @@ function toggleSingleWordSave(btn, word, translation) {
         body: JSON.stringify({ chat_id: user.id, foreign: word, ru: translation })
     }).then(data => {
         if (data.success) {
+            window.syncRealWordCount();
 
             // 🔥 ПРЕВРАЩАЕМ САМУ КНОПКУ В АККУРАТНУЮ ПЛАШКУ НА ЕЁ МЕСТЕ
             if (data.added) {
@@ -216,12 +217,7 @@ function toggleSingleWordSave(btn, word, translation) {
                 btn.style.background = 'rgba(16, 185, 129, 0.25)';
                 btn.style.borderColor = 'rgba(16, 185, 129, 0.5)';
                 btn.style.color = '#a7f3d0';
-                // 🔥 ФОРСИРОВАННОЕ ОБНОВЛЕНИЕ СЧЕТЧИКА НА ЭКРАНЕ
-                const mpWords = document.getElementById('mp-words');
-                if (mpWords) {
-                    const currentCount = parseInt(mpWords.innerText) || 0;
-                    mpWords.innerText = currentCount + 1;
-                }
+
             } else {
                 btn.innerHTML = '⚠️ Уже в словаре';
                 btn.style.background = 'rgba(255, 159, 10, 0.25)';
@@ -416,17 +412,14 @@ function saveSelectedWords() {
         })
     }).then(data => {
         if (data.success) {
+            window.syncRealWordCount();
             // 🔥 ПРЕВРАЩАЕМ КНОПКУ В ЗЕЛЕНУЮ ПЛАШКУ (Центрального уведомления больше нет)
             saveBtn.innerHTML = '✅ Успешно сохранено!';
             saveBtn.style.background = 'rgba(16, 185, 129, 0.25)';
             saveBtn.style.borderColor = 'rgba(16, 185, 129, 0.5)';
             saveBtn.style.color = '#a7f3d0';
 
-            const mpWords = document.getElementById('mp-words');
-            if (mpWords && data.added_count) {
-                const currentCount = parseInt(mpWords.innerText) || 0;
-                mpWords.innerText = currentCount + data.added_count;
-            }
+
 
             selectedBtns.forEach(btn => {
                 btn.onclick = null;

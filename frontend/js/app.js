@@ -265,6 +265,30 @@ function updateProfileUI(data) {
     isProfileVisible = true;
 }
 
+
+// 🔥 Функция для жесткой синхронизации счетчика с базой данных
+window.syncRealWordCount = function() {
+    // Генерируем уникальный штамп времени для обхода кэша Telegram
+    const timestamp = new Date().getTime();
+
+    // Добавляем параметр &_t=... в URL
+    apiFetch(`/words/word-count?chat_id=${user.id}&_t=${timestamp}`)
+        .then(data => {
+            if (data.success) {
+                // Обновляем в глобальном объекте
+                if (window.userProfile) {
+                    window.userProfile.words_count = data.count;
+                }
+                // Насильно перерисовываем цифру в плашке профиля
+                const countEl = document.getElementById('mp-words');
+                if (countEl) {
+                    countEl.innerText = data.count;
+                }
+            }
+        })
+        .catch(err => console.error("Ошибка синхронизации счетчика:", err));
+};
+
 function addMessageToOutput(text, isUser = false) {
     const chatMessages = document.getElementById('chat-messages');
     const outputArea = document.getElementById('output-area');
@@ -435,6 +459,8 @@ function exitToMainMenu() {
 
     // Стандартная логика возврата в главное меню для всех остальных разделов
     window.currentAppMode = 'menu';
+
+    
     setAppHeader(`${window.currentUsername || 'Студент'}! 👋`, false);
 
     const actionsEl = document.getElementById('top-bar-actions');

@@ -132,43 +132,38 @@ function renderDictionaryPage() {
     let html = '<div style="display: flex; flex-direction: column;">';
 
     pageWords.forEach(w => {
-        let foreign = w.word_foreign || w.foreign || w[0];
-        let ru = w.word_ru || w.ru || w[1];
-        let score = w.score !== undefined ? w.score : (w[2] || 0);
-        let percent = Math.round((score / 5) * 100);
+            let wordId = w.id; // 🔥 Достаем уникальный ID слова из базы
+            let foreign = w.word_foreign || w.foreign || w[0];
+            let ru = w.word_ru || w.ru || w[1];
+            let score = w.score !== undefined ? w.score : (w[2] || 0);
+            let percent = Math.round((score / 5) * 100);
 
-        let percentClass = 'percent-0';
-        if (percent >= 80) {
-            percentClass = 'percent-high';
-        } else if (percent >= 40) {
-            percentClass = 'percent-mid';
-        } else if (percent > 0) {
-            percentClass = 'percent-low';
-        }
-        let escapedWord = foreign.replace(/'/g, "\\'");
+            // ... (код с percentClass оставляем без изменений) ...
 
-        let btnText = 'TO TRAINING';
+            let escapedWord = foreign.replace(/'/g, "\\'");
+            let btnText = 'TO TRAINING';
 
-        let isSelected = selectedDictWords.has(foreign);
-        let clickAction = isDictEditMode ? `openEditTranslationTooltip('${escapedWord}')` : `openWordDetails('${escapedWord}')`;
+            let isSelected = selectedDictWords.has(foreign);
+            let clickAction = isDictEditMode ? `openEditTranslationTooltip('${escapedWord}')` : `openWordDetails('${escapedWord}')`;
 
-      let rightBlockHtml = '';
-        if (isDictEditMode) {
-            rightBlockHtml = `
-                <div style="display: flex; align-items: center; gap: 8px; min-width: 80px;">
-                    <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: var(--text-color);">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1); opacity: 0.85;">
-                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                        </svg>
+            let rightBlockHtml = '';
+            if (isDictEditMode) {
+                rightBlockHtml = `
+                    <div style="display: flex; align-items: center; gap: 8px; min-width: 80px;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: var(--text-color);">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: scaleX(-1); opacity: 0.85;">
+                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                            </svg>
+                        </div>
+                        <!-- 🔥 ТЕПЕРЬ МЫ ПЕРЕДАЕМ ИМЕННО wordId В ФУНКЦИЮ УДАЛЕНИЯ -->
+                        <button onclick="quickDeleteWord(event, ${wordId}, '${escapedWord}')" 
+                                style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,59,48,0.3); background: rgba(255,59,48,0.1); color: #ff3b30; cursor: pointer; outline: none; transition: 0.2s; -webkit-tap-highlight-color: transparent;"
+                                title="Удалить">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                        </button>
                     </div>
-                    <button onclick="quickDeleteWord(event, '${escapedWord}')" 
-                            style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,59,48,0.3); background: rgba(255,59,48,0.1); color: #ff3b30; cursor: pointer; outline: none; transition: 0.2s; -webkit-tap-highlight-color: transparent;"
-                            title="Удалить">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-                    </button>
-                </div>
-            `;
-        } else {
+                `;
+            } else {
             let badgeClass = percent === 0 ? 'dict-percent-badge is-zero' : 'dict-percent-badge has-color';
             let percentHue = 10 + (percent * 1.2);
 
@@ -584,12 +579,11 @@ function saveEditTranslation(word) {
     });
 }
 
-// 🔥 Быстрое удаление слова прямо из списка
-function quickDeleteWord(event, word) {
-    // ВАЖНО: Останавливаем клик, чтобы он не "провалился" ниже и не открыл окно редактирования текста
+// 🔥 Обновленная функция, которая использует wordId
+function quickDeleteWord(event, wordId, wordStr) {
     event.stopPropagation();
 
-    if (!confirm(`Удалить слово "${word}" из словаря?`)) {
+    if (!confirm(`Удалить слово "${wordStr}" из словаря?`)) {
         return;
     }
 
@@ -601,24 +595,27 @@ function quickDeleteWord(event, word) {
     apiFetch('/words/delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: user.id, word: word })
+        // 🔥 Отправляем ID на сервер
+        body: JSON.stringify({ chat_id: user.id, word_id: wordId, word: wordStr })
     }).then(data => {
         if (data.success) {
-            // Удаляем слово из локальных массивов
-            dictionaryWords = dictionaryWords.filter(w => (w.word_foreign || w.foreign || w[0]) !== word);
+            // 🔥 Железобетонно фильтруем локальный массив по ID
+            dictionaryWords = dictionaryWords.filter(w => w.id !== wordId);
+            window.syncRealWordCount();
 
             const query = document.getElementById('dict-search') ? document.getElementById('dict-search').value : '';
             if (query) {
-                // Если был активен поиск, обновляем результаты поиска
                 filterDictionary(query);
             } else {
-                // Если поиска не было, просто обновляем общий список
                 filteredDictionaryWords = [...dictionaryWords];
-
                 const countSpan = document.getElementById('dict-count');
                 if (countSpan) countSpan.innerText = dictionaryWords.length;
-
                 renderDictionaryPage();
+            }
+
+            // 🔥 Даем понятный визуальный отклик, чтобы не казалось, что всё зависло
+            if (typeof showToast === 'function') {
+                showToast("✅ Слово удалено");
             }
         } else {
             alert('❌ Ошибка удаления: ' + (data.error || 'Неизвестная ошибка'));
