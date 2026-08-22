@@ -2,6 +2,23 @@
 // ФАЙЛ: frontend/js/settings.js
 // ==========================================
 
+const VOICES_EN = {
+    "en-US-JennyNeural": "Jenny (США, 👩)",
+    "en-US-AriaNeural": "Aria (США, 👩)",
+    "en-US-GuyNeural": "Guy (США, 👨)",
+    "en-US-ChristopherNeural": "Chris (США, 👨)",
+    "en-GB-SoniaNeural": "Sonia (Брит, 👩)",
+    "en-GB-RyanNeural": "Ryan (Брит, 👨)"
+};
+
+const VOICES_DE = {
+    "de-DE-AmalaNeural": "Amala (👩)",
+    "de-DE-KatjaNeural": "Katja (👩)",
+    "de-DE-ConradNeural": "Conrad (👨)",
+    "de-DE-KillianNeural": "Killian (👨)",
+    "de-AT-IngridNeural": "Ingrid (Австрия, 👩)"
+};
+
 function showSettingsMode() {
     window.currentAppMode = 'settings';
     setAppHeader('⚙️ Настройки', true);
@@ -17,192 +34,208 @@ function showSettingsMode() {
 }
 
 function renderSettingsMenu() {
+    window.currentAppMode = 'settings';
     const chatContainer = document.getElementById('chat-messages');
 
     const diffMap = { "A1": "Начальный (A1)", "A2": "Элементарный (A2)", "B1": "Средний (B1)", "B2": "Выше среднего (B2)", "C1": "Продвинутый (C1)" };
     const langMap = { "en": "Английский 🇬🇧", "de": "Немецкий 🇩🇪" };
+    const rateMap = { "-25%": "Очень медленно 🐢", "-15%": "Медленно 🚶", "0%": "Нормально 🏃", "+10%": "Быстро 🚀" };
 
-    const currentLang = langMap[window.userProfile?.language] || "Не задан";
+    const langCode = window.userProfile?.language || 'en';
+    const currentLang = langMap[langCode] || "Не задан";
     const currentDiff = diffMap[window.userProfile?.difficulty] || "Не задана";
     const currentWords = window.userProfile?.words_per_day || 5;
     const currentPhrases = window.userProfile?.phrases_per_day || 10;
+    const currentRateId = window.userProfile?.tts_rate || "-15%";
+    const currentRateName = rateMap[currentRateId] || "Медленно 🚶";
 
-    // 🔥 Получаем текущего провайдера
-    const currentProvider = window.userProfile?.ai_provider || 'groq';
+    const voiceKey = langCode === 'de' ? 'tts_voice_de' : 'tts_voice_en';
+    const currentVoiceId = window.userProfile?.[voiceKey];
 
-    // 🔥 ДОБАВЛЕНО: Функция-помощник для стилей кнопок (ее не хватало!)
-    const getBtnStyle = (providerId, activeColor) => {
-        if (currentProvider === providerId) {
-            return `border: 1px solid ${activeColor}; color: ${activeColor}; background: ${activeColor.replace('1)', '0.1)')};`;
-        }
-        return 'border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-color); background: rgba(255, 255, 255, 0.04);';
-    };
+    let currentVoiceName = "По умолчанию";
+    if (langCode === 'de' && VOICES_DE[currentVoiceId]) currentVoiceName = VOICES_DE[currentVoiceId];
+    else if (langCode === 'en' && VOICES_EN[currentVoiceId]) currentVoiceName = VOICES_EN[currentVoiceId];
+
+    const currentProvider = window.userProfile?.ai_provider || 'gemini';
+    const providerBtnClass = currentProvider === 'gemini' ? 'btn-glass-green' : 'btn-glass-secondary';
 
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px 20px; margin-top: 5px; box-sizing: border-box; width: 100%;">
+        <div class="card" style="padding: 20px 16px; margin-top: 10px;">
+            <div class="convex-icon" style="width: 48px; height: 48px; margin: 0 auto 12px; font-size: 22px;">⚙️</div>
+            <div style="font-size: 16px; margin-bottom: 20px;">Параметры обучения</div>
             
-            <div style="font-size: 36px; margin-bottom: 10px;">⚙️</div>
-            <div style="font-size: 20px; color: var(--text-color); margin-bottom: 20px;">Настройки</div>
+            <div onclick="showLanguageSelector()" class="word-checkbox-label" style="justify-content: space-between; padding: 12px 14px; margin-bottom: 8px;">
+                <div style="text-align: left;">
+                    <span style="color: var(--hint-color); font-size: 11px; display: block; margin-bottom: 2px;">Изучаемый язык</span>
+                    <span style="font-size: 14px;">${currentLang}</span>
+                </div>
+                <div class="convex-icon" style="width: 30px; height: 30px; font-size: 14px;">🌍</div>
+            </div>
+
+            <div onclick="showDifficultySelector()" class="word-checkbox-label" style="justify-content: space-between; padding: 12px 14px; margin-bottom: 8px;">
+                <div style="text-align: left;">
+                    <span style="color: var(--hint-color); font-size: 11px; display: block; margin-bottom: 2px;">Текущий уровень</span>
+                    <span style="font-size: 14px;">${currentDiff}</span>
+                </div>
+                <div class="convex-icon" style="width: 30px; height: 30px; font-size: 14px;">📈</div>
+            </div>
+
+            <div onclick="showWordsGoalSelector()" class="word-checkbox-label" style="justify-content: space-between; padding: 12px 14px; margin-bottom: 8px;">
+                <div style="text-align: left;">
+                    <span style="color: var(--hint-color); font-size: 11px; display: block; margin-bottom: 2px;">Цель по словам в день</span>
+                    <span style="font-size: 14px;">${currentWords} слов</span>
+                </div>
+                <div class="convex-icon" style="width: 30px; height: 30px; font-size: 14px;">📚</div>
+            </div>
+
+            <div onclick="showPhrasesGoalSelector()" class="word-checkbox-label" style="justify-content: space-between; padding: 12px 14px; margin-bottom: 16px;">
+                <div style="text-align: left;">
+                    <span style="color: var(--hint-color); font-size: 11px; display: block; margin-bottom: 2px;">Цель по фразам в день</span>
+                    <span style="font-size: 14px;">${currentPhrases} фраз</span>
+                </div>
+                <div class="convex-icon" style="width: 30px; height: 30px; font-size: 14px;">✍️</div>
+            </div>
             
-            <div onclick="showLanguageSelector()" 
-                 style="width: 100%; background: rgba(255, 255, 255, 0.04); padding: 15px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); margin-bottom: 12px; cursor: pointer; transition: 0.2s; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center;"
-                 onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.12)';"
-                 onmouseout="this.style.background='rgba(255, 255, 255, 0.04)'; this.style.borderColor='rgba(255, 255, 255, 0.06)';"
-                 onmousedown="this.style.transform='scale(0.98)'"
-                 onmouseup="this.style.transform='scale(1)'"
-                 onmouseleave="this.style.transform='scale(1)'">
-                <div>
-                    <span style="color: var(--hint-color); font-size: 12px; display: block; margin-bottom: 2px;">Изучаемый язык</span>
-                    <span style="color: var(--text-color); font-size: 15px;">${currentLang}</span>
+            <div style="width: 100%; height: 1px; background: rgba(255,255,255,0.05); margin-bottom: 16px;"></div>
+            
+            <div onclick="showVoiceSelector()" class="word-checkbox-label" style="justify-content: space-between; padding: 12px 14px; margin-bottom: 8px;">
+                <div style="text-align: left;">
+                    <span style="color: var(--hint-color); font-size: 11px; display: block; margin-bottom: 2px;">Голос озвучки (${langCode.toUpperCase()})</span>
+                    <span style="font-size: 14px;">${currentVoiceName}</span>
                 </div>
-                <span style="color: var(--hint-color); font-size: 16px;">🌍</span>
+                <div class="convex-icon" style="width: 30px; height: 30px; font-size: 14px;">🗣️</div>
+            </div>
+            
+            <div onclick="showSpeechRateSelector()" class="word-checkbox-label" style="justify-content: space-between; padding: 12px 14px; margin-bottom: 20px;">
+                <div style="text-align: left;">
+                    <span style="color: var(--hint-color); font-size: 11px; display: block; margin-bottom: 2px;">Скорость речи</span>
+                    <span style="font-size: 14px;">${currentRateName}</span>
+                </div>
+                <div class="convex-icon" style="width: 30px; height: 30px; font-size: 14px;">⏱️</div>
             </div>
 
-            <div onclick="showDifficultySelector()" 
-                 style="width: 100%; background: rgba(255, 255, 255, 0.04); padding: 15px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); margin-bottom: 12px; cursor: pointer; transition: 0.2s; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center;"
-                 onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.12)';"
-                 onmouseout="this.style.background='rgba(255, 255, 255, 0.04)'; this.style.borderColor='rgba(255, 255, 255, 0.06)';"
-                 onmousedown="this.style.transform='scale(0.98)'"
-                 onmouseup="this.style.transform='scale(1)'"
-                 onmouseleave="this.style.transform='scale(1)'">
-                <div>
-                    <span style="color: var(--hint-color); font-size: 12px; display: block; margin-bottom: 2px;">Текущий уровень</span>
-                    <span style="color: var(--text-color); font-size: 15px;">${currentDiff}</span>
+            <div style="width: 100%; text-align: left; background: rgba(0,0,0,0.15); padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.03);">
+                <div style="font-size: 12px; color: var(--hint-color); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 14px;">🧠</span> Провайдер ИИ
                 </div>
-                <span style="color: var(--hint-color); font-size: 16px;">📈</span>
-            </div>
-
-            <div onclick="showWordsGoalSelector()" 
-                 style="width: 100%; background: rgba(255, 255, 255, 0.04); padding: 15px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); margin-bottom: 12px; cursor: pointer; transition: 0.2s; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center;"
-                 onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.12)';"
-                 onmouseout="this.style.background='rgba(255, 255, 255, 0.04)'; this.style.borderColor='rgba(255, 255, 255, 0.06)';"
-                 onmousedown="this.style.transform='scale(0.98)'"
-                 onmouseup="this.style.transform='scale(1)'"
-                 onmouseleave="this.style.transform='scale(1)'">
-                <div>
-                    <span style="color: var(--hint-color); font-size: 12px; display: block; margin-bottom: 2px;">Цель по словам в день</span>
-                    <span style="color: var(--text-color); font-size: 15px;">${currentWords} слов</span>
-                </div>
-                <span style="color: var(--hint-color); font-size: 16px;">📚</span>
-            </div>
-
-            <div onclick="showPhrasesGoalSelector()" 
-                 style="width: 100%; background: rgba(255, 255, 255, 0.04); padding: 15px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); margin-bottom: 20px; cursor: pointer; transition: 0.2s; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center;"
-                 onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.12)';"
-                 onmouseout="this.style.background='rgba(255, 255, 255, 0.04)'; this.style.borderColor='rgba(255, 255, 255, 0.06)';"
-                 onmousedown="this.style.transform='scale(0.98)'"
-                 onmouseup="this.style.transform='scale(1)'"
-                 onmouseleave="this.style.transform='scale(1)'">
-                <div>
-                    <span style="color: var(--hint-color); font-size: 12px; display: block; margin-bottom: 2px;">Цель по фразам в день</span>
-                    <span style="color: var(--text-color); font-size: 15px;">${currentPhrases} фраз</span>
-                </div>
-                <span style="color: var(--hint-color); font-size: 16px;">✍️</span>
-            </div>
-
-            <!-- 🔥 ОБНОВЛЕННЫЙ БЛОК ВЫБОРА НЕЙРОСЕТИ 🔥 -->
-            <div style="width: 100%; background: rgba(255, 255, 255, 0.02); padding: 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); box-sizing: border-box; text-align: left;">
-                <div style="font-size: 15px; color: #ffffff; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 20px;">🧠</span> Выбор нейросети
-                </div>
-
-                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
-                    <button onclick="changeAiProvider('groq')" class="btn-glass" style="flex: 1 1 calc(50% - 5px); height: 42px; font-size: 13px; padding: 0 5px; ${getBtnStyle('groq', 'rgba(14, 165, 233, 1)')}">
-                        Groq (Llama)
-                    </button>
-                    <button onclick="changeAiProvider('gemini')" class="btn-glass" style="flex: 1 1 calc(50% - 5px); height: 42px; font-size: 13px; padding: 0 5px; ${getBtnStyle('gemini', 'rgba(52, 199, 89, 1)')}">
-                        Gemini 2.5
-                    </button>
-                    <button onclick="changeAiProvider('oss_120b')" class="btn-glass" style="flex: 1 1 100%; height: 42px; font-size: 13px; padding: 0 5px; ${getBtnStyle('oss_120b', 'rgba(168, 129, 243, 1)')}">
-                        OSS 120B
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="changeAiProvider('gemini')" class="btn-glass ${providerBtnClass}" style="height: 40px; font-size: 13px; font-weight: normal;">
+                        Gemini 3.5-flash-lite
                     </button>
                 </div>
             </div>
-
         </div>
     `;
 }
 
 function showLanguageSelector() {
-    const chatContainer = document.getElementById('chat-messages');
-    chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px 20px; margin-top: 5px; box-sizing: border-box; width: 100%;">
-            <div style="font-size: 20px; font-weight: bold; color: var(--text-color); margin-bottom: 20px;">Выбери язык обучения</div>
-            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                <button onclick="saveSetting('source_lang', 'en')" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-sizing: border-box;">🇬🇧 Английский язык</button>
-                <button onclick="saveSetting('source_lang', 'de')" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-sizing: border-box;">🇩🇪 Немецкий язык</button>
-                
-                <!-- 🔥 КНОПКА НАЗАД В НАСТРОЙКИ -->
-                <button onclick="renderSettingsMenu()" class="btn-glass btn-glass-neutral" style="margin-top: 15px; height: 46px; font-size: 14px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M15 18l-6-6 6-6"/></svg>
-                    Назад к настройкам
-                </button>
-            </div>
-        </div>
-    `;
+    window.currentAppMode = 'settings_sub';
+    const currentLang = window.userProfile?.language || 'en';
+
+    const options = [
+        {id: 'en', label: '🇬🇧 Английский язык'},
+        {id: 'de', label: '🇩🇪 Немецкий язык'}
+    ];
+
+    renderSubMenu("🌍", "Выбери язык обучения", "source_lang", options, currentLang);
 }
 
 function showDifficultySelector() {
-    const chatContainer = document.getElementById('chat-messages');
-    chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px 20px; margin-top: 5px; box-sizing: border-box; width: 100%;">
-            <div style="font-size: 20px; font-weight: bold; color: var(--text-color); margin-bottom: 20px;">Выбери новый уровень</div>
-            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                <button onclick="saveSetting('difficulty', 'A1')" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">🟢 Начальный (A1)</button>
-                <button onclick="saveSetting('difficulty', 'A2')" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">🟢 Элементарный (A2)</button>
-                <button onclick="saveSetting('difficulty', 'B1')" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">🟡 Средний (B1)</button>
-                <button onclick="saveSetting('difficulty', 'B2')" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">🟡 Выше среднего (B2)</button>
-                <button onclick="saveSetting('difficulty', 'C1')" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">🔴 Продвинутый (C1)</button>
-                
-                <!-- 🔥 КНОПКА НАЗАД В НАСТРОЙКИ -->
-                <button onclick="renderSettingsMenu()" class="btn-glass btn-glass-neutral" style="margin-top: 15px; height: 46px; font-size: 14px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M15 18l-6-6 6-6"/></svg>
-                    Назад к настройкам
-                </button>
-            </div>
-        </div>
-    `;
+    window.currentAppMode = 'settings_sub';
+    const currentDiff = window.userProfile?.difficulty || "A1";
+
+    const options = [
+        {id: 'A1', label: '🟢 Начальный (A1)'},
+        {id: 'A2', label: '🟢 Элементарный (A2)'},
+        {id: 'B1', label: '🟡 Средний (B1)'},
+        {id: 'B2', label: '🟡 Выше среднего (B2)'},
+        {id: 'C1', label: '🔴 Продвинутый (C1)'}
+    ];
+
+    renderSubMenu("📈", "Уровень владения", "difficulty", options, currentDiff);
 }
 
 function showWordsGoalSelector() {
-    const chatContainer = document.getElementById('chat-messages');
-    chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px 20px; margin-top: 5px; box-sizing: border-box; width: 100%;">
-            <div style="font-size: 20px; font-weight: bold; color: var(--text-color); margin-bottom: 20px;">Слов в день</div>
-            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                <button onclick="saveSetting('words_per_day', 3)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">3 слова</button>
-                <button onclick="saveSetting('words_per_day', 5)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">5 слов (Рекомендуемо)</button>
-                <button onclick="saveSetting('words_per_day', 10)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">10 слов</button>
-                <button onclick="saveSetting('words_per_day', 15)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">15 слов</button>
-                <button onclick="saveSetting('words_per_day', 20)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">20 слов</button>
-                
-                <!-- 🔥 КНОПКА НАЗАД В НАСТРОЙКИ -->
-                <button onclick="renderSettingsMenu()" class="btn-glass btn-glass-neutral" style="margin-top: 15px; height: 46px; font-size: 14px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M15 18l-6-6 6-6"/></svg>
-                    Назад к настройкам
-                </button>
-            </div>
-        </div>
-    `;
+    window.currentAppMode = 'settings_sub';
+    const currentWords = window.userProfile?.words_per_day || 5;
+
+    const options = [
+        {id: 3, label: '3 слова'},
+        {id: 5, label: '5 слов (Рекомендуемо)'},
+        {id: 10, label: '10 слов'},
+        {id: 15, label: '15 слов'},
+        {id: 20, label: '20 слов'}
+    ];
+
+    renderSubMenu("📚", "Цель по словам", "words_per_day", options, currentWords);
 }
 
 function showPhrasesGoalSelector() {
+    window.currentAppMode = 'settings_sub';
+    const currentPhrases = window.userProfile?.phrases_per_day || 10;
+
+    const options = [
+        {id: 5, label: '5 фраз'},
+        {id: 10, label: '10 фраз (Рекомендуемо)'},
+        {id: 15, label: '15 фраз'},
+        {id: 20, label: '20 фраз'},
+        {id: 30, label: '30 фраз'}
+    ];
+
+    renderSubMenu("✍️", "Цель по фразам", "phrases_per_day", options, currentPhrases);
+}
+
+function showSpeechRateSelector() {
+    window.currentAppMode = 'settings_sub';
+    const currentRate = window.userProfile?.tts_rate || "-15%";
+
+    const options = [
+        {id: '-25%', label: '🐢 Очень медленно'},
+        {id: '-15%', label: '🚶 Медленно (Реком.)'},
+        {id: '0%', label: '🏃 Нормально (Беглая речь)'},
+        {id: '+10%', label: '🚀 Быстро'}
+    ];
+
+    renderSubMenu("⏱️", "Скорость произношения", "tts_rate", options, currentRate);
+}
+
+function showVoiceSelector() {
+    window.currentAppMode = 'settings_sub';
+    const langCode = window.userProfile?.language || 'en';
+
+    const voices = langCode === 'de' ? VOICES_DE : VOICES_EN;
+    const settingKey = langCode === 'de' ? 'tts_voice_de' : 'tts_voice_en';
+    const currentVoiceId = window.userProfile?.[settingKey];
+
+    const options = Object.entries(voices).map(([id, label]) => ({ id, label }));
+
+    renderSubMenu("🗣️", "Голос озвучки", settingKey, options, currentVoiceId, `Для заданий на ${langCode === 'de' ? 'немецком' : 'английском'} языке.`);
+}
+
+function renderSubMenu(icon, title, settingKey, optionsArray, currentValue, subtitle = "") {
     const chatContainer = document.getElementById('chat-messages');
+
+    let buttonsHtml = optionsArray.map(opt => {
+        const isSelected = opt.id == currentValue;
+        const btnClass = isSelected ? 'btn-glass btn-glass-green' : 'btn-glass btn-glass-secondary';
+        const checkIcon = isSelected ? '✓ ' : '';
+
+        return `
+            <button onclick="saveSetting('${settingKey}', '${opt.id}')" class="${btnClass}" style="justify-content: flex-start; padding-left: 18px; font-size: 14px; font-weight: normal; height: 44px;">
+                ${checkIcon}${opt.label}
+            </button>
+        `;
+    }).join('');
+
+    const subtitleHtml = subtitle ? `<div style="font-size: 12px; color: var(--hint-color); margin-bottom: 16px; text-align: center;">${subtitle}</div>` : '';
+
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px 20px; margin-top: 5px; box-sizing: border-box; width: 100%;">
-            <div style="font-size: 20px; font-weight: bold; color: var(--text-color); margin-bottom: 20px;">Фраз в день</div>
-            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                <button onclick="saveSetting('phrases_per_day', 5)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">5 фраз</button>
-                <button onclick="saveSetting('phrases_per_day', 10)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">10 фраз (Рекомендуемо)</button>
-                <button onclick="saveSetting('phrases_per_day', 15)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">15 фраз</button>
-                <button onclick="saveSetting('phrases_per_day', 20)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">20 фраз</button>
-                <button onclick="saveSetting('phrases_per_day', 30)" style="height: 46px; padding: 0 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">30 фраз</button>
-                
-                <!-- 🔥 КНОПКА НАЗАД В НАСТРОЙКИ -->
-                <button onclick="renderSettingsMenu()" class="btn-glass btn-glass-neutral" style="margin-top: 15px; height: 46px; font-size: 14px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M15 18l-6-6 6-6"/></svg>
-                    Назад к настройкам
-                </button>
+        <div class="card" style="padding: 20px 16px; margin-top: 10px;">
+            <div class="convex-icon" style="width: 48px; height: 48px; margin: 0 auto 12px; font-size: 24px;">${icon}</div>
+            <div style="font-size: 16px; margin-bottom: ${subtitle ? '6px' : '20px'};">${title}</div>
+            ${subtitleHtml}
+            <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                ${buttonsHtml}
             </div>
         </div>
     `;
@@ -211,9 +244,9 @@ function showPhrasesGoalSelector() {
 function saveSetting(key, value) {
     const chatContainer = document.getElementById('chat-messages');
     chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 30px 20px; margin-top: 5px; width: 100%; box-sizing: border-box; text-align: center;">
-            <div style="font-size: 36px; margin-bottom: 12px;">⏳</div>
-            <div style="font-size: 15px; color: var(--hint-color);">Сохраняем изменения...</div>
+        <div class="card" style="padding: 30px 20px; margin-top: 10px;">
+            <div class="convex-icon" style="width: 50px; height: 50px; margin: 0 auto 12px; font-size: 24px; animation: pulse-mic 1.5s infinite;">⏳</div>
+            <div style="font-size: 14px; color: var(--hint-color);">Сохраняем...</div>
         </div>
     `;
 
@@ -233,75 +266,30 @@ function saveSetting(key, value) {
                 renderSettingsMenu();
             });
         } else {
-            chatContainer.innerHTML = `<div style="text-align:center; padding: 20px; color: #ff3b30;">❌ Ошибка: ${data.error}</div>`;
+            chatContainer.innerHTML = `<div class="card" style="color: #ff3b30; font-size: 14px;">❌ Ошибка: ${data.error}</div>`;
             setTimeout(renderSettingsMenu, 2000);
         }
     }).catch(err => {
-        chatContainer.innerHTML = `<div style="text-align:center; padding: 20px; color: #ff3b30;">⚠️ Ошибка сети.</div>`;
+        chatContainer.innerHTML = `<div class="card" style="color: #ff3b30; font-size: 14px;">⚠️ Ошибка сети.</div>`;
         setTimeout(renderSettingsMenu, 2000);
     });
 }
 
-// ==========================================
-// 🔥 СМЕНА ИИ-ПРОВАЙДЕРА В НАСТРОЙКАХ
-// ==========================================
 function changeAiProvider(provider) {
     apiFetch('/settings/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: user.id,
-            setting_key: 'ai_provider',
-            setting_value: provider
-        })
+        body: JSON.stringify({ chat_id: user.id, setting_key: 'ai_provider', setting_value: provider })
     }).then(data => {
         if (data.success) {
-            // Сохраняем локально, чтобы профиль обновился мгновенно
-            if (window.userProfile) {
-                window.userProfile.ai_provider = provider;
-            }
-
-            // Если мы находимся в настройках, просто перерисовываем меню,
-            // чтобы стили активной кнопки применились автоматически
-            if (window.currentAppMode === 'settings') {
-                renderSettingsMenu();
-            } else {
-                // Если мы кликнули с экрана исчерпания лимитов, возвращаемся в меню
+            if (window.userProfile) window.userProfile.ai_provider = provider;
+            if (window.currentAppMode === 'settings') renderSettingsMenu();
+            else {
                 const inputContainer = document.getElementById('input-container');
-                if (inputContainer && inputContainer.style.display === 'none') {
-                    exitToMainMenu();
-                }
+                if (inputContainer && inputContainer.style.display === 'none') exitToMainMenu();
             }
         } else {
             alert('❌ Ошибка при смене нейросети');
         }
     }).catch(err => console.error("Ошибка смены ИИ:", err));
-}
-
-// ==========================================
-// 🔥 ОТЛАДКА: ПРОВЕРКА ТЕКУЩЕЙ НЕЙРОСЕТИ
-// ==========================================
-function testAiIdentity() {
-    console.log("🕵️ Отправляю запрос для проверки ИИ-модели...");
-    alert("⏳ Запрос отправлен. ИИ думает...");
-
-    apiFetch('/debug/ai_identity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: user.id })
-    }).then(data => {
-        if (data.success) {
-            // Вывод в консоль для разработчика
-            console.log("✅ ОТВЕТ НЕЙРОСЕТИ:", data.identity);
-
-            // Вывод на экран для удобства на телефоне
-            alert("🤖 Ответ ИИ:\n\n" + data.identity);
-        } else {
-            console.error("❌ Ошибка ИИ:", data.error);
-            alert("Ошибка: " + data.error);
-        }
-    }).catch(err => {
-        console.error("Ошибка сети:", err);
-        alert("Ошибка сети!");
-    });
 }

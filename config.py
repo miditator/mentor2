@@ -14,15 +14,16 @@ TASK_INTERVAL = 7200
 # Второстепенные модели (если нужны точечно для задач вроде аудио или зрения)
 VISION_MODEL = "gemini-2.5-flash"
 AUDIO_MODEL = "whisper-large-v3"
+LIVE_CHAT_MODEL = "gemini-2.5-flash-lite" # Можно использовать gemini-2.5-pro, если нужен более глубокий анализ
 temperature = 0.5
 
 # 🔥 ЕДИНЫЙ ПУЛЬТ УПРАВЛЕНИЯ ПРОВАЙДЕРАМИ
-ACTIVE_LLM_PROVIDER = "groq"  # "gemini", "groq" или "openai"
+ACTIVE_LLM_PROVIDER = "gemini"  # "gemini", "groq" или "openai"
 
 LLM_PROVIDERS = {
     "gemini": {
         "api_key": GEMINI_KEY,
-        "models": "gemini-2.5-flash",  # Обновил до твоей актуальной модели
+        "models": "gemini-3.5-flash-lite",  # Обновил до твоей актуальной модели
         "type": "gemini"
     },
     "groq": {

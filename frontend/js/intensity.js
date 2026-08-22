@@ -79,42 +79,17 @@ function showIntensitySetupMode() {
     userInput.focus();
 }
 
-// 2. ЗАПУСК ГЕНЕРАЦИИ
-function startIntensity(word, meanings = []) {
+function startIntensity(word) {
     intensityState.word = word.trim();
     if (!intensityState.word) return;
 
-    const langCode = window.userProfile?.language || 'en';
-    const chatContainer = document.getElementById('chat-messages');
-
-    const isEnglishOnly = /^[a-zA-Z\s\-']+$/.test(intensityState.word);
-    const isGermanOnly = /^[a-zA-ZäöüÄÖÜß\s\-']+$/.test(intensityState.word);
-
-    if ((langCode === 'en' && !isEnglishOnly) || (langCode === 'de' && !isGermanOnly)) {
-        document.getElementById('text-input-row').style.display = 'none';
-        chatContainer.innerHTML = `
-            <div class="card" style="margin-top: 10px; align-items: center;">
-                <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
-                <div style="font-size: 15px; color: #ff3b30; font-weight: 500;">Упс! Неверная раскладка.</div>
-                <div style="font-size: 13px; color: var(--hint-color); margin-top: 8px;">Пожалуйста, введи слово на ${langCode === 'en' ? 'английском' : 'немецком'} языке.</div>
-            </div>
-        `;
-        setTimeout(showIntensitySetupMode, 2500);
-        return;
-    }
-
     intensityState.score = 0;
-    intensityState.currentIndex = 0;
-    intensityState.langName = langCode === 'de' ? 'немецкий' : 'английский';
-    intensityState.meanings = meanings; // Запоминаем значения
+    intensityState.currentIndex = 0; // Это и есть наш шаг
 
     window.currentAppMode = 'intensity_active';
-
-    // 🔥 Сразу запускаем загрузку первой фразы
     loadNextIntensityTask();
 }
 
-// 🔥 НОВАЯ ФУНКЦИЯ: Запрашивает одну фразу у бэкенда
 function loadNextIntensityTask() {
     if (intensityState.currentIndex >= 5) {
         showIntensityResult();
@@ -124,7 +99,10 @@ function loadNextIntensityTask() {
     const chatContainer = document.getElementById('chat-messages');
     document.getElementById('text-input-row').style.display = 'none';
 
-    let loadingText = `ИИ генерирует фразу ${intensityState.currentIndex + 1} из 5 со словом <b>${intensityState.word}</b>...`;
+    // На шаге 0 ИИ может переводить слово, поэтому текст загрузки чуть другой
+    let loadingText = intensityState.currentIndex === 0
+        ? `ИИ анализирует слово <b>${intensityState.word}</b> и готовит интенсив...`
+        : `ИИ генерирует фразу ${intensityState.currentIndex + 1} из 5 со словом <b>${intensityState.word}</b>...`;
 
     chatContainer.innerHTML = `
         <div class="card" style="margin-top: 10px;">
@@ -142,7 +120,8 @@ function loadNextIntensityTask() {
             chat_id: user.id,
             word: intensityState.word,
             difficulty: difficulty,
-            meanings: intensityState.meanings
+            step: intensityState.currentIndex,
+            meanings: intensityState.meanings // 👈 Отправляем значения (на шаге 0 он пустой)
         })
     }).then(data => {
         if (!data.success && window.isRateLimitError(data.error)) {
@@ -150,8 +129,13 @@ function loadNextIntensityTask() {
         }
 
         if (data.success) {
-            intensityState.currentTask = data.task; // Сохраняем 1 фразу
-            showIntensityPhrase(); // Отрисовываем её
+            // 🔥 СОХРАНЯЕМ ЗНАЧЕНИЯ, ЧТОБЫ НЕ ПЕРЕВОДИТЬ СЛОВО СНОВА
+            if (data.meanings && intensityState.currentIndex === 0) {
+                intensityState.meanings = data.meanings;
+            }
+
+            intensityState.currentTask = data.task;
+            showIntensityPhrase();
         } else {
             chatContainer.innerHTML = `<div class="card" style="margin-top: 10px;">❌ Ошибка: ${data.error}</div>`;
             document.getElementById('text-input-row').style.display = 'flex';
@@ -290,6 +274,9 @@ function handleIntensityInput(text) {
                     const safePhraseAttr = currentTask.translation.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     const safeAnswerAttr = text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
+                    // 🔥 Достаем правильную фразу
+                    const correctVariant = data.correct_phrase || data.correct_answer || data.correct_variant;
+
                     resultHTML = `
                         <div style="font-size: 11px; color: #ff3b30; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">❌ Твой ответ:</div>
                         <div style="background: rgba(255, 59, 48, 0.1); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255, 59, 48, 0.3); text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 12px;">
@@ -297,10 +284,23 @@ function handleIntensityInput(text) {
                         </div>
 
                         <div style="font-size: 11px; color: var(--hint-color); font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">Разбор ошибки:</div>
-                        <div style="background: rgba(255, 255, 255, 0.05); padding: 12px 16px; border-radius: 12px; border-left: 4px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 15px;">
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 12px 16px; border-radius: 12px; border-left: 4px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: ${correctVariant ? '12px' : '15px'};">
                             <div style="font-size: 14px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
                         </div>
-                        
+                    `;
+
+                    // 🔥 НОВЫЙ БЛОК: Показываем эталонный ответ с зеленой плашкой
+                    if (correctVariant) {
+                        resultHTML += `
+                            <div style="font-size: 11px; color: #34c759; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">✅ Как нужно было сказать:</div>
+                            <div style="background: rgba(52, 199, 89, 0.1); padding: 12px 16px; border-radius: 10px; border-left: 4px solid #34c759; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 15px;">
+                                <div style="font-size: 14px; font-weight: 600; color: var(--text-color); line-height: 1.4; word-wrap: break-word;">${correctVariant}</div>
+                            </div>
+                        `;
+                    }
+
+                    // Кнопка вызова встроенного чата
+                    resultHTML += `
                         <!-- 🔥 Встроенное поле для чата с ИИ -->
                         <div style="width: 100%; margin-bottom: 15px; position: relative;">
                             <input type="text" id="inline-error-chat-input" onkeypress="if(event.key==='Enter') triggerInlineErrorChat('${safePhraseAttr}', '${safeAnswerAttr}')" placeholder="Спросить ИИ об ошибке..." style="width: 100%; height: 46px; padding: 0 45px 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-size: 14px; box-sizing: border-box; outline: none;">

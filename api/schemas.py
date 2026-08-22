@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from typing import List, Optional
+
 # --- PYDANTIC МОДЕЛИ ВАЛИДАЦИИ ДАННЫХ ---
 class OnboardingData(BaseModel):
     chat_id: int
@@ -42,7 +44,8 @@ class IntensityStartData(BaseModel):
     chat_id: int
     word: str
     difficulty: str
-    meanings: list[str] = []
+    step: int = 0
+    meanings: Optional[List[str]] = []
 
 
 class IntensityCheckData(BaseModel):
@@ -98,7 +101,16 @@ class TrainingAnswerData(BaseModel):
     chat_id: int
     word_id: int
     is_correct: bool
+    mode: str = 'new'
+    source: str = 'user'   # Источник слова
+    foreign: str = ""      # Само слово (чтобы записать в БД, если его там нет)
+    ru: str = ""           # Перевод слов
 
+class MarkKnownData(BaseModel):
+    chat_id: int
+    word_id: int
+    word_foreign: str
+    source: str
 
 class ChatMessageItem(BaseModel):
     role: str
@@ -148,3 +160,14 @@ class DebugAiData(BaseModel):
 class ErrorAnalysisData(BaseModel):
     chat_id: int
     message: str
+
+# Схема для каждого отдельного слова
+class OxfordWordItem(BaseModel):
+    word_id: int
+    foreign: str
+    ru: str
+
+# Схема для получения списка слов разом
+class AddOxfordBatchData(BaseModel):
+    chat_id: int
+    words: List[OxfordWordItem]

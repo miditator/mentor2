@@ -688,4 +688,70 @@ export class MentorCharacter {
         };
         this.mixer.addEventListener('finished', onChairWakeFinish);
     }
+
+    // 🔥 КАТАНА С ПЕРЕХОДОМ В КОНКРЕТНЫЙ IDLE
+    playKatanaThenIdle(waypointName = 'home', specificIdleIndex = 0) {
+        if (!this.movement || this.katanaActions.length === 0 || this.idleActions.length === 0) {
+            console.warn("⚠️ Персонаж еще не загружен или отсутствуют анимации!");
+            return;
+        }
+
+        this.isReacting = true;
+        clearTimeout(this.timerId);
+
+        // Перемещаем в нужную точку (например, 'finish')
+        const wp = this.movement.waypoints[waypointName];
+        if (wp) {
+            this.loadedModel.position.set(wp.x, this.loadedModel.position.y, wp.z);
+            this.loadedModel.rotation.y = wp.ry;
+        }
+
+        if (this.katanaMesh) this.katanaMesh.visible = true;
+        if (this.bookMesh) this.bookMesh.visible = false;
+
+        const randomIndex = Math.floor(Math.random() * this.katanaActions.length);
+        const katanaAction = this.katanaActions[randomIndex];
+
+        katanaAction.reset();
+        katanaAction.setLoop(THREE.LoopOnce, 1);
+        katanaAction.clampWhenFinished = true;
+        katanaAction.play();
+
+        if (this.currentAction) {
+            this.currentAction.crossFadeTo(katanaAction, 0.3, true);
+        }
+        this.currentAction = katanaAction;
+        this.currentReactionAction = katanaAction;
+
+        const onKatanaFinished = (e) => {
+            if (e.action === katanaAction) {
+                this.mixer.removeEventListener('finished', onKatanaFinished);
+
+                if (this.katanaMesh) this.katanaMesh.visible = false;
+
+                // 🔥 Берем КОНКРЕТНЫЙ idle по индексу (или 0-й по умолчанию)
+                const targetIdleIndex = specificIdleIndex < this.idleActions.length ? specificIdleIndex : 0;
+                const idleAction = this.idleActions[targetIdleIndex];
+
+                idleAction.reset();
+                idleAction.setLoop(THREE.LoopRepeat);
+                idleAction.play();
+
+                katanaAction.crossFadeTo(idleAction, 0.5, true);
+                this.currentAction = idleAction;
+                this.currentReactionAction = null;
+                this.isReacting = false;
+
+                this.scheduleNextSwitch();
+            }
+        };
+
+        this.mixer.addEventListener('finished', onKatanaFinished);
+    }
+
+    // 🔥 Метод для установки или обновления любой точки на лету
+    setWaypoint(name, x, z, ry = 0) {
+        if (!this.movement) return;
+        this.movement.waypoints[name] = { x, z, ry };
+    }
 }

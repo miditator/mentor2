@@ -1,0 +1,2144 @@
+{
+    "{{c1::abhängen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "зависеть от": []
+            }
+        }
+    },
+    "{{c1::abschreiben}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "копировать из": []
+            }
+        }
+    },
+    "{{c1::ändern}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "изменить на": []
+            }
+        }
+    },
+    "{{c1::ankommen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "зависеть от": []
+            }
+        }
+    },
+    "{{c1::anmerken}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "комментировать": []
+            }
+        }
+    },
+    "{{c1::arbeiten}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "работать над": []
+            }
+        }
+    },
+    "{{c1::sich ärgern}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "раздражаться из-за": []
+            }
+        }
+    },
+    "{{c1::aufpassen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "обращать внимание на": []
+            }
+        }
+    },
+    "{{c1::ausgeben}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "тратить на": []
+            }
+        }
+    },
+    "{{c1::sich ausruhen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "отдыхать от": []
+            }
+        }
+    },
+    "{{c1::basieren}} {{c2::auf}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "основано на": []
+            }
+        }
+    },
+    "{{c1::beauftragen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "поручено": []
+            }
+        }
+    },
+    "{{c1::sich bedanken}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "благодарить за": []
+            }
+        }
+    },
+    "{{c1::beglückwünschen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "поздравлять с": []
+            }
+        }
+    },
+    "{{c1::beitragen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "вносить вклад в": []
+            }
+        }
+    },
+    "{{c1::berichten}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "сообщать о": []
+            }
+        }
+    },
+    "{{c1::berichten}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "сообщать о": []
+            }
+        }
+    },
+    "{{c1::sich beschäftigen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "заниматься": []
+            }
+        }
+    },
+    "{{c1::Bescheid wissen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "быть осведомлённым о": []
+            }
+        }
+    },
+    "{{c1::sich beschweren}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "жаловаться кому": []
+            }
+        }
+    },
+    "{{c1::sich beschweren}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "жаловаться на": []
+            }
+        }
+    },
+    "{{c1::bestehen}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "состоять из": []
+            }
+        }
+    },
+    "{{c1::sich beteiligen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "участвовать в": []
+            }
+        }
+    },
+    "{{c1::sich bewerben}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "подавать заявку на": []
+            }
+        }
+    },
+    "{{c1::sich beziehen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "относиться к": []
+            }
+        }
+    },
+    "{{c1::bringen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "вызывать": []
+            }
+        }
+    },
+    "{{c1::bringen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "привести к": []
+            }
+        }
+    },
+    "{{c1::demonstrieren}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "демонстрировать в поддержку": []
+            }
+        }
+    },
+    "{{c1::demonstrieren}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "демонстрировать против": []
+            }
+        }
+    },
+    "{{c1::diskutieren}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "обсуждать с": []
+            }
+        }
+    },
+    "{{c1::diskutieren}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "обсуждать": []
+            }
+        }
+    },
+    "{{c1::sich einigen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "достичь соглашения с": []
+            }
+        }
+    },
+    "{{c1::sich entschließen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "решить": []
+            }
+        }
+    },
+    "{{c1::erfahren}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "узнать о": []
+            }
+        }
+    },
+    "{{c1::(sich) erhöhen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "увеличить до": []
+            }
+        }
+    },
+    "{{c1::(sich) erhöhen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "увеличить на": []
+            }
+        }
+    },
+    "{{c1::sich erholen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "восстановиться после": []
+            }
+        }
+    },
+    "{{c1::erkennen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "распознать по": []
+            }
+        }
+    },
+    "{{c1::sich erkundigen}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "спросить у": []
+            }
+        }
+    },
+    "{{c1::sich erkundigen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "узнать о": []
+            }
+        }
+    },
+    "{{c1::erzählen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "рассказывать о": []
+            }
+        }
+    },
+    "{{c1::erziehen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "воспитывать к": []
+            }
+        }
+    },
+    "{{c1::fehlen an}} {{c2::(es)}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "не хватать": []
+            }
+        }
+    },
+    "{{c1::fliehen}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "бежать от": []
+            }
+        }
+    },
+    "{{c1::sich fürchten}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "бояться": []
+            }
+        }
+    },
+    "{{c1::gehen um}} {{c2::(es)}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "касаться": []
+            }
+        }
+    },
+    "{{c1::gehören}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "принадлежать": []
+            }
+        }
+    },
+    "{{c1::sich gewöhnen}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "привыкать к": []
+            }
+        }
+    },
+    "{{c1::glauben}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "верить в": []
+            }
+        }
+    },
+    "{{c1::halten}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "думать о": []
+            }
+        }
+    },
+    "{{c1::handeln}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "действовать против": []
+            }
+        }
+    },
+    "{{c1::handeln}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "торговать с": []
+            }
+        }
+    },
+    "{{c1::sich handeln}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "речь идет о": []
+            }
+        }
+    },
+    "{{c1::sich handeln}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "речь идет о": []
+            }
+        }
+    },
+    "{{c1::hinweisen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "указать на": []
+            }
+        }
+    },
+    "{{c1::hören}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "перестать слушать": []
+            }
+        }
+    },
+    "{{c1::hören}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "слышать от": []
+            }
+        }
+    },
+    "{{c1::kämpfen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "бороться за": []
+            }
+        }
+    },
+    "{{c1::kämpfen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "бороться против": []
+            }
+        }
+    },
+    "{{c1::kommen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "прийти к": []
+            }
+        }
+    },
+    "{{c1::sich kümmern}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "заботиться о": []
+            }
+        }
+    },
+    "{{c1::lachen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "смеяться над": []
+            }
+        }
+    },
+    "{{c1::leben}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "жить за счёт": []
+            }
+        }
+    },
+    "{{c1::liegen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "лежать в": []
+            }
+        }
+    },
+    "{{c1::machen}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "делать из": []
+            }
+        }
+    },
+    "{{c1::nachdenken}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "думать о": []
+            }
+        }
+    },
+    "{{c1::sich orientieren}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "ориентироваться на": []
+            }
+        }
+    },
+    "{{c1::passen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "подходить к": []
+            }
+        }
+    },
+    "{{c1::protestieren}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "протестовать против": []
+            }
+        }
+    },
+    "{{c1::raten}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "советовать": []
+            }
+        }
+    },
+    "{{c1::reagieren}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "реагировать на": []
+            }
+        }
+    },
+    "{{c1::rechnen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "рассчитывать на": []
+            }
+        }
+    },
+    "{{c1::reden}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "говорить о": []
+            }
+        }
+    },
+    "{{c1::riechen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "пахнуть": []
+            }
+        }
+    },
+    "{{c1::sagen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "говорить о": []
+            }
+        }
+    },
+    "{{c1::sagen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "говорить о": []
+            }
+        }
+    },
+    "{{c1::sagen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "говорить": []
+            }
+        }
+    },
+    "{{c1::schicken}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "отправить": []
+            }
+        }
+    },
+    "{{c1::schicken}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "послать": []
+            }
+        }
+    },
+    "{{c1::schimpfen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "ругать": []
+            }
+        }
+    },
+    "{{c1::schimpfen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "говорить плохо о": []
+            }
+        }
+    },
+    "{{c1::schließen}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "делать вывод из": []
+            }
+        }
+    },
+    "{{c1::schmecken}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "иметь вкус": []
+            }
+        }
+    },
+    "{{c1::schreiben}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "писать кому": []
+            }
+        }
+    },
+    "{{c1::schreiben}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "написание": []
+            }
+        }
+    },
+    "{{c1::(sich) schützen}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "защищаться от": []
+            }
+        }
+    },
+    "{{c1::senden}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "отправить кому": []
+            }
+        }
+    },
+    "{{c1::siegen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "триумфировать над": []
+            }
+        }
+    },
+    "{{c1::sinken}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "опуститься до": []
+            }
+        }
+    },
+    "{{c1::sorgen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "заботиться о": []
+            }
+        }
+    },
+    "{{c1::sich sorgen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "беспокоиться о": []
+            }
+        }
+    },
+    "{{c1::sich spezialisieren}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "специализироваться на": []
+            }
+        }
+    },
+    "{{c1::sprechen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "выступать за": []
+            }
+        }
+    },
+    "{{c1::sprechen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "говорить против": []
+            }
+        }
+    },
+    "{{c1::sprechen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "говорить о": []
+            }
+        }
+    },
+    "{{c1::steigen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "подниматься": []
+            }
+        }
+    },
+    "{{c1::sterben}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "умирать от": []
+            }
+        }
+    },
+    "{{c1::stimmen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "голосовать за": []
+            }
+        }
+    },
+    "{{c1::stimmen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "голосовать против": []
+            }
+        }
+    },
+    "{{c1::stören}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "мешать в": []
+            }
+        }
+    },
+    "{{c1::(sich) streiten}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "спорить с": []
+            }
+        }
+    },
+    "{{c1::(sich) streiten}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "спорить о": []
+            }
+        }
+    },
+    "{{c1::suchen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "искать": []
+            }
+        }
+    },
+    "{{c1::teilen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "делить на": []
+            }
+        }
+    },
+    "{{c1::träumen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "мечтать о": []
+            }
+        }
+    },
+    "{{c1::sich trennen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "отделяться от": []
+            }
+        }
+    },
+    "{{c1::treten}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "ударять ногой о": []
+            }
+        }
+    },
+    "{{c1::überreden}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "убеждать в": []
+            }
+        }
+    },
+    "{{c1::übersetzen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "переводить на": []
+            }
+        }
+    },
+    "{{c1::übersetzten}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "переводить с": []
+            }
+        }
+    },
+    "{{c1::(sich) überzeugen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "убеждать себя в": []
+            }
+        }
+    },
+    "{{c1::unterrichten}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "преподавать в": []
+            }
+        }
+    },
+    "{{c1::unterscheiden}} {{c2::zwischen}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "различать между": []
+            }
+        }
+    },
+    "{{c1::unterstützen}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "поддерживать с": []
+            }
+        }
+    },
+    "{{c1::sich verabreden}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "договориться о": []
+            }
+        }
+    },
+    "{{c1::vereinbaren}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "согласовать с": []
+            }
+        }
+    },
+    "{{c1::verlangen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "требовать от": []
+            }
+        }
+    },
+    "{{c1::sich verlassen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "полагаться на": []
+            }
+        }
+    },
+    "{{c1::verschieben}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "перенести в": []
+            }
+        }
+    },
+    "{{c1::(sich) verstecken}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "прятаться от": []
+            }
+        }
+    },
+    "{{c1::sich verstehen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "ладить с": []
+            }
+        }
+    },
+    "{{c1::nichts/etwas verstehen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "не понять ничего/чего‑то": []
+            }
+        }
+    },
+    "{{c1::(sich) verteidigen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "защищаться от": []
+            }
+        }
+    },
+    "{{c1::verwenden}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "использовать для": []
+            }
+        }
+    },
+    "{{c1::warnen}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "предупреждать о": []
+            }
+        }
+    },
+    "{{c1::sich wehren}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "защищать от": []
+            }
+        }
+    },
+    "{{c1::weinen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "плакать о": []
+            }
+        }
+    },
+    "{{c1::werben}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "рекламировать": []
+            }
+        }
+    },
+    "{{c1::sich wundern}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "удивляться": []
+            }
+        }
+    },
+    "{{c1::zählen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "считаться": []
+            }
+        }
+    },
+    "{{c1::zusammenstoßen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "столкнуться с": []
+            }
+        }
+    },
+    "{{c1::zweifeln}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "сомневаться в": []
+            }
+        }
+    },
+    "{{c1::(sich) ablenken}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "отвлекаться от": []
+            }
+        }
+    },
+    "{{c1::achten}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "обращать внимание на": []
+            }
+        }
+    },
+    "{{c1::sich ängstigen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "беспокоиться о": []
+            }
+        }
+    },
+    "{{c1::sich ängstigen}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "бояться": []
+            }
+        }
+    },
+    "{{c1::(sich) anpassen}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "приспосабливаться к": []
+            }
+        }
+    },
+    "{{c1::antreten}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "сразиться с": []
+            }
+        }
+    },
+    "{{c1::sich aufregen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "расстроиться из‑за": []
+            }
+        }
+    },
+    "{{c1::aufrufen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "призвать к": []
+            }
+        }
+    },
+    "{{c1::sich austauschen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "обмениваться с": []
+            }
+        }
+    },
+    "{{c1::sich befassen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "заниматься": []
+            }
+        }
+    },
+    "{{c1::(sich) befreien}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "освободиться от": []
+            }
+        }
+    },
+    "{{c1::(sich) begeistern}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "быть в восторге от": []
+            }
+        }
+    },
+    "{{c1::sich beklagen}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "жаловаться кому": []
+            }
+        }
+    },
+    "{{c1::sich beklagen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "жаловаться на": []
+            }
+        }
+    },
+    "{{c1::sich belaufen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "составлять": []
+            }
+        }
+    },
+    "{{c1::sich bemühen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "стремиться к": []
+            }
+        }
+    },
+    "{{c1::beneiden}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "завидовать": []
+            }
+        }
+    },
+    "{{c1::bestehen}} {{c2::auf}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "настаивать на": []
+            }
+        }
+    },
+    "{{c1::bestehen}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "состоять в": []
+            }
+        }
+    },
+    "{{c1::bestimmen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "решить": []
+            }
+        }
+    },
+    "{{c1::betrügen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "обманывать с помощью": []
+            }
+        }
+    },
+    "{{c1::betteln}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "просить о": []
+            }
+        }
+    },
+    "{{c1::beurteilen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "оценивать по": []
+            }
+        }
+    },
+    "{{c1::bewegen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "побуждать к": []
+            }
+        }
+    },
+    "{{c1::dienen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "служить для": []
+            }
+        }
+    },
+    "{{c1::sich distanzieren}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "отдаляться от": []
+            }
+        }
+    },
+    "{{c1::sich drehen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "крутиться вокруг": []
+            }
+        }
+    },
+    "{{c1::duften}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "пахнуть": []
+            }
+        }
+    },
+    "{{c1::eingehen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "отвечать на": []
+            }
+        }
+    },
+    "{{c1::sich einigen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "согласиться на": []
+            }
+        }
+    },
+    "{{c1::sich einsetzen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "отстаивать": []
+            }
+        }
+    },
+    "{{c1::eintreten}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "защищать": []
+            }
+        }
+    },
+    "{{c1::sich ekeln}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "отвращаться от": []
+            }
+        }
+    },
+    "{{c1::sich engagieren}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "вовлекаться в": []
+            }
+        }
+    },
+    "{{c1::entschädigen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "компенсировать": []
+            }
+        }
+    },
+    "{{c1::sich erfreuen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "получать удовольствие от": []
+            }
+        }
+    },
+    "{{c1::sich ergeben}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "происходить из": []
+            }
+        }
+    },
+    "{{c1::erkranken}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "заболеть": []
+            }
+        }
+    },
+    "{{c1::ermutigen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "поощрять": []
+            }
+        }
+    },
+    "{{c1::(sich) ernähren}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "питаться": []
+            }
+        }
+    },
+    "{{c1::(sich) erschrecken}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "испугаться": []
+            }
+        }
+    },
+    "{{c1::erwarten}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "ожидать от": []
+            }
+        }
+    },
+    "{{c1::experimentieren}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "экспериментировать с": []
+            }
+        }
+    },
+    "{{c1::folgern}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "делать вывод из": []
+            }
+        }
+    },
+    "{{c1::führen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "привести к": []
+            }
+        }
+    },
+    "{{c1::geraten}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "попасть в": []
+            }
+        }
+    },
+    "{{c1::gewinnen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "приобретать в": []
+            }
+        }
+    },
+    "{{c1::greifen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "тянуться к": []
+            }
+        }
+    },
+    "{{c1::sich halten}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "придерживаться": []
+            }
+        }
+    },
+    "{{c1::sich halten}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "считать себя": []
+            }
+        }
+    },
+    "{{c1::halten}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "поддерживать": []
+            }
+        }
+    },
+    "{{c1::herausfordern}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "бросать вызов": []
+            }
+        }
+    },
+    "{{c1::herrschen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "править": []
+            }
+        }
+    },
+    "{{c1::hindern}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "препятствовать": []
+            }
+        }
+    },
+    "{{c1::hoffen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "надеяться на": []
+            }
+        }
+    },
+    "{{c1::investieren}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "инвестировать в": []
+            }
+        }
+    },
+    "{{c1::sich irren}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "ошибаться в": []
+            }
+        }
+    },
+    "{{c1::jubeln}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "радоваться": []
+            }
+        }
+    },
+    "{{c1::kämpfen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "бороться с": []
+            }
+        }
+    },
+    "{{c1::kämpfen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "бороться за": []
+            }
+        }
+    },
+    "{{c1::klagen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "жаловаться на": []
+            }
+        }
+    },
+    "{{c1::kommen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "приходить к": []
+            }
+        }
+    },
+    "{{c1::sich konzentrieren}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "сосредоточиться на": []
+            }
+        }
+    },
+    "{{c1::leiden}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "страдать от": []
+            }
+        }
+    },
+    "{{c1::leiden}} {{c2::unter}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "страдать от": []
+            }
+        }
+    },
+    "{{c1::liefern}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "доставлять": []
+            }
+        }
+    },
+    "{{c1::sich machen}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "приступать к": []
+            }
+        }
+    },
+    "{{c1::mangeln}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "не хватать": []
+            }
+        }
+    },
+    "{{c1::mitwirken}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "участвовать в": []
+            }
+        }
+    },
+    "{{c1::mitwirken}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "участвовать в": []
+            }
+        }
+    },
+    "{{c1::multiplizieren}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "умножить на": []
+            }
+        }
+    },
+    "{{c1::philosophieren}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "размышлять о": []
+            }
+        }
+    },
+    "{{c1::sich rächen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "отомстить": []
+            }
+        }
+    },
+    "{{c1::sich rächen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "отомстить за": []
+            }
+        }
+    },
+    "{{c1::rechnen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "рассчитать до": []
+            }
+        }
+    },
+    "{{c1::(sich) richten}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "обращаться к": []
+            }
+        }
+    },
+    "{{c1::rufen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "взывать к": []
+            }
+        }
+    },
+    "{{c1::ruhen}} {{c2::auf}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "опираться на": []
+            }
+        }
+    },
+    "{{c1::sich schämen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "стыдиться": []
+            }
+        }
+    },
+    "{{c1::sich schämen}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "стыдиться перед": []
+            }
+        }
+    },
+    "{{c1::schießen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "стрелять в": []
+            }
+        }
+    },
+    "{{c1::schimpfen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "ругать за": []
+            }
+        }
+    },
+    "{{c1::sich schlagen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "драться с": []
+            }
+        }
+    },
+    "{{c1::schreiben}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "писать": []
+            }
+        }
+    },
+    "{{c1::sich sehnen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "тосковать по": []
+            }
+        }
+    },
+    "{{c1::siegen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "выиграть у": []
+            }
+        }
+    },
+    "{{c1::spielen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "играть за": []
+            }
+        }
+    },
+    "{{c1::stehen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "вставать": []
+            }
+        }
+    },
+    "{{c1::stehen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "означать": []
+            }
+        }
+    },
+    "{{c1::stehen}} {{c2::unter}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "подлежат": []
+            }
+        }
+    },
+    "{{c1::(sich) steigern}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(увеличиваться) на": []
+            }
+        }
+    },
+    "{{c1::stinken}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "пахнуть": []
+            }
+        }
+    },
+    "{{c1::stoßen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "столкнуться с": []
+            }
+        }
+    },
+    "{{c1::sich täuschen}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "ошибаться в": []
+            }
+        }
+    },
+    "{{c1::teilhaben}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "участвовать в": []
+            }
+        }
+    },
+    "{{c1::tun haben}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "иметь отношение к": []
+            }
+        }
+    },
+    "{{c1::sich üben}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "практиковаться в": []
+            }
+        }
+    },
+    "{{c1::übertreffen}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "превзойти в": []
+            }
+        }
+    },
+    "{{c1::umgehen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "справляться с": []
+            }
+        }
+    },
+    "{{c1::umwandeln}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "преобразовать в": []
+            }
+        }
+    },
+    "{{c1::sich unterscheiden}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "отличаться от": []
+            }
+        }
+    },
+    "{{c1::urteilen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "оценивать по": []
+            }
+        }
+    },
+    "{{c1::urteilen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "судить о": []
+            }
+        }
+    },
+    "{{c1::veranlassen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "заставить": []
+            }
+        }
+    },
+    "{{c1::verfügen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "иметь в распоряжении": []
+            }
+        }
+    },
+    "{{c1::verführen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "завлечь к": []
+            }
+        }
+    },
+    "{{c1::(sich) verpflichten}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "обязаться": []
+            }
+        }
+    },
+    "{{c1::(sich) verringern}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "уменьшаться на": []
+            }
+        }
+    },
+    "{{c1::verstehen}} {{c2::unter}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "понимать как": []
+            }
+        }
+    },
+    "{{c1::verstoßen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "нарушать": []
+            }
+        }
+    },
+    "{{c1::sich vertiefen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "погрузиться в": []
+            }
+        }
+    },
+    "{{c1::sich vertragen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "ладить с": []
+            }
+        }
+    },
+    "{{c1::verurteilen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "осуждать за": []
+            }
+        }
+    },
+    "{{c1::(sich) verwandeln}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "превратиться в": []
+            }
+        }
+    },
+    "{{c1::verwechseln}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "путать с": []
+            }
+        }
+    },
+    "{{c1::verwenden}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "использовать для": []
+            }
+        }
+    },
+    "{{c1::verzichten}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "отказаться от": []
+            }
+        }
+    },
+    "{{c1::wählen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "выбрать": []
+            }
+        }
+    },
+    "{{c1::sich wenden}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "обратиться к": []
+            }
+        }
+    },
+    "{{c1::werben}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "ухаживать за": []
+            }
+        }
+    },
+    "{{c1::werden}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "становиться": []
+            }
+        }
+    },
+    "{{c1::wetten}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "делать ставку на": []
+            }
+        }
+    },
+    "{{c1::wissen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "быть в курсе": []
+            }
+        }
+    },
+    "{{c1::zugehen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "подходить к": []
+            }
+        }
+    },
+    "{{c1::zurückkommen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "вернуться к": []
+            }
+        }
+    },
+    "{{c1::zwingen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "заставлять": []
+            }
+        }
+    },
+    "{{c1::absehen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "игнорировать": []
+            }
+        }
+    },
+    "{{c1::sich abwenden}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "отворачиваться от": []
+            }
+        }
+    },
+    "{{c1::anhalten}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "остановиться на": []
+            }
+        }
+    },
+    "{{c1::anspielen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "намекать на": []
+            }
+        }
+    },
+    "{{c1::appellieren}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "обращаться к": []
+            }
+        }
+    },
+    "{{c1::ausbrechen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "вспыхнуть в": []
+            }
+        }
+    },
+    "{{c1::sich austauschen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "обмениваться идеями о": []
+            }
+        }
+    },
+    "{{c1::sich begnügen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "удовлетвориться": []
+            }
+        }
+    },
+    "{{c1::beharren}} {{c2::auf}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "упорствовать в": []
+            }
+        }
+    },
+    "{{c1::sich berufen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "полагаться на": []
+            }
+        }
+    },
+    "{{c1::beruhen}} {{c2::auf}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "основано на": []
+            }
+        }
+    },
+    "{{c1::(sich) beschränken}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "ограничиваться": []
+            }
+        }
+    },
+    "{{c1::drängen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "побуждать к": []
+            }
+        }
+    },
+    "{{c1::sich eignen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "подходить для": []
+            }
+        }
+    },
+    "{{c1::sich einlassen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "вовлекаться в": []
+            }
+        }
+    },
+    "{{c1::sich einstellen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "приспосабливаться к": []
+            }
+        }
+    },
+    "{{c1::einwilligen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "согласиться на": []
+            }
+        }
+    },
+    "{{c1::ermahnen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "предостерегать от": []
+            }
+        }
+    },
+    "{{c1::sich erregen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "раздражаться на": []
+            }
+        }
+    },
+    "{{c1::ersehen}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "получено из": []
+            }
+        }
+    },
+    "{{c1::fahnden}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "охота за": []
+            }
+        }
+    },
+    "{{c1::forschen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "исследование по": []
+            }
+        }
+    },
+    "{{c1::forschen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "исследовать": []
+            }
+        }
+    },
+    "{{c1::sich fügen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "соответствовать": []
+            }
+        }
+    },
+    "{{c1::geradestehen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "выступать в защиту": []
+            }
+        }
+    },
+    "{{c1::sich hüten}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "остерегаться": []
+            }
+        }
+    },
+    "{{c1::jammern}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "жаловаться на": []
+            }
+        }
+    },
+    "{{c1::loskommen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "избавиться от": []
+            }
+        }
+    },
+    "{{c1::neigen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "склоняться к": []
+            }
+        }
+    },
+    "{{c1::resultieren}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "происходить из": []
+            }
+        }
+    },
+    "{{c1::(sich) richten}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "нацеливаться на": []
+            }
+        }
+    },
+    "{{c1::sich richten}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "руководствоваться": []
+            }
+        }
+    },
+    "{{c1::sich schlagen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "бороться за": []
+            }
+        }
+    },
+    "{{c1::schwören}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "клясться": []
+            }
+        }
+    },
+    "{{c1::spotten}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "издеваться над": []
+            }
+        }
+    },
+    "{{c1::streben}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "стремиться к": []
+            }
+        }
+    },
+    "{{c1::sich unterscheiden}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "различаться в зависимости от": []
+            }
+        }
+    },
+    "{{c1::verheiraten}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "жениться на": []
+            }
+        }
+    },
+    "{{c1::verlangen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "жаждать": []
+            }
+        }
+    },
+    "{{c1::verleiten}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "искушать": []
+            }
+        }
+    },
+    "{{c1::sich vermindern}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "уменьшаться на": []
+            }
+        }
+    },
+    "{{c1::vermitteln}} {{c2::zwischen}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "посредничать между": []
+            }
+        }
+    },
+    "{{c1::vertrauen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "доверять": []
+            }
+        }
+    },
+    "{{c1::wirken}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "оказывать влияние на": []
+            }
+        }
+    },
+    "{{c1::zählen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "рассчитывать на": []
+            }
+        }
+    },
+    "{{c1::zögern}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "колебаться перед": []
+            }
+        }
+    },
+    "{{c1::zögern}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "колебаться с": []
+            }
+        }
+    },
+    "{{c1::zunehmen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "увеличиваться": []
+            }
+        }
+    }
+}

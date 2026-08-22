@@ -17,6 +17,7 @@ function initProgressBars() {
 
     let wordsPercent = 0;
     let phrasesPercent = 0;
+    let reviewPercent = 100; // По умолчанию 100% (нет слов на повторении)
 
     if (window.userProfile) {
         const wordsToday = window.userProfile.words_today || 0;
@@ -26,6 +27,11 @@ function initProgressBars() {
         const phrasesToday = window.userProfile.phrases_today || 0;
         const phrasesGoal = window.userProfile.phrases_per_day || 10;
         phrasesPercent = phrasesGoal > 0 ? Math.round((phrasesToday / phrasesGoal) * 100) : 0;
+
+        // 🔥 ИСПРАВЛЕНИЕ: Берем правильный ключ review_count от бэкенда!
+        // 10+ слов = 0%, 0 слов = 100%
+        const reviewCount = window.userProfile.review_count !== undefined ? window.userProfile.review_count : 0;
+        reviewPercent = Math.max(0, Math.min(100, Math.round((1 - Math.min(reviewCount, 10) / 10) * 100)));
     }
 
     wordsPercent = Math.max(0, Math.min(100, wordsPercent));
@@ -43,20 +49,19 @@ function initProgressBars() {
                     <div id="mentor-3d-container" style="width: 100%; height: 100%; position: relative;"></div>
                 </div>
 
-                <!-- 🔥 КЛИКАБЕЛЬНЫЕ ЗОНЫ (Прозрачные блоки) -->
+                <!-- 🔥 КЛИКАБЕЛЬНЫЕ ЗОНЫ -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex;">
-                    <!-- Левая зона (Кровать) -->
                     <div onclick="window.triggerInteraction('bed')" style="flex: 1.2; cursor: pointer; pointer-events: auto;"></div>
-                    <!-- Центр (Кресло) -->
                     <div onclick="window.triggerInteraction('chair')" style="flex: 1; cursor: pointer; pointer-events: auto;"></div>
-                    <!-- Правая зона (Ментор / Точка 1) -->
                     <div onclick="window.triggerInteraction('home')" style="flex: 1.2; cursor: pointer; pointer-events: auto;"></div>
                 </div>
 
-                <!-- ИНТЕРФЕЙС ПРОГРЕСС-БАРОВ (Пропускает клики насквозь через pointer-events: none) -->
+                <!-- ИНТЕРФЕЙС ПРОГРЕСС-БАРОВ -->
                 <div style="position: relative; z-index: 2; display: flex; align-items: center; width: 100%; height: 100%; padding: 0 16px; box-sizing: border-box; gap: 16px; pointer-events: none;">
                     
-                    <div class="pb-bars-col" style="flex: 2; display: flex; flex-direction: column; gap: 12px; pointer-events: none;">
+                    <div class="pb-bars-col" style="flex: 2; display: flex; flex-direction: column; gap: 6px; pointer-events: none;">
+                        
+                        <!-- Строка 1: Изучение слов -->
                         <div class="pb-row">
                             <div class="pb-header">
                                 <span class="pb-title" id="pb-title-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${current.row1}</span>
@@ -67,7 +72,15 @@ function initProgressBars() {
                             </div>
                         </div>
 
-                        <div class="pb-row">
+                        <!-- 🔥 Чистая микро-полосочка повторений с управляемым отступом -->
+                        <div class="pb-row pb-micro-container">
+                            <div class="pb-track pb-track-micro" style="background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);">
+                                <div class="pb-fill pb-fill-micro" id="pb-fill-review" style="width: ${reviewPercent}%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Строка 2: Тренировка фраз -->
+                        <div class="pb-row" style="margin-top: 2px;">
                             <div class="pb-header">
                                 <span class="pb-title" id="pb-title-2" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${current.row2}</span>
                                 <span class="pb-value" id="pb-val-2" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${phrasesPercent}%</span>
@@ -78,8 +91,7 @@ function initProgressBars() {
                         </div>
                     </div>
                     
-                    <div class="pb-mentor-block" style="flex: 1; height: 100%; pointer-events: none;">
-                    </div>
+                    <div class="pb-mentor-block" style="flex: 1; height: 100%; pointer-events: none;"></div>
 
                 </div>
 
@@ -96,20 +108,19 @@ function initProgressBars() {
         document.getElementById('pb-val-1').innerText = `${wordsPercent}%`;
         document.getElementById('pb-fill-1').style.width = `${wordsPercent}%`;
 
+        const reviewFill = document.getElementById('pb-fill-review');
+        if (reviewFill) reviewFill.style.width = `${reviewPercent}%`;
+
         document.getElementById('pb-title-2').innerText = current.row2;
         document.getElementById('pb-val-2').innerText = `${phrasesPercent}%`;
         document.getElementById('pb-fill-2').style.width = `${phrasesPercent}%`;
     }
 }
 
-// 🔥 Новый роутер кликов (связывает HTML и класс персонажа)
 window.triggerInteraction = function(target) {
-    // Показываем плашку модели только если кликнули по самому роботу (правая зона)
     if (target === 'home' && typeof checkMentorIdentity === 'function') {
         checkMentorIdentity();
     }
-
-    // Отправляем команду в Стейт-Машину персонажа, явно обращаясь к window
     if (window.characterInstance) {
         window.characterInstance.command(target);
     }

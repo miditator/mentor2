@@ -78,30 +78,10 @@ function showNewTaskMode(forceNew = true) {
 
     const lang = window.userProfile?.language || 'en';
     const userDifficulty = window.userProfile?.difficulty || 'A1';
-    let randomRule = "General Grammar";
 
-    if (typeof grammarRulesDict !== 'undefined' && grammarRulesDict[lang]) {
-        let allowedRules = [];
-        const levels = Object.keys(grammarRulesDict[lang]);
-
-        for (const levelKey of levels) {
-            allowedRules.push(...grammarRulesDict[lang][levelKey]);
-            if (levelKey.startsWith(userDifficulty)) {
-                break;
-            }
-        }
-
-        if (allowedRules.length === 0) {
-            allowedRules = grammarRulesDict[lang][levels[0]];
-        }
-
-        randomRule = allowedRules[Math.floor(Math.random() * allowedRules.length)];
-    }
-
-// 🔥 Переключаем на Lego-эндпоинт с поддержкой паттернов и маркеров.
-// Плашка чекбокса удалена, по умолчанию используем системный словарь Oxford.
-    const url = `/grammar/new-lego?chat_id=${user.id}&rule=${encodeURIComponent(randomRule)}&pattern_tag=default_mix&only_my_vocab=false${forceNew ? '&force=true' : ''}`;
-
+    // 🔥 ИЗМЕНЕНИЕ ЗДЕСЬ: Мы удалили весь блок выбора randomRule!
+    // Теперь мы жестко передаем rule=random, а бэкенд сам решит, дать слабое место или случайное правило.
+    const url = `/grammar/new-lego?chat_id=${user.id}&rule=random&pattern_tag=default_mix&difficulty=${userDifficulty}&only_my_vocab=false${forceNew ? '&force=true' : ''}`;
     apiFetch(url)
         .then(data => {
             if (window.currentAppMode !== 'task') return;
@@ -310,6 +290,9 @@ function handleTaskInput(text) {
                 const safePhraseAttr = taskState.phrase.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 const safeAnswerAttr = text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
+                // Достаем правильную фразу (как в тренировке грамматики)
+                const correctVariant = data.correct_phrase || data.correct_answer || data.correct_variant;
+
                 middleContent = `
                     <div style="font-size: 11px; color: #ff3b30; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">❌ Твой ответ:</div>
                     <div style="background: rgba(255, 59, 48, 0.1); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255, 59, 48, 0.3); text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 12px;">
@@ -317,11 +300,24 @@ function handleTaskInput(text) {
                     </div>
 
                     <div style="font-size: 11px; color: var(--hint-color); font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">Разбор ошибки:</div>
-                    <div style="background: rgba(255, 255, 255, 0.05); padding: 12px 16px; border-radius: 10px; border-left: 4px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 15px;">
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 12px 16px; border-radius: 10px; border-left: 4px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: ${correctVariant ? '12px' : '15px'};">
                         <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
                     </div>
-                    
-                    <!-- 🔥 Встроенное поле для чата с ИИ (ПЕРЕДАЕМ ДВА АРГУМЕНТА) -->
+                `;
+
+                // 🔥 НОВЫЙ БЛОК: Показываем эталонный ответ
+                if (correctVariant) {
+                    middleContent += `
+                        <div style="font-size: 11px; color: #34c759; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">✅ Как нужно было сказать:</div>
+                        <div style="background: rgba(52, 199, 89, 0.1); padding: 12px 16px; border-radius: 10px; border-left: 4px solid #34c759; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 15px;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-color); line-height: 1.4; word-wrap: break-word;">${correctVariant}</div>
+                        </div>
+                    `;
+                }
+
+                // Кнопка вызова чата с ИИ
+                middleContent += `
+                    <!-- 🔥 Встроенное поле для чата с ИИ -->
                     <div style="width: 100%; margin-bottom: 5px; position: relative;">
                         <input type="text" id="inline-error-chat-input" onkeypress="if(event.key==='Enter') triggerInlineErrorChat('${safePhraseAttr}', '${safeAnswerAttr}')" placeholder="Спросить ИИ об ошибке..." style="width: 100%; height: 46px; padding: 0 45px 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-size: 14px; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
                         <button onclick="triggerInlineErrorChat('${safePhraseAttr}', '${safeAnswerAttr}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; background: var(--button-color); border: none; border-radius: 10px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;">

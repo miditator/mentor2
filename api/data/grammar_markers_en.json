@@ -1,138 +1,1909 @@
 {
+  "Present simple forms of 'to be': am/is/are": {
+    "type": "mandatory_choice",
+    "markers": [
+      "am",
+      "is",
+      "are",
+      "am not",
+      "isn't",
+      "aren't"
+    ]
+  },
+  "This, that, these, those": {
+    "type": "mandatory_choice",
+    "markers": [
+      "this",
+      "that",
+      "these",
+      "those"
+    ]
+  },
+  "Possessive adjectives and subject pronouns (I/my, you/your, etc.)": {
+    "type": "mandatory_choice",
+    "markers": [
+      "my",
+      "your",
+      "his",
+      "her",
+      "its",
+      "our",
+      "their"
+    ]
+  },
+  "A/an, plurals: Singular and plural forms": {
+    "type": "mandatory_choice",
+    "markers": [
+      "a",
+      "an",
+      "children",
+      "people",
+      "men",
+      "women",
+      "some"
+    ]
+  },
+  "Adjectives": {
+    "type": "mandatory_choice",
+    "markers": [
+      "beautiful",
+      "expensive",
+      "interesting",
+      "difficult",
+      "important",
+      "cheap",
+      "easy"
+    ]
+  },
+  "Present simple: I do, I don't, Do I?": {
+    "type": "mandatory_choice",
+    "markers": [
+      "do",
+      "does",
+      "don't",
+      "doesn't"
+    ]
+  },
+  "Questions: Word order and question words": {
+    "type": "mandatory_choice",
+    "markers": [
+      "what",
+      "where",
+      "when",
+      "why",
+      "who",
+      "how",
+      "how much",
+      "how often"
+    ]
+  },
+  "Adverbs of frequency with present simple": {
+    "type": "mandatory_choice",
+    "markers": [
+      "always",
+      "usually",
+      "often",
+      "sometimes",
+      "rarely",
+      "never"
+    ]
+  },
+  "Object pronouns vs subject pronouns: Me or I, she or her?": {
+    "type": "mandatory_choice",
+    "markers": [
+      "me",
+      "him",
+      "her",
+      "us",
+      "them"
+    ]
+  },
+  "Whose, possessive 's: Whose is this? It's Mike's": {
+    "type": "mandatory_choice",
+    "markers": [
+      "whose",
+      "'s"
+    ]
+  },
+  "At, in, on: Prepositions of time": {
+    "type": "mandatory_choice",
+    "markers": [
+      "at night",
+      "in the morning",
+      "on Monday",
+      "at 5 o'clock",
+      "in summer",
+      "on my birthday"
+    ]
+  },
+  "At, in, on: Prepositions of place": {
+    "type": "mandatory_choice",
+    "markers": [
+      "at home",
+      "at work",
+      "in the box",
+      "in London",
+      "on the table",
+      "on the wall"
+    ]
+  },
+  "Can, can't: Ability, possibility, permission": {
+    "type": "mandatory_choice",
+    "markers": [
+      "can",
+      "can't",
+      "cannot"
+    ]
+  },
+  "Present continuous: I'm doing, I'm not doing, Are you doing?": {
+    "type": "mandatory_choice",
+    "markers": [
+      "now",
+      "at the moment",
+      "right now",
+      "Look!",
+      "Listen!"
+    ]
+  },
+  "Present simple or present continuous?": {
+    "type": "mandatory_choice",
+    "markers": [
+      "usually",
+      "always",
+      "every day",
+      "now",
+      "at the moment",
+      "today"
+    ]
+  },
+  "The imperative: Sit down! Don’t talk!": {
+    "type": "mandatory_choice",
+    "markers": [
+      "don't",
+      "please",
+      "let's"
+    ]
+  },
+  "Was/were: Past simple of 'be'": {
+    "type": "mandatory_choice",
+    "markers": [
+      "was",
+      "were",
+      "wasn't",
+      "weren't"
+    ]
+  },
+  "Past simple: Regular/irregular verbs": {
+    "type": "mandatory_choice",
+    "markers": [
+      "yesterday",
+      "last week",
+      "a year ago",
+      "in 2010",
+      "last night"
+    ]
+  },
+  "Past simple: Negatives and questions": {
+    "type": "mandatory_choice",
+    "markers": [
+      "did",
+      "didn't"
+    ]
+  },
+  "Verbs + to + infinitive and verbs + -ing": {
+    "type": "mandatory_choice",
+    "markers": [
+      "want to",
+      "need to",
+      "like doing",
+      "enjoy",
+      "love",
+      "hate"
+    ]
+  },
+  "Would you like...? I'd like...": {
+    "type": "mandatory_choice",
+    "markers": [
+      "would you like",
+      "I'd like",
+      "I would like"
+    ]
+  },
+  "Have got": {
+    "type": "mandatory_choice",
+    "markers": [
+      "have got",
+      "has got",
+      "haven't got",
+      "hasn't got"
+    ]
+  },
+  "A, some, any: Countable and uncountable nouns": {
+    "type": "mandatory_choice",
+    "markers": [
+      "a",
+      "an",
+      "some",
+      "any"
+    ]
+  },
+  "There is, there are / there was, there were": {
+    "type": "mandatory_choice",
+    "markers": [
+      "there is",
+      "there are",
+      "there was",
+      "there were",
+      "is there",
+      "are there"
+    ]
+  },
+  "There or It": {
+    "type": "mandatory_choice",
+    "markers": [
+      "there is",
+      "there are",
+      "it is",
+      "is it",
+      "is there"
+    ]
+  },
+  "Next to, under, between, in front of, behind, over, etc.": {
+    "type": "mandatory_choice",
+    "markers": [
+      "next to",
+      "under",
+      "between",
+      "in front of",
+      "behind",
+      "over",
+      "opposite"
+    ]
+  },
+  "Much, many, a lot of, a little, a few": {
+    "type": "mandatory_choice",
+    "markers": [
+      "much",
+      "many",
+      "a lot of",
+      "a little",
+      "a few"
+    ]
+  },
+  "Comparative adjectives: Older than, more important than, etc.": {
+    "type": "mandatory_choice",
+    "markers": [
+      "than",
+      "more",
+      "better",
+      "worse",
+      "older than",
+      "more expensive than"
+    ]
+  },
+  "Superlative adjectives: The oldest, the most important, etc.": {
+    "type": "mandatory_choice",
+    "markers": [
+      "the best",
+      "the worst",
+      "the most",
+      "the oldest",
+      "in the world",
+      "of all"
+    ]
+  },
+  "'Will' and 'shall': Future": {
+    "type": "mandatory_choice",
+    "markers": [
+      "will",
+      "won't",
+      "shall",
+      "I think",
+      "I promise",
+      "maybe"
+    ]
+  },
+  "Be going to: Plans and predictions": {
+    "type": "mandatory_choice",
+    "markers": [
+      "going to",
+      "am going to",
+      "is going to",
+      "are going to"
+    ]
+  },
+  "Adverbs of manner (slowly) or adjectives (slow)?": {
+    "type": "mandatory_choice",
+    "markers": [
+      "slowly",
+      "quickly",
+      "well",
+      "badly",
+      "carefully",
+      "fast",
+      "hard"
+    ]
+  },
+  "A/an, the, no article: The use of articles in English": {
+    "type": "mandatory_choice",
+    "markers": [
+      "a",
+      "an",
+      "the"
+    ]
+  },
+  "Conjunctions: And, but, or, so, because": {
+    "type": "mandatory_choice",
+    "markers": [
+      "and",
+      "but",
+      "or",
+      "so",
+      "because"
+    ]
+  },
+  "Basic word order in English": {
+    "type": "mandatory_choice",
+    "markers": [
+      "yesterday morning",
+      "at school",
+      "very well",
+      "last night"
+    ]
+  },
+  "The difference between 'this' and 'it'": {
+    "type": "mandatory_choice",
+    "markers": [
+      "this",
+      "it"
+    ]
+  },
+  "Asking questions in English: Question forms": {
+    "type": "mandatory_choice",
+    "markers": [
+      "do",
+      "does",
+      "did",
+      "are",
+      "is",
+      "why",
+      "how often",
+      "where"
+    ]
+  },
+  "Subject questions, questions with preposition": {
+    "type": "mandatory_choice",
+    "markers": [
+      "who",
+      "what",
+      "which",
+      "who ... with",
+      "what ... about",
+      "where ... from"
+    ]
+  },
+  "Present simple vs present continuous": {
+    "type": "mandatory_choice",
+    "markers": [
+      "usually",
+      "always",
+      "every day",
+      "now",
+      "at the moment",
+      "right now",
+      "currently"
+    ]
+  },
+  "Past simple: Form and use": {
+    "type": "mandatory_choice",
+    "markers": [
+      "yesterday",
+      "last week",
+      "two days ago",
+      "in 2015",
+      "last night"
+    ]
+  },
+  "Past continuous and past simple": {
+    "type": "mandatory_choice",
+    "markers": [
+      "while",
+      "when",
+      "as",
+      "at 5 o'clock yesterday"
+    ]
+  },
   "Expressing purpose with 'to' and 'for'": {
     "type": "mandatory_choice",
-    "markers": ["to", "for", "in order to", "so as to"]
+    "markers": [
+      "to",
+      "for",
+      "in order to"
+    ]
   },
   "However, although, because, so, and time connectors": {
     "type": "mandatory_choice",
-    "markers": ["however", "although", "because", "so", "while", "when"]
+    "markers": [
+      "however",
+      "although",
+      "because",
+      "so",
+      "when",
+      "while"
+    ]
   },
   "'Will' vs 'be going to': Future forms": {
     "type": "mandatory_choice",
-    "markers": ["will", "going to"]
+    "markers": [
+      "will",
+      "won't",
+      "going to",
+      "am going to",
+      "is going to"
+    ]
+  },
+  "Present continuous for future arrangements": {
+    "type": "mandatory_choice",
+    "markers": [
+      "tomorrow",
+      "next week",
+      "this weekend",
+      "tonight",
+      "on Friday"
+    ]
   },
   "Defining relative clauses: Who, which, that, where": {
     "type": "mandatory_choice",
-    "markers": ["who", "which", "that", "where", "whose"]
+    "markers": [
+      "who",
+      "which",
+      "that",
+      "where",
+      "whose"
+    ]
   },
   "Present perfect: Form and use": {
     "type": "mandatory_choice",
-    "markers": ["already", "just", "yet", "ever", "never", "recently", "lately"]
+    "markers": [
+      "already",
+      "just",
+      "yet",
+      "ever",
+      "never",
+      "recently",
+      "since",
+      "for"
+    ]
+  },
+  "Present perfect or past simple?": {
+    "type": "mandatory_choice",
+    "markers": [
+      "yesterday",
+      "last year",
+      "already",
+      "just",
+      "yet",
+      "ever",
+      "recently"
+    ]
   },
   "Something, anything, nothing, etc.": {
     "type": "mandatory_choice",
-    "markers": ["something", "anything", "nothing", "everything", "someone", "anyone", "no one", "everyone"]
+    "markers": [
+      "something",
+      "anything",
+      "nothing",
+      "everything",
+      "someone",
+      "anyone",
+      "no one",
+      "everyone",
+      "somewhere",
+      "anywhere"
+    ]
+  },
+  "Comparative and superlative adjectives and adverbs": {
+    "type": "mandatory_choice",
+    "markers": [
+      "than",
+      "more",
+      "the most",
+      "the best",
+      "better",
+      "worse",
+      "the worst"
+    ]
   },
   "Too, too much, too many, enough": {
     "type": "mandatory_choice",
-    "markers": ["too", "too much", "too many", "enough"]
+    "markers": [
+      "too",
+      "too much",
+      "too many",
+      "enough",
+      "not enough"
+    ]
   },
   "Much, many, little, few, some, any: Quantifiers": {
     "type": "mandatory_choice",
-    "markers": ["much", "many", "little", "few", "a little", "a few", "some", "any"]
+    "markers": [
+      "much",
+      "many",
+      "little",
+      "a little",
+      "few",
+      "a few",
+      "some",
+      "any"
+    ]
   },
   "Most, most of, the most": {
     "type": "mandatory_choice",
-    "markers": ["most", "most of", "the most"]
+    "markers": [
+      "most",
+      "most of",
+      "the most"
+    ]
+  },
+  "Infinitives and gerunds: Verb patterns": {
+    "type": "mandatory_choice",
+    "markers": [
+      "want to",
+      "decide to",
+      "enjoy doing",
+      "mind doing",
+      "stop doing",
+      "hope to",
+      "suggest to"
+    ]
   },
   "Have to, don't have to, must, mustn't": {
     "type": "mandatory_choice",
-    "markers": ["have to", "don't have to", "must", "mustn't"]
+    "markers": [
+      "have to",
+      "has to",
+      "don't have to",
+      "doesn't have to",
+      "must",
+      "mustn't"
+    ]
   },
   "Should, shouldn't": {
     "type": "mandatory_choice",
-    "markers": ["should", "shouldn't", "ought to"]
+    "markers": [
+      "should",
+      "shouldn't",
+      "ought to"
+    ]
+  },
+  "First conditional and future time clauses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "if",
+      "when",
+      "as soon as",
+      "until",
+      "before"
+    ]
+  },
+  "Subject and object pronouns, possessive pronouns and adjectives": {
+    "type": "mandatory_choice",
+    "markers": [
+      "mine",
+      "yours",
+      "his",
+      "hers",
+      "ours",
+      "theirs",
+      "me",
+      "him",
+      "her",
+      "us",
+      "them"
+    ]
+  },
+  "Second conditional": {
+    "type": "mandatory_choice",
+    "markers": [
+      "if I were",
+      "would",
+      "wouldn't",
+      "if I had",
+      "if she knew"
+    ]
+  },
+  "Present and past simple passive: 'be' + past participle": {
+    "type": "mandatory_choice",
+    "markers": [
+      "is made",
+      "are sold",
+      "was built",
+      "were found",
+      "by"
+    ]
   },
   "Used to, didn't use to: Past habits and states": {
     "type": "mandatory_choice",
-    "markers": ["used to", "didn't use to", "never used to"]
+    "markers": [
+      "used to",
+      "didn't use to",
+      "did you use to"
+    ]
   },
   "Might, might not: Possibility": {
     "type": "mandatory_choice",
-    "markers": ["might", "might not", "may", "may not"]
+    "markers": [
+      "might",
+      "might not",
+      "might be",
+      "might go"
+    ]
   },
   "Prepositions of movement: Along, across, over, etc.": {
     "type": "mandatory_choice",
-    "markers": ["along", "across", "over", "through", "past", "towards", "into", "out of"]
+    "markers": [
+      "along",
+      "across",
+      "over",
+      "through",
+      "past",
+      "into",
+      "out of",
+      "towards"
+    ]
   },
   "So, neither: So am I, neither do I, etc.": {
     "type": "mandatory_choice",
-    "markers": ["so do I", "neither do I", "so am I", "neither am I", "so did I", "neither did I"]
+    "markers": [
+      "so do I",
+      "neither do I",
+      "so am I",
+      "neither am I",
+      "so did I",
+      "neither did I",
+      "so can I",
+      "neither can I"
+    ]
+  },
+  "Past perfect": {
+    "type": "mandatory_choice",
+    "markers": [
+      "had already",
+      "had just",
+      "had never",
+      "by the time",
+      "after"
+    ]
+  },
+  "Reported speech / Indirect speech": {
+    "type": "mandatory_choice",
+    "markers": [
+      "said that",
+      "told me that",
+      "asked if",
+      "wanted to know"
+    ]
+  },
+  "Verbs with two objects": {
+    "type": "mandatory_choice",
+    "markers": [
+      "give ... to",
+      "send ... to",
+      "show",
+      "tell",
+      "buy ... for"
+    ]
+  },
+  "Do vs Make: What's the difference?": {
+    "type": "mandatory_choice",
+    "markers": [
+      "do homework",
+      "do a favor",
+      "make a mistake",
+      "make a decision",
+      "make money",
+      "do the dishes",
+      "make sure"
+    ]
+  },
+  "Stative vs dynamic verbs (or non-action vs action verbs)": {
+    "type": "mandatory_choice",
+    "markers": [
+      "know",
+      "believe",
+      "understand",
+      "belong",
+      "seem",
+      "need",
+      "prefer",
+      "own"
+    ]
+  },
+  "Phrasal verbs: Transitive / intransitive, separable / inseparable": {
+    "type": "mandatory_choice",
+    "markers": [
+      "turn on",
+      "look for",
+      "give up",
+      "take off",
+      "look after",
+      "find out"
+    ]
   },
   "No longer, any longer, anymore": {
     "type": "mandatory_choice",
-    "markers": ["no longer", "any longer", "anymore"]
+    "markers": [
+      "no longer",
+      "any longer",
+      "anymore",
+      "not anymore"
+    ]
   },
   "On time vs In time, At the end vs In the end": {
     "type": "mandatory_choice",
-    "markers": ["on time", "in time", "at the end", "in the end"]
+    "markers": [
+      "on time",
+      "in time",
+      "at the end",
+      "in the end"
+    ]
+  },
+  "May and might: What's the difference?": {
+    "type": "mandatory_choice",
+    "markers": [
+      "may",
+      "might",
+      "may not",
+      "might not"
+    ]
+  },
+  "Present simple or present continuous": {
+    "type": "mandatory_choice",
+    "markers": [
+      "usually",
+      "currently",
+      "always",
+      "right now",
+      "every day",
+      "at present",
+      "rarely"
+    ]
+  },
+  "Future forms: Will, be going to, present continuous": {
+    "type": "mandatory_choice",
+    "markers": [
+      "will probably",
+      "am going to",
+      "I promise",
+      "are you going to",
+      "tonight",
+      "I think"
+    ]
+  },
+  "Past simple or present perfect?": {
+    "type": "mandatory_choice",
+    "markers": [
+      "yesterday",
+      "last year",
+      "in 2015",
+      "already",
+      "just",
+      "yet",
+      "lately",
+      "recently"
+    ]
+  },
+  "Present perfect simple and present perfect continuous": {
+    "type": "mandatory_choice",
+    "markers": [
+      "for two hours",
+      "since morning",
+      "all day",
+      "how long",
+      "already",
+      "just"
+    ]
   },
   "During, for, while": {
     "type": "mandatory_choice",
-    "markers": ["during", "for", "while"]
+    "markers": [
+      "during",
+      "for",
+      "while"
+    ]
+  },
+  "Comparative and superlative adjectives and adverbs": {
+    "type": "mandatory_choice",
+    "markers": [
+      "than",
+      "more",
+      "the most",
+      "better",
+      "the best",
+      "as ... as",
+      "much faster"
+    ]
   },
   "Another, other, others, the other, the others": {
     "type": "mandatory_choice",
-    "markers": ["another", "other", "others", "the other", "the others"]
+    "markers": [
+      "another",
+      "other",
+      "others",
+      "the other",
+      "the others"
+    ]
+  },
+  "Can, could, be able to: Ability and possibility": {
+    "type": "mandatory_choice",
+    "markers": [
+      "can",
+      "could",
+      "be able to",
+      "was able to",
+      "will be able to"
+    ]
+  },
+  "Have to, must, should: Obligation, prohibition, necessity, advice": {
+    "type": "mandatory_choice",
+    "markers": [
+      "have to",
+      "must",
+      "should",
+      "mustn't",
+      "don't have to",
+      "shouldn't"
+    ]
+  },
+  "Reflexive pronouns: Myself, yourself, etc.": {
+    "type": "mandatory_choice",
+    "markers": [
+      "myself",
+      "yourself",
+      "himself",
+      "herself",
+      "itself",
+      "ourselves",
+      "yourselves",
+      "themselves",
+      "by myself"
+    ]
+  },
+  "-Ed/-ing adjectives: Adjectives from verbs": {
+    "type": "mandatory_choice",
+    "markers": [
+      "boring",
+      "bored",
+      "interesting",
+      "interested",
+      "tiring",
+      "tired",
+      "exciting",
+      "excited",
+      "surprised",
+      "surprising"
+    ]
+  },
+  "Past simple, past continuous, past perfect": {
+    "type": "mandatory_choice",
+    "markers": [
+      "while I was",
+      "when she came",
+      "had already",
+      "had just",
+      "yesterday",
+      "by the time"
+    ]
   },
   "Usually, used to, be used to, get used to": {
     "type": "mandatory_choice",
-    "markers": ["usually", "used to", "be used to", "get used to"]
+    "markers": [
+      "usually",
+      "used to",
+      "didn't use to",
+      "am used to",
+      "is used to",
+      "get used to",
+      "getting used to"
+    ]
+  },
+  "Passive verb forms": {
+    "type": "mandatory_choice",
+    "markers": [
+      "is made",
+      "was built",
+      "will be done",
+      "has been finished",
+      "are sold"
+    ]
+  },
+  "Active and passive voice": {
+    "type": "mandatory_choice",
+    "markers": [
+      "was written by",
+      "invented",
+      "is cleaned",
+      "painted",
+      "will be delivered"
+    ]
   },
   "Modal verbs of deduction: Must, may, might, could, can't": {
     "type": "mandatory_choice",
-    "markers": ["must be", "may be", "might be", "could be", "can't be"]
+    "markers": [
+      "must be",
+      "can't be",
+      "might have",
+      "may be",
+      "could be",
+      "must have"
+    ]
+  },
+  "First conditional, future time clauses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "if",
+      "unless",
+      "as soon as",
+      "when",
+      "provided that"
+    ]
+  },
+  "Second conditional: Unreal situations": {
+    "type": "mandatory_choice",
+    "markers": [
+      "if I were",
+      "would",
+      "wouldn't",
+      "if I had",
+      "if she went"
+    ]
+  },
+  "First and second conditionals": {
+    "type": "mandatory_choice",
+    "markers": [
+      "if it rains",
+      "if I won",
+      "would",
+      "will",
+      "if he comes",
+      "if I were you"
+    ]
+  },
+  "Third conditional: Past unreal situations": {
+    "type": "mandatory_choice",
+    "markers": [
+      "if I had known",
+      "would have",
+      "wouldn't have",
+      "if she had gone"
+    ]
+  },
+  "Indirect speech / Reported speech": {
+    "type": "mandatory_choice",
+    "markers": [
+      "said that",
+      "told me",
+      "asked if",
+      "wondered",
+      "explained that"
+    ]
+  },
+  "Gerund or infinitive: Do, to do, doing": {
+    "type": "mandatory_choice",
+    "markers": [
+      "enjoy doing",
+      "want to do",
+      "stop smoking",
+      "decide to go",
+      "mind helping",
+      "avoid doing",
+      "suggest going"
+    ]
+  },
+  "Much, many, a lot, little, few, some, any, no: Quantifiers": {
+    "type": "mandatory_choice",
+    "markers": [
+      "much",
+      "many",
+      "a lot of",
+      "a little",
+      "a few",
+      "some",
+      "any",
+      "no"
+    ]
+  },
+  "All, both: Quantifiers": {
+    "type": "mandatory_choice",
+    "markers": [
+      "all",
+      "both",
+      "all of",
+      "both of"
+    ]
   },
   "Both, either, neither: Quantifiers": {
     "type": "mandatory_choice",
-    "markers": ["both", "either", "neither"]
+    "markers": [
+      "both",
+      "either",
+      "neither",
+      "either ... or",
+      "neither ... nor"
+    ]
+  },
+  "Any, no, none: Quantifiers": {
+    "type": "mandatory_choice",
+    "markers": [
+      "any",
+      "no",
+      "none",
+      "none of"
+    ]
   },
   "So, such, such a, so much, so many": {
     "type": "mandatory_choice",
-    "markers": ["so", "such", "such a", "so much", "so many"]
+    "markers": [
+      "so",
+      "such",
+      "such a",
+      "so much",
+      "so many"
+    ]
+  },
+  "Defining and non-defining relative clauses": {
+    "type": "mandatory_choice",
+    "markers": [
+      ", who",
+      ", which",
+      "that",
+      "where",
+      ", whose"
+    ]
+  },
+  "Question tags: Aren't you? don't you?": {
+    "type": "mandatory_choice",
+    "markers": [
+      "aren't you?",
+      "don't you?",
+      "isn't it?",
+      "haven't they?",
+      "did you?",
+      "will he?"
+    ]
+  },
+  "Clauses of contrast, purpose and reason": {
+    "type": "mandatory_choice",
+    "markers": [
+      "although",
+      "in spite of",
+      "because of",
+      "due to",
+      "so that",
+      "in order to"
+    ]
+  },
+  "Verb + preposition: Dependent prepositions": {
+    "type": "mandatory_choice",
+    "markers": [
+      "depend on",
+      "apologize for",
+      "agree with",
+      "believe in",
+      "wait for",
+      "belong to",
+      "rely on"
+    ]
+  },
+  "Adjective + preposition: Dependent prepositions": {
+    "type": "mandatory_choice",
+    "markers": [
+      "good at",
+      "interested in",
+      "afraid of",
+      "famous for",
+      "responsible for",
+      "similar to"
+    ]
   },
   "Had better... It's time...": {
     "type": "mandatory_choice",
-    "markers": ["had better", "it's time", "it's high time"]
+    "markers": [
+      "had better",
+      "it's time",
+      "it's high time",
+      "you'd better"
+    ]
   },
   "For, since, from: What's the difference?": {
     "type": "mandatory_choice",
-    "markers": ["for", "since", "from"]
+    "markers": [
+      "for",
+      "since",
+      "from ... to",
+      "ever since"
+    ]
+  },
+  "Compound adjectives with numbers: 'a two-day trip'": {
+    "type": "mandatory_choice",
+    "markers": [
+      "two-day",
+      "three-hour",
+      "five-star",
+      "ten-mile",
+      "twenty-page",
+      "four-year-old"
+    ]
+  },
+  "B1 Phrasal verbs 1: Exercises and explanation": {
+    "type": "mandatory_choice",
+    "markers": [
+      "carry on",
+      "find out",
+      "get along",
+      "give up",
+      "grow up",
+      "look forward to",
+      "put off"
+    ]
   },
   "Would rather & Would sooner": {
     "type": "mandatory_choice",
-    "markers": ["would rather", "would sooner"]
+    "markers": [
+      "would rather",
+      "would sooner",
+      "I'd rather",
+      "I'd sooner"
+    ]
+  },
+  "Questions: Different types": {
+    "type": "mandatory_choice",
+    "markers": [
+      "didn't you?",
+      "who told",
+      "what happened",
+      "why didn't",
+      "how long ago"
+    ]
+  },
+  "Indirect questions": {
+    "type": "mandatory_choice",
+    "markers": [
+      "could you tell me",
+      "do you know",
+      "I wonder",
+      "I'd like to know",
+      "if",
+      "whether"
+    ]
+  },
+  "Auxiliary verbs: Different uses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "I do think",
+      "she did go",
+      "so have I",
+      "neither am I",
+      "I don't either",
+      "he is, isn't he?"
+    ]
+  },
+  "The ... the ... comparatives": {
+    "type": "mandatory_choice",
+    "markers": [
+      "the more ... the more",
+      "the less ... the better",
+      "the older ... the wiser",
+      "the sooner ... the better",
+      "the harder ... the more"
+    ]
+  },
+  "Present perfect simple or continuous": {
+    "type": "mandatory_choice",
+    "markers": [
+      "for hours",
+      "since morning",
+      "all day",
+      "how long",
+      "already",
+      "just",
+      "lately",
+      "recently"
+    ]
+  },
+  "Adjectives without noun": {
+    "type": "mandatory_choice",
+    "markers": [
+      "the rich",
+      "the poor",
+      "the elderly",
+      "the unemployed",
+      "the blind",
+      "the young",
+      "the injured"
+    ]
+  },
+  "Adjective order": {
+    "type": "mandatory_choice",
+    "markers": [
+      "a beautiful old",
+      "a small black",
+      "a long wooden",
+      "an expensive Italian",
+      "a nice new",
+      "a large round"
+    ]
+  },
+  "So, such (a), so much, so many": {
+    "type": "mandatory_choice",
+    "markers": [
+      "so",
+      "such a",
+      "such an",
+      "such",
+      "so much",
+      "so many"
+    ]
+  },
+  "Narrative tenses: All past tenses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "while I was",
+      "had already",
+      "when we arrived",
+      "had been doing",
+      "suddenly",
+      "by the time"
+    ]
+  },
+  "Position of adverbs and adverb phrases": {
+    "type": "mandatory_choice",
+    "markers": [
+      "hardly ever",
+      "definitely",
+      "probably",
+      "incredibly",
+      "extremely",
+      "rarely"
+    ]
+  },
+  "Future continuous and future perfect": {
+    "type": "mandatory_choice",
+    "markers": [
+      "will be doing",
+      "will have finished",
+      "by next week",
+      "this time tomorrow",
+      "by the end of"
+    ]
+  },
+  "Zero and first conditional and future time clauses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "if",
+      "unless",
+      "when",
+      "as soon as",
+      "provided that",
+      "in case"
+    ]
+  },
+  "Second and third conditionals: Unreal conditionals": {
+    "type": "mandatory_choice",
+    "markers": [
+      "if I had",
+      "would have",
+      "if she went",
+      "wouldn't have",
+      "if I were you"
+    ]
   },
   "Wishes and regrets: I wish/if only": {
     "type": "mandatory_choice",
-    "markers": ["I wish", "if only"]
+    "markers": [
+      "I wish I had",
+      "if only I knew",
+      "I wish she would",
+      "if only we hadn't",
+      "I wish it wasn't"
+    ]
+  },
+  "Participles as adjectives: -ed/-ing adjectives": {
+    "type": "mandatory_choice",
+    "markers": [
+      "fascinating",
+      "fascinated",
+      "exhausting",
+      "exhausted",
+      "disappointing",
+      "disappointed",
+      "terrifying",
+      "terrified"
+    ]
+  },
+  "Used to, be used to, get used to": {
+    "type": "mandatory_choice",
+    "markers": [
+      "used to",
+      "didn't use to",
+      "am used to",
+      "getting used to",
+      "got used to"
+    ]
+  },
+  "Would and used to: Past habits and repeated actions": {
+    "type": "mandatory_choice",
+    "markers": [
+      "would always",
+      "used to",
+      "would never",
+      "didn't use to"
+    ]
+  },
+  "Gerund or infinitive: Verb patterns": {
+    "type": "mandatory_choice",
+    "markers": [
+      "remember doing",
+      "remember to do",
+      "stop doing",
+      "stop to do",
+      "try doing",
+      "try to do",
+      "forget doing",
+      "forget to do"
+    ]
+  },
+  "Past modal verbs of deduction": {
+    "type": "mandatory_choice",
+    "markers": [
+      "must have",
+      "can't have",
+      "could have",
+      "might have",
+      "may have"
+    ]
   },
   "Likely, unlikely, bound, definitely, probably: Probability": {
     "type": "mandatory_choice",
-    "markers": ["likely to", "unlikely to", "bound to", "definitely", "probably"]
+    "markers": [
+      "is likely to",
+      "unlikely to",
+      "bound to",
+      "definitely",
+      "probably"
+    ]
+  },
+  "Would rather, would prefer: Expressing preference": {
+    "type": "mandatory_choice",
+    "markers": [
+      "would rather",
+      "would prefer to",
+      "would rather not",
+      "would prefer not to"
+    ]
+  },
+  "Verbs of the senses: look, sound, feel, etc.": {
+    "type": "mandatory_choice",
+    "markers": [
+      "looks like",
+      "sounds like",
+      "feels like",
+      "smells like",
+      "tastes like",
+      "looks as if"
+    ]
+  },
+  "The passive voice: All tenses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "is being done",
+      "has been made",
+      "was being repaired",
+      "will be finished",
+      "had been sold"
+    ]
+  },
+  "The passive with reporting verbs: It is said that ...": {
+    "type": "mandatory_choice",
+    "markers": [
+      "it is said that",
+      "is believed to",
+      "are thought to",
+      "was known to",
+      "is expected to"
+    ]
+  },
+  "Have something done": {
+    "type": "mandatory_choice",
+    "markers": [
+      "have it fixed",
+      "get my hair cut",
+      "had the car repaired",
+      "getting it cleaned",
+      "have my eyes tested"
+    ]
+  },
+  "Reporting verbs: Admit doing, refuse to do, etc.": {
+    "type": "mandatory_choice",
+    "markers": [
+      "admitted doing",
+      "refused to",
+      "threatened to",
+      "offered to",
+      "suggested doing",
+      "promised to"
+    ]
+  },
+  "Clauses of contrast and purpose": {
+    "type": "mandatory_choice",
+    "markers": [
+      "even though",
+      "despite",
+      "in spite of",
+      "so as not to",
+      "in order to",
+      "although"
+    ]
   },
   "Whatever, whenever, wherever, whoever, however": {
     "type": "mandatory_choice",
-    "markers": ["whatever", "whenever", "wherever", "whoever", "however"]
+    "markers": [
+      "whatever",
+      "whenever",
+      "wherever",
+      "whoever",
+      "however"
+    ]
+  },
+  "Quantifiers: All, most, both, either, neither, any, no, none": {
+    "type": "mandatory_choice",
+    "markers": [
+      "all of",
+      "most of",
+      "both of",
+      "either of",
+      "neither of",
+      "none of",
+      "any of"
+    ]
   },
   "Already, still, yet: What's the difference?": {
     "type": "mandatory_choice",
-    "markers": ["already", "still", "yet"]
+    "markers": [
+      "already",
+      "still",
+      "yet",
+      "not ... yet",
+      "still haven't"
+    ]
   },
   "Needn't, don't need to, didn't need to, needn't have": {
     "type": "mandatory_choice",
-    "markers": ["needn't", "don't need to", "didn't need to", "needn't have"]
+    "markers": [
+      "needn't",
+      "don't need to",
+      "didn't need to",
+      "needn't have"
+    ]
   },
   "Pretty, rather, quite, fairly: Adverbs of degree": {
     "type": "mandatory_choice",
-    "markers": ["pretty", "rather", "quite", "fairly"]
+    "markers": [
+      "pretty",
+      "rather",
+      "quite",
+      "fairly",
+      "quite a lot"
+    ]
+  },
+  "When I do vs When I have done: Future time clauses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "when I finish",
+      "when I have finished",
+      "after I read",
+      "after I have read",
+      "as soon as I do",
+      "as soon as I have done"
+    ]
+  },
+  "Double negatives in English": {
+    "type": "mandatory_choice",
+    "markers": [
+      "hardly ever",
+      "barely",
+      "scarcely",
+      "hardly any",
+      "barely know"
+    ]
+  },
+  "Have: Auxiliary or main verb": {
+    "type": "mandatory_choice",
+    "markers": [
+      "have got to",
+      "don't have",
+      "haven't finished",
+      "having a break",
+      "had had"
+    ]
+  },
+  "Clauses of contrast, purpose, reason and result": {
+    "type": "mandatory_choice",
+    "markers": [
+      "nevertheless",
+      "in order not to",
+      "so as to",
+      "due to the fact that",
+      "consequently",
+      "for this reason"
+    ]
+  },
+  "Generic or common-gender pronouns": {
+    "type": "mandatory_choice",
+    "markers": [
+      "everyone ... they",
+      "anyone ... their",
+      "somebody ... them",
+      "nobody ... their"
+    ]
+  },
+  "Reflexive and reciprocal pronouns": {
+    "type": "mandatory_choice",
+    "markers": [
+      "each other",
+      "one another",
+      "by themselves",
+      "ourselves",
+      "itself"
+    ]
+  },
+  "'There' and 'it': Preparatory subjects": {
+    "type": "mandatory_choice",
+    "markers": [
+      "there seems to be",
+      "it is no use",
+      "there is no point in",
+      "it is clear that",
+      "it turned out that"
+    ]
+  },
+  "Narrative tenses, used to, would": {
+    "type": "mandatory_choice",
+    "markers": [
+      "had been working",
+      "would always",
+      "was doing when",
+      "had already finished",
+      "used to"
+    ]
+  },
+  "Get: Different meanings": {
+    "type": "mandatory_choice",
+    "markers": [
+      "get it done",
+      "get fired",
+      "get used to",
+      "get over it",
+      "get the message across"
+    ]
+  },
+  "Discourse markers: Linking words": {
+    "type": "mandatory_choice",
+    "markers": [
+      "furthermore",
+      "moreover",
+      "on the other hand",
+      "as a matter of fact",
+      "to sum up",
+      "by the way"
+    ]
+  },
+  "Speculation and deduction: Modal verbs and expressions": {
+    "type": "mandatory_choice",
+    "markers": [
+      "must have been",
+      "can't have done",
+      "might have noticed",
+      "could well be",
+      "bound to be"
+    ]
+  },
+  "Inversion with negative adverbials: Adding emphasis": {
+    "type": "mandatory_choice",
+    "markers": [
+      "never before have I",
+      "rarely do we",
+      "not only did",
+      "no sooner had",
+      "under no circumstances should",
+      "little did she know"
+    ]
+  },
+  "Distancing: Expressions and passive of reporting verbs": {
+    "type": "mandatory_choice",
+    "markers": [
+      "it seems that",
+      "is believed to be",
+      "appear to be",
+      "it is alleged that",
+      "is widely considered"
+    ]
+  },
+  "Wish, rather, if only, it's time: Unreal uses of past tenses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "I'd rather you didn't",
+      "it's high time we",
+      "I wish I hadn't",
+      "if only she knew",
+      "it's about time he"
+    ]
+  },
+  "Verb + object + infinitive/gerund: Verb patterns": {
+    "type": "mandatory_choice",
+    "markers": [
+      "make him do",
+      "let her go",
+      "force us to",
+      "allow them to",
+      "catch him stealing",
+      "prevent them from doing"
+    ]
   },
   "Unless, even if, provided, as long as, etc.: Other expressions in conditionals": {
     "type": "mandatory_choice",
-    "markers": ["unless", "even if", "provided that", "as long as", "on condition that"]
+    "markers": [
+      "unless",
+      "provided that",
+      "as long as",
+      "even if",
+      "on condition that",
+      "supposing"
+    ]
+  },
+  "All conditionals: Mixed conditionals, alternatives to 'if', inversion": {
+    "type": "mandatory_choice",
+    "markers": [
+      "had I known",
+      "were she to",
+      "should you need",
+      "otherwise",
+      "but for"
+    ]
+  },
+  "Mixed conditionals: If I were you, I wouldn't have done it": {
+    "type": "mandatory_choice",
+    "markers": [
+      "if I had ... I would be",
+      "if I were ... I would have",
+      "if she hadn't ... she would be"
+    ]
+  },
+  "Modal verbs: Permission, obligation, prohibition, necessity": {
+    "type": "mandatory_choice",
+    "markers": [
+      "are allowed to",
+      "are supposed to",
+      "are strictly forbidden to",
+      "don't need to",
+      "needn't have done"
+    ]
+  },
+  "Verbs of the senses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "smells like",
+      "looks as if",
+      "feels as though",
+      "sounds like",
+      "tastes of"
+    ]
+  },
+  "Gerunds and infinitives: Complex forms": {
+    "type": "mandatory_choice",
+    "markers": [
+      "to have been done",
+      "having been told",
+      "to be working",
+      "being watched",
+      "having finished"
+    ]
+  },
+  "Future forms: Expressing future time": {
+    "type": "mandatory_choice",
+    "markers": [
+      "will be finishing",
+      "will have completed",
+      "are going to have",
+      "is opening at"
+    ]
   },
   "Other ways to express future: Be about to, be due to, etc.": {
     "type": "mandatory_choice",
-    "markers": ["be about to", "be due to", "be on the point of", "be to"]
+    "markers": [
+      "is about to",
+      "are due to",
+      "is on the verge of",
+      "are to meet"
+    ]
+  },
+  "Future in the past": {
+    "type": "mandatory_choice",
+    "markers": [
+      "was going to",
+      "was about to",
+      "would later become",
+      "were to leave"
+    ]
+  },
+  "Ellipsis and substitution: Omitting or replacing words": {
+    "type": "mandatory_choice",
+    "markers": [
+      "I think so",
+      "I hope not",
+      "if so",
+      "if not",
+      "she didn't want to, but she had to"
+    ]
+  },
+  "Compound nouns and possessive forms": {
+    "type": "mandatory_choice",
+    "markers": [
+      "mother-in-law",
+      "passer-by",
+      "state-of-the-art",
+      "a week's holiday",
+      "today's paper"
+    ]
+  },
+  "Cleft sentences: Adding emphasis": {
+    "type": "mandatory_choice",
+    "markers": [
+      "what I really need is",
+      "it was John who",
+      "the reason why is",
+      "the place where is",
+      "all I want is"
+    ]
+  },
+  "Relative clauses: Defining and non-defining": {
+    "type": "mandatory_choice",
+    "markers": [
+      ", which",
+      ", who",
+      "in which",
+      "to whom",
+      ", whose"
+    ]
+  },
+  "Participle clauses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "having seen",
+      "not knowing",
+      "exhausted by",
+      "driven by",
+      "walking down the street"
+    ]
+  },
+  "Passive verbs with two objects": {
+    "type": "mandatory_choice",
+    "markers": [
+      "was given a",
+      "were offered a",
+      "was shown the",
+      "is paid a"
+    ]
+  },
+  "Possessive ’s with time expressions: Two hours’ walk": {
+    "type": "mandatory_choice",
+    "markers": [
+      "two weeks' notice",
+      "a moment's hesitation",
+      "ten minutes' walk",
+      "next year's budget",
+      "a month's pay"
+    ]
+  },
+  "Compound adjectives in English": {
+    "type": "mandatory_choice",
+    "markers": [
+      "blue-eyed",
+      "well-known",
+      "old-fashioned",
+      "record-breaking",
+      "time-consuming"
+    ]
+  },
+  "Comparative structures: Modifying comparatives": {
+    "type": "mandatory_choice",
+    "markers": [
+      "nowhere near as",
+      "nothing like as",
+      "slightly more",
+      "considerably less",
+      "by far the best",
+      "way better"
+    ]
+  },
+  "Reduced infinitives: Omitting the infinitive phrase after 'to'": {
+    "type": "mandatory_choice",
+    "markers": [
+      "I'd love to",
+      "you don't have to",
+      "I meant to",
+      "I was told not to"
+    ]
+  },
+  "Advanced present simple and present continuous": {
+    "type": "mandatory_choice",
+    "markers": [
+      "is constantly complaining",
+      "are forever interrupting",
+      "I hereby declare",
+      "I absolutely refuse",
+      "I suggest you",
+      "The flight departs at"
+    ]
+  },
+  "Advanced past simple, past continuous & past perfect": {
+    "type": "mandatory_choice",
+    "markers": [
+      "had originally intended to",
+      "had been meaning to",
+      "was wondering if",
+      "had hoped to",
+      "no sooner had ... than",
+      "hardly had ... when"
+    ]
+  },
+  "Advanced modal verbs: will, would and should": {
+    "type": "mandatory_choice",
+    "markers": [
+      "will keep doing",
+      "wouldn't listen",
+      "should have known",
+      "I would imagine",
+      "you will have heard",
+      "would typically"
+    ]
+  },
+  "Advanced modal verbs: can / be able to, may / might": {
+    "type": "mandatory_choice",
+    "markers": [
+      "might as well",
+      "may well be",
+      "could have at least",
+      "might have told me",
+      "managed to escape",
+      "can't possibly have"
+    ]
+  },
+  "The subjunctive in English: Present and past": {
+    "type": "mandatory_choice",
+    "markers": [
+      "insist that he resign",
+      "demanded that she be",
+      "it is crucial that it remain",
+      "if it were not for",
+      "suggest that they seek",
+      "essential that he understand"
+    ]
+  },
+  "The perfect tenses: Forms and uses": {
+    "type": "mandatory_choice",
+    "markers": [
+      "will have been working",
+      "to have achieved",
+      "having finally completed",
+      "is thought to have been",
+      "had been struggling for"
+    ]
   }
 }
+
+
+
+
+
+

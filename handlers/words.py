@@ -243,11 +243,42 @@ def handle_training_inline(call):
 # ==========================================
 # 3. УНИВЕРСАЛЬНЫЙ ЯДЕРНЫЙ ПРОЦЕССОР ПЕРЕВОДА (ДЛЯ СЛОВ И ТЕКСТОВ)
 # ==========================================
+# ==========================================
+# 3. УНИВЕРСАЛЬНЫЙ ЯДЕРНЫЙ ПРОЦЕССОР ПЕРЕВОДА (ДЛЯ СЛОВ И ТЕКСТОВ)
+# ==========================================
 def process_translation_request(chat_id, text, target_lang, user_id=None):
     """
     Универсальная функция перевода.
     Сама решает: если 1-2 слова -> режим Одиночного слова. Если >2 слов -> режим Текста.
     """
+
+    # 🔥 Умная проверка языка через ИИ (учитывает слова без умлаутов вроде "warum")
+    try:
+        if target_lang == 'en':
+            lang_check = ask_ai(f"Is this text written in German? Answer ONLY 'yes' or 'no': '{text}'", temperature=0.1,
+                                chat_id=chat_id).strip().lower()
+            if 'yes' in lang_check:
+                bot.send_message(
+                    chat_id,
+                    "⚠️ <b>Это слово на немецком языке!</b>\n"
+                    "В твоих настройках профиля выбран английский язык.",
+                    parse_mode="HTML"
+                )
+                return
+        elif target_lang == 'de':
+            lang_check = ask_ai(f"Is this text written in English? Answer ONLY 'yes' or 'no': '{text}'",
+                                temperature=0.1, chat_id=chat_id).strip().lower()
+            if 'yes' in lang_check:
+                bot.send_message(
+                    chat_id,
+                    "⚠️ <b>Это слово на английском языке!</b>\n"
+                    "В твоих настройках профиля выбран немецкий язык.",
+                    parse_mode="HTML"
+                )
+                return
+    except Exception as e:
+        print(f"⚠️ Ошибка проверки языка: {e}")
+
     word_count = len(text.split())
     is_russian = bool(re.search(r'[а-яА-ЯёЁ]', text))
     flag = "🇺🇸" if target_lang == 'en' else "🇩🇪"

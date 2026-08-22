@@ -1,0 +1,2144 @@
+{
+    "{{c1::abhängen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "depend on": []
+            }
+        }
+    },
+    "{{c1::abschreiben}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "copying from": []
+            }
+        }
+    },
+    "{{c1::ändern}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "change to": []
+            }
+        }
+    },
+    "{{c1::ankommen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "depend on": []
+            }
+        }
+    },
+    "{{c1::anmerken}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to comment on": []
+            }
+        }
+    },
+    "{{c1::arbeiten}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "work on": []
+            }
+        }
+    },
+    "{{c1::sich ärgern}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to be annoyed about": []
+            }
+        }
+    },
+    "{{c1::aufpassen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "pay attention to": []
+            }
+        }
+    },
+    "{{c1::ausgeben}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "spend on": []
+            }
+        }
+    },
+    "{{c1::sich ausruhen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "resting from": []
+            }
+        }
+    },
+    "{{c1::basieren}} {{c2::auf}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "based on": []
+            }
+        }
+    },
+    "{{c1::beauftragen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "commissioned with": []
+            }
+        }
+    },
+    "{{c1::sich bedanken}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to thank for": []
+            }
+        }
+    },
+    "{{c1::beglückwünschen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "congratulate on": []
+            }
+        }
+    },
+    "{{c1::beitragen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "contribute to": []
+            }
+        }
+    },
+    "{{c1::berichten}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "report on": []
+            }
+        }
+    },
+    "{{c1::berichten}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "report on": []
+            }
+        }
+    },
+    "{{c1::sich beschäftigen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to deal with": []
+            }
+        }
+    },
+    "{{c1::Bescheid wissen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to be informed about": []
+            }
+        }
+    },
+    "{{c1::sich beschweren}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to complain to": []
+            }
+        }
+    },
+    "{{c1::sich beschweren}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to complain about": []
+            }
+        }
+    },
+    "{{c1::bestehen}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "consist of": []
+            }
+        }
+    },
+    "{{c1::sich beteiligen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to participate in": []
+            }
+        }
+    },
+    "{{c1::sich bewerben}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to apply for": []
+            }
+        }
+    },
+    "{{c1::sich beziehen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to refer to": []
+            }
+        }
+    },
+    "{{c1::bringen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "bring on": []
+            }
+        }
+    },
+    "{{c1::bringen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "bring to": []
+            }
+        }
+    },
+    "{{c1::demonstrieren}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "demonstrate for": []
+            }
+        }
+    },
+    "{{c1::demonstrieren}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "demonstrate against": []
+            }
+        }
+    },
+    "{{c1::diskutieren}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "discuss with": []
+            }
+        }
+    },
+    "{{c1::diskutieren}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "discuss about": []
+            }
+        }
+    },
+    "{{c1::sich einigen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to come to an agreement with": []
+            }
+        }
+    },
+    "{{c1::sich entschließen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to decide to": []
+            }
+        }
+    },
+    "{{c1::erfahren}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "learn about": []
+            }
+        }
+    },
+    "{{c1::(sich) erhöhen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(to) increase to": []
+            }
+        }
+    },
+    "{{c1::(sich) erhöhen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(increase by)": []
+            }
+        }
+    },
+    "{{c1::sich erholen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "recover from": []
+            }
+        }
+    },
+    "{{c1::erkennen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "recognize by": []
+            }
+        }
+    },
+    "{{c1::sich erkundigen}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "inquire with": []
+            }
+        }
+    },
+    "{{c1::sich erkundigen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to inquire about": []
+            }
+        }
+    },
+    "{{c1::erzählen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to tell about": []
+            }
+        }
+    },
+    "{{c1::erziehen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "educate to": []
+            }
+        }
+    },
+    "{{c1::fehlen an}} {{c2::(es)}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "be lacking in (it)": []
+            }
+        }
+    },
+    "{{c1::fliehen}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "flee from": []
+            }
+        }
+    },
+    "{{c1::sich fürchten}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to fear something": []
+            }
+        }
+    },
+    "{{c1::gehen um}} {{c2::(es)}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to be about (it)": []
+            }
+        }
+    },
+    "{{c1::gehören}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "belong to": []
+            }
+        }
+    },
+    "{{c1::sich gewöhnen}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to get used to": []
+            }
+        }
+    },
+    "{{c1::glauben}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "believe in": []
+            }
+        }
+    },
+    "{{c1::halten}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "think of": []
+            }
+        }
+    },
+    "{{c1::handeln}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "acting against": []
+            }
+        }
+    },
+    "{{c1::handeln}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "trade with": []
+            }
+        }
+    },
+    "{{c1::sich handeln}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to be about": []
+            }
+        }
+    },
+    "{{c1::sich handeln}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to be about": []
+            }
+        }
+    },
+    "{{c1::hinweisen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "point out": []
+            }
+        }
+    },
+    "{{c1::hören}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "stop listening": []
+            }
+        }
+    },
+    "{{c1::hören}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "hear from": []
+            }
+        }
+    },
+    "{{c1::kämpfen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "fight for": []
+            }
+        }
+    },
+    "{{c1::kämpfen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "fight against": []
+            }
+        }
+    },
+    "{{c1::kommen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "come to": []
+            }
+        }
+    },
+    "{{c1::sich kümmern}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to take care of": []
+            }
+        }
+    },
+    "{{c1::lachen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "laugh at": []
+            }
+        }
+    },
+    "{{c1::leben}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "live off": []
+            }
+        }
+    },
+    "{{c1::liegen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "lie in": []
+            }
+        }
+    },
+    "{{c1::machen}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "make out of": []
+            }
+        }
+    },
+    "{{c1::nachdenken}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to think about": []
+            }
+        }
+    },
+    "{{c1::sich orientieren}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to orient oneself towards": []
+            }
+        }
+    },
+    "{{c1::passen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "match to": []
+            }
+        }
+    },
+    "{{c1::protestieren}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "protest against": []
+            }
+        }
+    },
+    "{{c1::raten}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "&quot;advise to&quot;": []
+            }
+        }
+    },
+    "{{c1::reagieren}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "react to": []
+            }
+        }
+    },
+    "{{c1::rechnen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "count on": []
+            }
+        }
+    },
+    "{{c1::reden}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "talk about": []
+            }
+        }
+    },
+    "{{c1::riechen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "smell of": []
+            }
+        }
+    },
+    "{{c1::sagen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "say about": []
+            }
+        }
+    },
+    "{{c1::sagen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "say from": []
+            }
+        }
+    },
+    "{{c1::sagen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "say to": []
+            }
+        }
+    },
+    "{{c1::schicken}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "send to": []
+            }
+        }
+    },
+    "{{c1::schicken}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "send to": []
+            }
+        }
+    },
+    "{{c1::schimpfen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to scold at": []
+            }
+        }
+    },
+    "{{c1::schimpfen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "speak ill of": []
+            }
+        }
+    },
+    "{{c1::schließen}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to conclude from": []
+            }
+        }
+    },
+    "{{c1::schmecken}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "taste of": []
+            }
+        }
+    },
+    "{{c1::schreiben}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "write to": []
+            }
+        }
+    },
+    "{{c1::schreiben}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "writing of": []
+            }
+        }
+    },
+    "{{c1::(sich) schützen}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "(protect oneself) from": []
+            }
+        }
+    },
+    "{{c1::senden}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "send to": []
+            }
+        }
+    },
+    "{{c1::siegen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to triumph over": []
+            }
+        }
+    },
+    "{{c1::sinken}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "sink to": []
+            }
+        }
+    },
+    "{{c1::sorgen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "take care of": []
+            }
+        }
+    },
+    "{{c1::sich sorgen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to worry about": []
+            }
+        }
+    },
+    "{{c1::sich spezialisieren}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to specialize in": []
+            }
+        }
+    },
+    "{{c1::sprechen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "speak for": []
+            }
+        }
+    },
+    "{{c1::sprechen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "speak against": []
+            }
+        }
+    },
+    "{{c1::sprechen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "speak of": []
+            }
+        }
+    },
+    "{{c1::steigen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "climb up": []
+            }
+        }
+    },
+    "{{c1::sterben}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "die of": []
+            }
+        }
+    },
+    "{{c1::stimmen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "vote for": []
+            }
+        }
+    },
+    "{{c1::stimmen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "votes against": []
+            }
+        }
+    },
+    "{{c1::stören}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "disturb in": []
+            }
+        }
+    },
+    "{{c1::(sich) streiten}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "(to) argue with": []
+            }
+        }
+    },
+    "{{c1::(sich) streiten}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(to) argue about": []
+            }
+        }
+    },
+    "{{c1::suchen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "search for": []
+            }
+        }
+    },
+    "{{c1::teilen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "divide into": []
+            }
+        }
+    },
+    "{{c1::träumen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "dream of": []
+            }
+        }
+    },
+    "{{c1::sich trennen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to separate from": []
+            }
+        }
+    },
+    "{{c1::treten}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "kick against": []
+            }
+        }
+    },
+    "{{c1::überreden}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to persuade to": []
+            }
+        }
+    },
+    "{{c1::übersetzen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "translate into": []
+            }
+        }
+    },
+    "{{c1::übersetzten}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "translate from": []
+            }
+        }
+    },
+    "{{c1::(sich) überzeugen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to convince (oneself) of": []
+            }
+        }
+    },
+    "{{c1::unterrichten}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "teach in": []
+            }
+        }
+    },
+    "{{c1::unterscheiden}} {{c2::zwischen}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "distinguish between": []
+            }
+        }
+    },
+    "{{c1::unterstützen}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "support with": []
+            }
+        }
+    },
+    "{{c1::sich verabreden}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "arrange to": []
+            }
+        }
+    },
+    "{{c1::vereinbaren}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "agree with": []
+            }
+        }
+    },
+    "{{c1::verlangen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "demand from": []
+            }
+        }
+    },
+    "{{c1::sich verlassen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to rely on": []
+            }
+        }
+    },
+    "{{c1::verschieben}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "move to": []
+            }
+        }
+    },
+    "{{c1::(sich) verstecken}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "(hide) from": []
+            }
+        }
+    },
+    "{{c1::sich verstehen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to get along with": []
+            }
+        }
+    },
+    "{{c1::nichts/etwas verstehen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to understand nothing/something of": []
+            }
+        }
+    },
+    "{{c1::(sich) verteidigen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(defend oneself) against": []
+            }
+        }
+    },
+    "{{c1::verwenden}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "use to": []
+            }
+        }
+    },
+    "{{c1::warnen}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "warn against": []
+            }
+        }
+    },
+    "{{c1::sich wehren}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "defend against": []
+            }
+        }
+    },
+    "{{c1::weinen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "cry about": []
+            }
+        }
+    },
+    "{{c1::werben}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "advertise for": []
+            }
+        }
+    },
+    "{{c1::sich wundern}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to wonder about": []
+            }
+        }
+    },
+    "{{c1::zählen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "count as": []
+            }
+        }
+    },
+    "{{c1::zusammenstoßen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "collide with": []
+            }
+        }
+    },
+    "{{c1::zweifeln}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "doubt about": []
+            }
+        }
+    },
+    "{{c1::(sich) ablenken}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "distract oneself from": []
+            }
+        }
+    },
+    "{{c1::achten}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "pay attention to": []
+            }
+        }
+    },
+    "{{c1::sich ängstigen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to be anxious about": []
+            }
+        }
+    },
+    "{{c1::sich ängstigen}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to be anxious about": []
+            }
+        }
+    },
+    "{{c1::(sich) anpassen}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(to) adapt to": []
+            }
+        }
+    },
+    "{{c1::antreten}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "face off against": []
+            }
+        }
+    },
+    "{{c1::sich aufregen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to get upset about": []
+            }
+        }
+    },
+    "{{c1::aufrufen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "call upon to": []
+            }
+        }
+    },
+    "{{c1::sich austauschen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to exchange with": []
+            }
+        }
+    },
+    "{{c1::sich befassen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to deal with": []
+            }
+        }
+    },
+    "{{c1::(sich) befreien}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "(to) free oneself from": []
+            }
+        }
+    },
+    "{{c1::(sich) begeistern}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to be enthusiastic about": []
+            }
+        }
+    },
+    "{{c1::sich beklagen}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to complain to": []
+            }
+        }
+    },
+    "{{c1::sich beklagen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to complain about": []
+            }
+        }
+    },
+    "{{c1::sich belaufen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "amount to": []
+            }
+        }
+    },
+    "{{c1::sich bemühen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to strive for": []
+            }
+        }
+    },
+    "{{c1::beneiden}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "envy for": []
+            }
+        }
+    },
+    "{{c1::bestehen}} {{c2::auf}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "insist on": []
+            }
+        }
+    },
+    "{{c1::bestehen}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "consist in": []
+            }
+        }
+    },
+    "{{c1::bestimmen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "determine to": []
+            }
+        }
+    },
+    "{{c1::betrügen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to deceive by": []
+            }
+        }
+    },
+    "{{c1::betteln}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "begging for": []
+            }
+        }
+    },
+    "{{c1::beurteilen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "judge by": []
+            }
+        }
+    },
+    "{{c1::bewegen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "move to": []
+            }
+        }
+    },
+    "{{c1::dienen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "serve to": []
+            }
+        }
+    },
+    "{{c1::sich distanzieren}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to distance oneself from": []
+            }
+        }
+    },
+    "{{c1::sich drehen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to revolve around": []
+            }
+        }
+    },
+    "{{c1::duften}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "smell of": []
+            }
+        }
+    },
+    "{{c1::eingehen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to respond to": []
+            }
+        }
+    },
+    "{{c1::sich einigen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to agree on": []
+            }
+        }
+    },
+    "{{c1::sich einsetzen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to advocate for": []
+            }
+        }
+    },
+    "{{c1::eintreten}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to stand up for": []
+            }
+        }
+    },
+    "{{c1::sich ekeln}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to be disgusted by": []
+            }
+        }
+    },
+    "{{c1::sich engagieren}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to engage for": []
+            }
+        }
+    },
+    "{{c1::entschädigen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "compensate for": []
+            }
+        }
+    },
+    "{{c1::sich erfreuen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "take pleasure in": []
+            }
+        }
+    },
+    "{{c1::sich ergeben}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to arise from": []
+            }
+        }
+    },
+    "{{c1::erkranken}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "fall ill with": []
+            }
+        }
+    },
+    "{{c1::ermutigen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "encourage to": []
+            }
+        }
+    },
+    "{{c1::(sich) ernähren}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to feed on": []
+            }
+        }
+    },
+    "{{c1::(sich) erschrecken}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(to) be startled about": []
+            }
+        }
+    },
+    "{{c1::erwarten}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "expect from": []
+            }
+        }
+    },
+    "{{c1::experimentieren}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "experiment with": []
+            }
+        }
+    },
+    "{{c1::folgern}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to infer from": []
+            }
+        }
+    },
+    "{{c1::führen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "lead to": []
+            }
+        }
+    },
+    "{{c1::geraten}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "get into": []
+            }
+        }
+    },
+    "{{c1::gewinnen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "gain in": []
+            }
+        }
+    },
+    "{{c1::greifen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "reach for": []
+            }
+        }
+    },
+    "{{c1::sich halten}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to stick to": []
+            }
+        }
+    },
+    "{{c1::sich halten}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to consider oneself as": []
+            }
+        }
+    },
+    "{{c1::halten}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "stand by": []
+            }
+        }
+    },
+    "{{c1::herausfordern}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "challenge to": []
+            }
+        }
+    },
+    "{{c1::herrschen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to rule over": []
+            }
+        }
+    },
+    "{{c1::hindern}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "prevent from": []
+            }
+        }
+    },
+    "{{c1::hoffen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "hope for": []
+            }
+        }
+    },
+    "{{c1::investieren}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "invest in": []
+            }
+        }
+    },
+    "{{c1::sich irren}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to be mistaken about": []
+            }
+        }
+    },
+    "{{c1::jubeln}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "rejoice over": []
+            }
+        }
+    },
+    "{{c1::kämpfen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "struggle with": []
+            }
+        }
+    },
+    "{{c1::kämpfen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "fight for": []
+            }
+        }
+    },
+    "{{c1::klagen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "complain about": []
+            }
+        }
+    },
+    "{{c1::kommen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "come to": []
+            }
+        }
+    },
+    "{{c1::sich konzentrieren}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to concentrate on": []
+            }
+        }
+    },
+    "{{c1::leiden}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "suffer from": []
+            }
+        }
+    },
+    "{{c1::leiden}} {{c2::unter}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "suffer from": []
+            }
+        }
+    },
+    "{{c1::liefern}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "deliver to": []
+            }
+        }
+    },
+    "{{c1::sich machen}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to get started on": []
+            }
+        }
+    },
+    "{{c1::mangeln}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to lack in": []
+            }
+        }
+    },
+    "{{c1::mitwirken}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to contribute to": []
+            }
+        }
+    },
+    "{{c1::mitwirken}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to contribute to": []
+            }
+        }
+    },
+    "{{c1::multiplizieren}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "multiply by": []
+            }
+        }
+    },
+    "{{c1::philosophieren}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to philosophize about": []
+            }
+        }
+    },
+    "{{c1::sich rächen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to take revenge on": []
+            }
+        }
+    },
+    "{{c1::sich rächen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to take revenge for": []
+            }
+        }
+    },
+    "{{c1::rechnen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "&quot;to calculate to&quot;": []
+            }
+        }
+    },
+    "{{c1::(sich) richten}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(to) address oneself to": []
+            }
+        }
+    },
+    "{{c1::rufen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "call for": []
+            }
+        }
+    },
+    "{{c1::ruhen}} {{c2::auf}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "rest on": []
+            }
+        }
+    },
+    "{{c1::sich schämen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to be ashamed of": []
+            }
+        }
+    },
+    "{{c1::sich schämen}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to be ashamed in front of": []
+            }
+        }
+    },
+    "{{c1::schießen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "shoot at": []
+            }
+        }
+    },
+    "{{c1::schimpfen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to scold about": []
+            }
+        }
+    },
+    "{{c1::sich schlagen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to fight with": []
+            }
+        }
+    },
+    "{{c1::schreiben}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "write to": []
+            }
+        }
+    },
+    "{{c1::sich sehnen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "long for": []
+            }
+        }
+    },
+    "{{c1::siegen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to win against": []
+            }
+        }
+    },
+    "{{c1::spielen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to play for": []
+            }
+        }
+    },
+    "{{c1::stehen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "stand up": []
+            }
+        }
+    },
+    "{{c1::stehen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "stand for": []
+            }
+        }
+    },
+    "{{c1::stehen}} {{c2::unter}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "are subject to": []
+            }
+        }
+    },
+    "{{c1::(sich) steigern}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "&quot;(to) increase by&quot;": []
+            }
+        }
+    },
+    "{{c1::stinken}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "smell of": []
+            }
+        }
+    },
+    "{{c1::stoßen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "collide against": []
+            }
+        }
+    },
+    "{{c1::sich täuschen}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to be mistaken in": []
+            }
+        }
+    },
+    "{{c1::teilhaben}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "participate in": []
+            }
+        }
+    },
+    "{{c1::tun haben}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "have to do with": []
+            }
+        }
+    },
+    "{{c1::sich üben}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to practice in": []
+            }
+        }
+    },
+    "{{c1::übertreffen}} {{c2::in}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "outstrip in": []
+            }
+        }
+    },
+    "{{c1::umgehen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to cope with": []
+            }
+        }
+    },
+    "{{c1::umwandeln}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "convert to": []
+            }
+        }
+    },
+    "{{c1::sich unterscheiden}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to differ from": []
+            }
+        }
+    },
+    "{{c1::urteilen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "judge by": []
+            }
+        }
+    },
+    "{{c1::urteilen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to judge about": []
+            }
+        }
+    },
+    "{{c1::veranlassen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "cause to": []
+            }
+        }
+    },
+    "{{c1::verfügen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "have at one&#x27;s disposal": []
+            }
+        }
+    },
+    "{{c1::verführen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to seduce into": []
+            }
+        }
+    },
+    "{{c1::(sich) verpflichten}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "(to) commit to": []
+            }
+        }
+    },
+    "{{c1::(sich) verringern}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(decrease) by": []
+            }
+        }
+    },
+    "{{c1::verstehen}} {{c2::unter}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "understand by": []
+            }
+        }
+    },
+    "{{c1::verstoßen}} {{c2::gegen}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to violate": []
+            }
+        }
+    },
+    "{{c1::sich vertiefen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "immerse oneself in": []
+            }
+        }
+    },
+    "{{c1::sich vertragen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "get along with": []
+            }
+        }
+    },
+    "{{c1::verurteilen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "condemn for": []
+            }
+        }
+    },
+    "{{c1::(sich) verwandeln}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(transform oneself) into": []
+            }
+        }
+    },
+    "{{c1::verwechseln}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "confuse with": []
+            }
+        }
+    },
+    "{{c1::verwenden}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "use for": []
+            }
+        }
+    },
+    "{{c1::verzichten}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to forgo": []
+            }
+        }
+    },
+    "{{c1::wählen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to choose to": []
+            }
+        }
+    },
+    "{{c1::sich wenden}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to turn to": []
+            }
+        }
+    },
+    "{{c1::werben}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to court or to solicit": []
+            }
+        }
+    },
+    "{{c1::werden}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "become to": []
+            }
+        }
+    },
+    "{{c1::wetten}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "betting on": []
+            }
+        }
+    },
+    "{{c1::wissen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "&quot;to be aware of&quot;": []
+            }
+        }
+    },
+    "{{c1::zugehen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to approach": []
+            }
+        }
+    },
+    "{{c1::zurückkommen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "come back to": []
+            }
+        }
+    },
+    "{{c1::zwingen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "force to": []
+            }
+        }
+    },
+    "{{c1::absehen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "disregard": []
+            }
+        }
+    },
+    "{{c1::sich abwenden}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "turn away from": []
+            }
+        }
+    },
+    "{{c1::anhalten}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to stop at": []
+            }
+        }
+    },
+    "{{c1::anspielen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "allude to": []
+            }
+        }
+    },
+    "{{c1::appellieren}} {{c2::an}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "appeal to": []
+            }
+        }
+    },
+    "{{c1::ausbrechen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "break out in": []
+            }
+        }
+    },
+    "{{c1::sich austauschen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to exchange ideas about": []
+            }
+        }
+    },
+    "{{c1::sich begnügen}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to content oneself with": []
+            }
+        }
+    },
+    "{{c1::beharren}} {{c2::auf}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "persist in": []
+            }
+        }
+    },
+    "{{c1::sich berufen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "rely on": []
+            }
+        }
+    },
+    "{{c1::beruhen}} {{c2::auf}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "based on": []
+            }
+        }
+    },
+    "{{c1::(sich) beschränken}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(to) limit oneself to": []
+            }
+        }
+    },
+    "{{c1::drängen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "urge to": []
+            }
+        }
+    },
+    "{{c1::sich eignen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to be suitable for": []
+            }
+        }
+    },
+    "{{c1::sich einlassen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to engage in": []
+            }
+        }
+    },
+    "{{c1::sich einstellen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to adjust to": []
+            }
+        }
+    },
+    "{{c1::einwilligen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to consent to": []
+            }
+        }
+    },
+    "{{c1::ermahnen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to admonish to": []
+            }
+        }
+    },
+    "{{c1::sich erregen}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to get worked up about": []
+            }
+        }
+    },
+    "{{c1::ersehen}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "&quot;achieved from&quot; or &quot;derived from&quot;": []
+            }
+        }
+    },
+    "{{c1::fahnden}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "hunting for": []
+            }
+        }
+    },
+    "{{c1::forschen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "research on": []
+            }
+        }
+    },
+    "{{c1::forschen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "researching for": []
+            }
+        }
+    },
+    "{{c1::sich fügen}} {{c2::in}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to conform to": []
+            }
+        }
+    },
+    "{{c1::geradestehen}} {{c2::für}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to stand up for": []
+            }
+        }
+    },
+    "{{c1::sich hüten}} {{c2::vor}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "beware of": []
+            }
+        }
+    },
+    "{{c1::jammern}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "complain about": []
+            }
+        }
+    },
+    "{{c1::loskommen}} {{c2::von}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "get away from": []
+            }
+        }
+    },
+    "{{c1::neigen}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "tend to": []
+            }
+        }
+    },
+    "{{c1::resultieren}} {{c2::aus}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "result from": []
+            }
+        }
+    },
+    "{{c1::(sich) richten}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "(to) aim at": []
+            }
+        }
+    },
+    "{{c1::sich richten}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to be guided by": []
+            }
+        }
+    },
+    "{{c1::sich schlagen}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to fight over": []
+            }
+        }
+    },
+    "{{c1::schwören}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "swear by": []
+            }
+        }
+    },
+    "{{c1::spotten}} {{c2::über}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to mock about": []
+            }
+        }
+    },
+    "{{c1::streben}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "striving for": []
+            }
+        }
+    },
+    "{{c1::sich unterscheiden}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "differ according to": []
+            }
+        }
+    },
+    "{{c1::verheiraten}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "marry with": []
+            }
+        }
+    },
+    "{{c1::verlangen}} {{c2::nach}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "longing for": []
+            }
+        }
+    },
+    "{{c1::verleiten}} {{c2::zu}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "to tempt to": []
+            }
+        }
+    },
+    "{{c1::sich vermindern}} {{c2::um}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to decrease by": []
+            }
+        }
+    },
+    "{{c1::vermitteln}} {{c2::zwischen}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "mediate between": []
+            }
+        }
+    },
+    "{{c1::vertrauen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "trust in": []
+            }
+        }
+    },
+    "{{c1::wirken}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "to have an effect on": []
+            }
+        }
+    },
+    "{{c1::zählen}} {{c2::auf}} +{{c3::Akk}}": {
+        "translations": {
+            "ru": {
+                "count on": []
+            }
+        }
+    },
+    "{{c1::zögern}} {{c2::bei}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "hesitate at": []
+            }
+        }
+    },
+    "{{c1::zögern}} {{c2::mit}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "hesitate with": []
+            }
+        }
+    },
+    "{{c1::zunehmen}} {{c2::an}} +{{c3::Dat}}": {
+        "translations": {
+            "ru": {
+                "increase in": []
+            }
+        }
+    }
+}

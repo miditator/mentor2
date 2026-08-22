@@ -16,6 +16,7 @@ import uuid # 🔥 Добавили
 from api.routers.translator import apply_semantic_markup
 import ai_service
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+import time
 
 SEPARATOR = "___"
 BUTTONS_LOCKS = {}
@@ -201,15 +202,23 @@ def handle_global_quiz_actions(call):
 
 
 # --- ОТВЕТЫ ВИКТОРИНЫ ---
+# --- ОТВЕТЫ ВИКТОРИНЫ ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith("qans_"))
 def handle_quiz_timer_answer(call):
     chat_id = call.message.chat.id
     message_id = call.message.message_id
-    utils.clear_pending_quiz(chat_id)
 
     is_correct = (call.data.split('_')[1] == '1')
+
     if is_correct:
+        # 🔥 1. Очищаем викторину из памяти ТОЛЬКО при правильном ответе
+        utils.clear_pending_quiz(chat_id)
+
         bot.answer_callback_query(call.id, "✅ Правильно!")
+
+        # 🔥 2. Обнуляем счетчик: бот начнет интервальный отсчет до СЛЕДУЮЩЕЙ викторины с этой секунды
+        utils.LAST_TASK_TIME[chat_id] = time.time()
+
         try:
             bot.delete_message(chat_id, message_id)
         except:
@@ -274,42 +283,5 @@ def handle_task_help_callback(call):
         bot.send_message(chat_id, f"Ошибка ИИ: {e}")
 
 
-# --- ПЕРЕВОДЧИК В ЧАТЕ (СВОБОДНЫЙ ВВОД ТЕКСТА) ---
-# --- ПЕРЕВОДЧИК В ЧАТЕ (СВОБОДНЫЙ ВВОД ТЕКСТА) ---
-def is_free_text(message):
-    text = message.text
-    if not text or text.startswith('/'):
-        return False
-
-    # 1. Игнорируем все кнопки меню
-    system_buttons = [
-        "🎯 Новое задание", "⚙️ Настройки", "📚 Тренировать слова",
-        "➕ Добавить слово", "🔥 Интенсив по слову",
-        "🚪 Выход из тренировки", "🚪 Назад в меню"
-    ]
-    if text in system_buttons:
-        return False
-
-    # 2. Игнорируем, если сейчас идет тренировка слов по карточкам
-    from handlers.words import CURRENT_TRAINING
-    if message.chat.id in CURRENT_TRAINING:
-        return False
-
-    # 3. Игнорируем, если бот ждет слово для Интенсива или Добавления (FSM)
-    state = bot.get_state(message.from_user.id, message.chat.id)
-    if state:
-        return False
-
-    # Если все проверки пройдены — это обычный свободный текст для перевода!
-    return True
 
 
-@bot.message_handler(func=is_free_text, content_types=['text'])
-def handle_text_translation(message):
-    chat_id = message.chat.id
-
-    # Получаем язык пользователя и передаем всё в наш единый движок перевода в words.py
-    user_config = database.get_user_config(chat_id)
-    target_lang = user_config.get("source_lang", "en") if user_config else "en"
-
-    process_translation_request(chat_id, message.text.strip(), target_lang, message.from_user.id)

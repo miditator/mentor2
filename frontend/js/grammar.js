@@ -64,7 +64,7 @@ const grammarRulesDict = {
         "Much, many, little, few, some, any: Quantifiers",
         "Most, most of, the most",
         "Infinitives and gerunds: Verb patterns",
-        "How to use the verb 'go' in English",
+
         "Have to, don't have to, must, mustn't",
         "Should, shouldn't",
         "First conditional and future time clauses",
@@ -79,14 +79,14 @@ const grammarRulesDict = {
         "Past perfect",
         "Reported speech / Indirect speech",
         "Verbs with two objects",
-        "The different uses of the verb 'get'",
+
         "Do vs Make: What's the difference?",
         "Stative vs dynamic verbs (or non-action vs action verbs)",
         "Phrasal verbs: Transitive / intransitive, separable / inseparable",
         "No longer, any longer, anymore",
         "On time vs In time, At the end vs In the end",
         "May and might: What's the difference?",
-        "Auxiliary verbs: do, be and have"
+
     ],
         "B1": [
            "Present simple or present continuous",
@@ -95,14 +95,14 @@ const grammarRulesDict = {
             "Present perfect simple and present perfect continuous",
             "During, for, while",
             "Comparative and superlative adjectives and adverbs",
-            "A(n), the, no article",
+
             "Another, other, others, the other, the others",
             "Can, could, be able to: Ability and possibility",
             "Have to, must, should: Obligation, prohibition, necessity, advice",
             "Reflexive pronouns: Myself, yourself, etc.",
             "-Ed/-ing adjectives: Adjectives from verbs",
             "Past simple, past continuous, past perfect",
-            "Review of all intermediate verb tenses (CEFR B1)",
+
             "Usually, used to, be used to, get used to",
             "Passive verb forms",
             "Active and passive voice",
@@ -127,8 +127,7 @@ const grammarRulesDict = {
             "For, since, from: What's the difference?",
             "Compound adjectives with numbers: 'a two-day trip'",
             "B1 Phrasal verbs 1: Exercises and explanation",
-            "B1 Phrasal verbs 2: Exercises and explanation",
-            "B1 Phrasal verbs 3: Exercises and explanation",
+
             "Would rather & Would sooner"
         ],
 
@@ -144,7 +143,7 @@ const grammarRulesDict = {
             "Narrative tenses: All past tenses",
             "Position of adverbs and adverb phrases",
             "Future continuous and future perfect",
-            "Review of all upper-intermediate verb tenses (CEFR B2.1)",
+
             "Zero and first conditional and future time clauses",
             "Second and third conditionals: Unreal conditionals",
             "Wishes and regrets: I wish/if only",
@@ -167,7 +166,7 @@ const grammarRulesDict = {
             "Needn't, don't need to, didn't need to, needn't have",
             "Pretty, rather, quite, fairly: Adverbs of degree",
             "When I do vs When I have done: Future time clauses",
-            "Do or Make: Which is it?",
+
             "Double negatives in English"
         ],
         "B2": [
@@ -201,7 +200,7 @@ const grammarRulesDict = {
             "Passive verbs with two objects",
             "Possessive ’s with time expressions: Two hours’ walk",
             "Compound adjectives in English",
-            "50 common Noun + Preposition collocations",
+
             "Comparative structures: Modifying comparatives",
             "Reduced infinitives: Omitting the infinitive phrase after 'to'"
         ],
@@ -528,6 +527,10 @@ let grammarState = {
 // Состояние активной вкладки уровня грамматики
 let currentGrammarLevel = null;
 
+// ==========================================
+// ФАЙЛ: frontend/js/grammar.js (обновленная функция)
+// ==========================================
+
 function showGrammarMenu(selectedLevel = null) {
     window.currentAppMode = 'grammar_menu';
     setAppHeader('Тренировка Правил', true);
@@ -549,14 +552,15 @@ function showGrammarMenu(selectedLevel = null) {
     const rulesList = grammarRulesDict[lang] || grammarRulesDict['en'];
     const levels = Object.keys(rulesList);
 
-    // Определяем уровень по умолчанию или выбранный пользователем
+    // 🔥 ИСПРАВЛЕНИЕ: Берем уровень из настроек профиля (difficulty)
+    const rawUserLevel = window.userProfile?.difficulty || window.userProfile?.level || window.userProfile?.grammar_level;
+    const matchedLevel = rawUserLevel
+        ? levels.find(l => l.toLowerCase() === rawUserLevel.toLowerCase())
+        : null;
+
     if (selectedLevel) {
         currentGrammarLevel = selectedLevel;
-    } else if (!currentGrammarLevel) {
-        const rawUserLevel = window.userProfile?.level || window.userProfile?.grammar_level;
-        const matchedLevel = rawUserLevel
-            ? levels.find(l => l.toLowerCase() === rawUserLevel.toLowerCase())
-            : null;
+    } else {
         currentGrammarLevel = matchedLevel || levels[0];
     }
 
@@ -587,7 +591,6 @@ function showGrammarMenu(selectedLevel = null) {
 
     html += `</div>`;
 
-    // 🔥 ИСПОЛЬЗУЕМ КЛАССЫ СЛОВАРЯ ДЛЯ КАРТОЧЕК ПРАВИЛ
     const rules = rulesList[currentGrammarLevel] || [];
 
     html += `<div style="display: flex; flex-direction: column; width: 100%; padding-top: 5px;">`;
@@ -597,7 +600,6 @@ function showGrammarMenu(selectedLevel = null) {
         const chevronIcon = typeof APP_ICONS !== 'undefined' && APP_ICONS.chevronDown ? APP_ICONS.chevronDown : '▼';
 
         html += `
-            <!-- Класс dict-word-card из словаря -->
             <div class="dict-word-card" onclick="explainRule('${safeRuleAttr}')">
                 <span style="color: #f8fafc; font-size: 14px; font-weight: 500; text-align: left; padding-right: 10px; line-height: 1.3;">${rule}</span>
                 <span style="color: rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: rgba(255,255,255,0.05); border-radius: 6px; flex-shrink: 0;">
@@ -610,7 +612,6 @@ function showGrammarMenu(selectedLevel = null) {
     html += `</div></div>`;
     chatContainer.innerHTML = html;
 
-    // Восстанавливаем позицию прокрутки вкладок
     const newTabsContainer = document.getElementById('grammar-tabs-container');
     if (newTabsContainer) {
         newTabsContainer.scrollLeft = savedScrollLeft;

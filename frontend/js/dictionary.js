@@ -289,7 +289,6 @@ function startSelectedTraining() {
 
     let trainingWords = wordsToTrain.map(w => {
         return {
-            // 🔥 Теперь фронтенд получает настоящий w.id из базы данных!
             id: w.id,
             foreign: w.word_foreign || w.foreign || w[0],
             ru: w.word_ru || w.ru || w[1],
@@ -298,7 +297,7 @@ function startSelectedTraining() {
     });
 
     window.currentAppMode = 'training';
-    setAppHeader('🎯 Тренировка слов', true);
+    setAppHeader('Выбранные слова', true); // 🔥 Динамический заголовок
 
     document.getElementById('input-container').style.display = 'flex';
     document.getElementById('text-input-row').style.display = 'flex';
@@ -316,6 +315,9 @@ function startSelectedTraining() {
         trainingState.currentIndex = 0;
         trainingState.totalWords = trainingWords.length;
         trainingState.completedWords = 0;
+
+        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Жестко задаем режим конкретных слов
+        trainingState.mode = 'specific';
 
         const chatContainer = document.getElementById('chat-messages');
         chatContainer.innerHTML = '';

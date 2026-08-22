@@ -52,6 +52,7 @@ def help_task(data: TaskHelpData):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+
 @router.post("/tasks/check")
 def check_task(data: TaskAnswerData):
     try:
@@ -67,7 +68,6 @@ def check_task(data: TaskAnswerData):
         target_lang = user_config.get("source_lang", "en") if user_config else "en"
         lang_name = "английском" if target_lang == "en" else "немецком"
 
-        # 🔥 Вызываем новую универсальную функцию (возвращает dict)
         ai_result = ai_service.check_translation_ai(
             original_phrase=active["phrase"],
             reference_phrase=reference_phrase,
@@ -78,17 +78,22 @@ def check_task(data: TaskAnswerData):
             chat_id=data.chat_id
         )
 
-        # 🔥 Достаем готовые значения прямо из JSON-словаря
         is_correct = ai_result.get("is_correct", False)
         clean_feedback = ai_result.get("feedback", "Нет комментария")
+
+        # 🔥 Достаем правильный вариант из ИИ
+        correct_phrase = ai_result.get("correct_phrase", reference_phrase)
 
         if is_correct:
             database.delete_active_task(data.chat_id)
             database.add_successful_completion(data.chat_id)
-            result = {"success": True, "is_correct": True, "feedback": f"✅ <b>Отлично! Перевод верный.</b>\n{clean_feedback}"}
+            result = {"success": True, "is_correct": True,
+                      "feedback": f"✅ <b>Отлично! Перевод верный.</b>\n{clean_feedback}",
+                      "correct_phrase": correct_phrase}
         else:
             database.increment_help_count(data.chat_id)
-            result = {"success": True, "is_correct": False, "feedback": f"❌ <b>Ошибка:</b>\n{clean_feedback}"}
+            result = {"success": True, "is_correct": False, "feedback": f"❌ <b>Ошибка:</b>\n{clean_feedback}",
+                      "correct_phrase": correct_phrase}
 
         print_debug_box("POST /tasks/check (RESULT)", result)
         return result
@@ -97,9 +102,8 @@ def check_task(data: TaskAnswerData):
         return {"success": False, "error": str(e)}
 
 
-
 @router.get("/grammar/new-lego")
-def get_lego_grammar_task(chat_id: int, rule: str, pattern_tag: str = "default_mix", difficulty: str = None,
+def get_lego_grammar_task(chat_id: int, rule: str = "random", pattern_tag: str = "default_mix", difficulty: str = None,
                           only_my_vocab: bool = False):
     try:
         user_config = database.get_user_config(chat_id)
@@ -108,6 +112,30 @@ def get_lego_grammar_task(chat_id: int, rule: str, pattern_tag: str = "default_m
 
         final_difficulty = difficulty if difficulty else user_config.get("difficulty", "A1")
 
+        # 🔥 УМНЫЙ ВЫБОР ПРАВИЛА (СЛАБЫЕ МЕСТА ИЛИ СЛУЧАЙНОЕ)
+        final_rule = rule
+        if not rule or rule.lower() == "random":
+            lang_markers = api.content_engine.MARKERS_DB.get(target_lang, {})
+            all_rules = list(lang_markers.keys())
+            weaknesses = database.get_active_weaknesses(chat_id)
+
+            if all_rules:
+                # С вероятностью 70% даем правило из слабых мест (если они есть)
+                if weaknesses and random.random() < 0.70:
+                    weak_topics = [w["topic"] for w in weaknesses]
+                    # Фильтруем, чтобы правило точно существовало в базе маркеров
+                    valid_weak_topics = [t for t in weak_topics if t in all_rules]
+
+                    if valid_weak_topics:
+                        final_rule = random.choice(valid_weak_topics)
+                    else:
+                        final_rule = random.choice(all_rules)
+                else:
+                    # 30% шанс (или если слабых мест нет) — случайное новое правило
+                    final_rule = random.choice(all_rules)
+            else:
+                final_rule = "General Grammar"
+
         # 🔥 ВЫБОР ИСТОЧНИКА СЛОВА
         if only_my_vocab:
             words = database.get_words_for_grammar_context(chat_id, limit=10)
@@ -115,12 +143,13 @@ def get_lego_grammar_task(chat_id: int, rule: str, pattern_tag: str = "default_m
         else:
             lang_vocab = api.content_engine.VOCAB_DB.get(target_lang, {})
             level_dict = lang_vocab.get(final_difficulty.upper().replace("А", "A"), {})
-            all_level_words = level_dict.get("verbs", []) + level_dict.get("nouns", []) + level_dict.get("adjectives", [])
+            all_level_words = level_dict.get("verbs", []) + level_dict.get("nouns", []) + level_dict.get("adjectives",
+                                                                                                         [])
 
             if all_level_words:
                 chosen_obj = random.choice(all_level_words)
 
-                # 🔥 БРОНЯ: Защитное извлечение данных, независимо от того, что пришло из памяти
+                # 🔥 БРОНЯ: Защитное извлечение данных
                 raw_target_word = chosen_obj["word"] if isinstance(chosen_obj, dict) else chosen_obj
                 word_id = chosen_obj.get("id", 0) if isinstance(chosen_obj, dict) else 0
 
@@ -139,7 +168,7 @@ def get_lego_grammar_task(chat_id: int, rule: str, pattern_tag: str = "default_m
             lang_name=lang_name,
             target_word=target_word,
             difficulty=final_difficulty,
-            rule=rule,
+            rule=final_rule,  # 👈 ПЕРЕДАЕМ НАШ УМНЫЙ FINAL_RULE
             rule_pattern_tag=pattern_tag,
             lang=target_lang,
             chat_id=chat_id
@@ -148,13 +177,14 @@ def get_lego_grammar_task(chat_id: int, rule: str, pattern_tag: str = "default_m
         ru_phrase = task_data.get("russian_phrase", "Ошибка генерации")
         foreign_phrase = task_data.get("foreign_phrase", "")
 
-        database.save_active_task(chat_id, ru_phrase, rule, foreign_phrase)
+        # 👈 Сохраняем и отдаем на фронтенд то правило, которое выбрал скрипт
+        database.save_active_task(chat_id, ru_phrase, final_rule, foreign_phrase)
 
         return {
             "success": True,
             "phrase": ru_phrase,
             "target_word": target_word,
-            "rule": rule,
+            "rule": final_rule,
             "warning": warning_message
         }
     except Exception as e:

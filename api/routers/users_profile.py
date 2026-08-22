@@ -9,17 +9,15 @@ router = APIRouter(prefix="/api", tags=["Users_Profile"])
 
 
 @router.get("/profile")
-def get_user_profile(chat_id: int, username: str = "Пользователь"):
-    # 🔥 НОВОЕ: Запускаем или возобновляем таймер при каждом открытии профиля
+def get_user_profile(chat_id: int):
+    # 🔥 Запускаем или возобновляем таймер при каждом открытии профиля
     start_or_resume_timer(chat_id)
-
-    database.update_user_setting(chat_id, "username", username)
 
     config_data = database.get_user_config(chat_id)
     is_new = not config_data or not config_data.get("source_lang") or not config_data.get("difficulty")
 
     if is_new:
-        return {"success": True, "is_new_user": True, "username": username}
+        return {"success": True, "is_new_user": True}
 
     words = database.get_full_dictionary(chat_id)
     words_count = len(words) if words else 0
@@ -41,9 +39,13 @@ def get_user_profile(chat_id: int, username: str = "Пользователь"):
         "phrases_per_day": phrases_per_day,
         "words_today": words_today,
         "phrases_today": phrases_today,
-        "username": config_data.get("username", username),
         "active_task": active_task,
-        "ai_provider": config_data.get("ai_provider", "groq")
+        "ai_provider": config_data.get("ai_provider", "groq"),
+
+        # 🔥 ДОБАВЛЯЕМ ПЕРЕДАЧУ НОВЫХ НАСТРОЕК ВО ФРОНТЕНД
+        "tts_voice_en": config_data.get("tts_voice_en"),
+        "tts_voice_de": config_data.get("tts_voice_de"),
+        "tts_rate": config_data.get("tts_rate", "-15%")
     }
 
 

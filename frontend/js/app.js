@@ -392,34 +392,45 @@ apiFetch(`/profile?chat_id=${user.id}&username=${telegramName}`)
     .catch(err => console.error(err));
 
 function exitToMainMenu() {
-    // 🔥 ПЕРЕХВАТ ВЫХОДА ИЗ ТРЕНИРОВКИ ГРАММАТИКИ
-    // Если мы находимся внутри тренировки, возвращаем пользователя в меню выбора правил
+    // 1. 🔥 ПЕРЕХВАТ ВЫХОДА ИЗ ТРЕНИРОВКИ СЛОВ
+    if (window.currentAppMode === 'training' && typeof showTrainingMenu === 'function') {
+        const chatContainer = document.getElementById('chat-messages');
+        const isInsideTrainingMenu = chatContainer && chatContainer.innerHTML.includes('Мой словарь');
+        if (!isInsideTrainingMenu) {
+            document.getElementById('input-container').style.display = 'none';
+            const inputEl = document.getElementById('user-input');
+            if (inputEl) inputEl.blur();
+            showTrainingMenu();
+            return;
+        }
+    }
+
+    // 2. 🔥 ПЕРЕХВАТ ВЫХОДА ИЗ ТРЕНИРОВКИ ГРАММАТИКИ
     if (window.currentAppMode === 'grammar_training' && typeof showGrammarMenu === 'function') {
         showGrammarMenu();
         return;
     }
-    // 3. 🔥 ПЕРЕХВАТ ВОЗВРАТА ИЗ ЧАТА ОБРАТНО В КАРТОЧКУ С ОШИБКОЙ
+
+    // 3. 🔥 ПЕРЕХВАТ ВОЗВРАТА ИЗ ЧАТА ОБРАТНО В КАРТОЧКУ
     if (window.currentAppMode === 'live_chat' && window.modeBeforeChat && window.htmlBeforeChat) {
-        window.currentAppMode = window.modeBeforeChat; // Возвращаем режим (task или intensity)
-
+        window.currentAppMode = window.modeBeforeChat;
         const chatContainer = document.getElementById('chat-messages');
-        if (chatContainer) chatContainer.innerHTML = window.htmlBeforeChat; // Восстанавливаем карточку
-
-        // Восстанавливаем правильный заголовок в зависимости от режима
+        if (chatContainer) chatContainer.innerHTML = window.htmlBeforeChat;
         setAppHeader(
             window.currentAppMode === 'task' ? 'Фраза для тренировки' :
             window.currentAppMode === 'intensity_active' ? 'Интенсив со словом' :
             'Тренировка грамматики', true
         );
-
-        // Сбрасываем сохраненку
         window.modeBeforeChat = null;
         window.htmlBeforeChat = null;
-
-        // Прячем нижнюю строку ввода (так как в карточке ошибки свои кнопки)
         if (document.getElementById('text-input-row')) document.getElementById('text-input-row').style.display = 'none';
+        return;
+    }
 
-        return; // ⛔️ Останавливаем выход в главное меню
+    // 4. 🔥 ПЕРЕХВАТ ВЫХОДА ИЗ ПОДМЕНЮ НАСТРОЕК (НОВОЕ!)
+    if (window.currentAppMode === 'settings_sub' && typeof renderSettingsMenu === 'function') {
+        renderSettingsMenu();
+        return; // ⛔️ Возвращаемся в основное меню настроек, а не в главное меню
     }
 
     // Стандартная логика возврата в главное меню для всех остальных разделов
@@ -435,7 +446,6 @@ function exitToMainMenu() {
 
     document.getElementById('mini-profile').style.display = 'flex';
 
-    // 🔥 Возвращаем видимость прогресс-баров в главном меню
     const progressBannerEl = document.getElementById('progress-banner-block');
     if (progressBannerEl) progressBannerEl.style.display = 'flex';
 

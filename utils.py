@@ -1,3 +1,4 @@
+import datetime
 import time
 import random
 import threading
@@ -17,6 +18,41 @@ LAST_TASK_TIME = {}
 PENDING_QUIZ = {}
 WEB_APP_URL = "https://mentorapp.duckdns.org/"
 REMINDER_DELAY = 3600
+LAST_PLAN_DATE = {}
+
+MORNING_RULE = {}  # 👈 Добавь в начало файла, если еще нет
+
+
+def send_morning_plan(chat_id):
+    """Формирует и отправляет утренний план"""
+    try:
+        bot.send_chat_action(chat_id, 'typing')
+        stats = database.get_user_daily_stats(chat_id)
+
+        # 👈 Достаем конфиг пользователя, чтобы узнать его уровень
+        user_config = database.get_user_config(chat_id)
+        difficulty = user_config.get("difficulty", "A1") if user_config else "A1"
+
+        # Передаем статистику, слабые стороны и уровень сложности в промпт
+        prompt = aiPrompts.morning_plan_prompt(stats, stats.get('weaknesses', []), difficulty)
+
+        # Запрашиваем ответ (температуру ставим 0.7, чтобы ИИ каждый день выбирал РАЗНЫЕ правила)
+        plan_text = ask_ai(prompt, temperature=0.7, chat_id=chat_id)
+
+        markup = InlineKeyboardMarkup()
+        deep_link_url = WEB_APP_URL + "?page=task"
+        markup.row(InlineKeyboardButton(text="🚀 Начать тренировку", web_app=WebAppInfo(url=deep_link_url)))
+
+        bot.send_message(
+            chat_id,
+            f"☀️ <b>Твой план на сегодня:</b>\n\n{plan_text}",
+            reply_markup=markup,
+            parse_mode="HTML"
+        )
+        return True
+    except Exception as e:
+        print(f"❌ Ошибка отправки утреннего плана для {chat_id}: {e}")
+        return False
 
 def clear_pending_quiz(chat_id):
     if chat_id in PENDING_QUIZ:
@@ -30,8 +66,8 @@ def send_fun_fact_reminder(chat_id, word):
         fact = ask_ai(prompt, temperature=0.7, chat_id=chat_id)
         bot.send_message(
             chat_id,
-            f"👀 Эй, викторина всё еще ждет твоего ответа!\n\n"
-            f"А пока ты думаешь, вот интересный факт о слове <b>{word}</b>:\n\n"
+
+            f"Интересный факт о слове <b>{word}</b>:\n\n"
             f"<i>{fact}</i>",
             parse_mode="HTML"
         )
@@ -52,6 +88,7 @@ def start_or_resume_timer(chat_id):
 def pause_timer(chat_id):
     TIMER_STATES[chat_id] = "paused"
 
+
 def send_question_timer_loop(chat_id):
     while True:
         try:
@@ -61,25 +98,58 @@ def send_question_timer_loop(chat_id):
                 time.sleep(5)
                 continue
 
+            now_dt = datetime.now()
+            current_hour = now_dt.hour
+            current_date = now_dt.date()
+            is_daytime = 8 <= current_hour < 23
+
             now = time.time()
             pending = PENDING_QUIZ.get(chat_id)
+
+            # --- БЛОК 1: ОБРАБОТКА НАПОМИНАНИЙ (ФАКТОВ) ---
             if pending:
                 if now - pending["time"] > REMINDER_DELAY:
                     if not pending.get("reminded"):
-                        PENDING_QUIZ[chat_id]["reminded"] = True
-                        PENDING_QUIZ[chat_id]["time"] = now
-                        threading.Thread(target=send_fun_fact_reminder, args=(chat_id, pending["word"])).start()
+                        if is_daytime:
+                            PENDING_QUIZ[chat_id]["reminded"] = True
+                            PENDING_QUIZ[chat_id]["time"] = now
+                            threading.Thread(target=send_fun_fact_reminder, args=(chat_id, pending["word"])).start()
                     else:
                         clear_pending_quiz(chat_id)
                         LAST_TASK_TIME[chat_id] = 0
                 time.sleep(5)
                 continue
 
+            # 🔥 БЛОК 2: УТРЕННИЙ ПЛАН (ЖЕСТКО В 10:00 ИЛИ ПОЗЖЕ)
+            # Вынесли ВЫШЕ проверки интервала!
+            if current_hour >= 10 and LAST_PLAN_DATE.get(chat_id) != current_date:
+                if not GENERATION_LOCKS.get(chat_id):
+                    GENERATION_LOCKS[chat_id] = True
+                    try:
+                        success = send_morning_plan(chat_id)
+                        if success:
+                            LAST_PLAN_DATE[chat_id] = current_date
+                    finally:
+                        GENERATION_LOCKS[chat_id] = False
+                        # Сбрасываем таймер, чтобы после плана было "окно" до следующей фразы
+                        LAST_TASK_TIME[chat_id] = time.time()
+                time.sleep(5)
+                continue
+
+            # --- БЛОК 3: ОБЫЧНЫЕ ЗАДАНИЯ ПО ИНТЕРВАЛУ ---
             last_time = LAST_TASK_TIME.get(chat_id, now)
+
+            # Если интервал еще не прошел — спим
             if now - last_time < config.TASK_INTERVAL:
                 time.sleep(5)
                 continue
 
+            # Ночью ничего не шлем
+            if not is_daytime:
+                time.sleep(60)
+                continue
+
+            # Отправка карточки
             if not GENERATION_LOCKS.get(chat_id):
                 GENERATION_LOCKS[chat_id] = True
                 try:
@@ -90,6 +160,7 @@ def send_question_timer_loop(chat_id):
             else:
                 time.sleep(5)
         except Exception as err:
+            print(f"Ошибка в таймере: {err}")
             time.sleep(5)
 
 def get_task_markup():

@@ -110,18 +110,7 @@ def check_word_level_and_fallback(target_word: str, user_level: str, lang: str) 
         "adjectives", [])
     fallback_word = random.choice(available_words) if available_words else clean_word
 
-    # Если слово ЕСТЬ в словаре, но уровень не совпал — делаем замену
-    if word_in_any_level:
-        warning_text = (
-            f"Слово <b>«{clean_word}»</b> относится к уровню <b>{actual_found_level}</b> и не подходит для текущей тренировки ({user_level_upper}). "
-            f"Вместо него для задания случайно выбрано слово из вашего уровня: <b>«{fallback_word}»</b>."
-        )
-        return {
-            "is_appropriate": False,
-            "word": fallback_word,
-            "fallback_word": fallback_word,
-            "message": warning_text
-        }
+   
 
     # 3. Если слова вообще НЕТ в словаре (пользовательское кастомное слово) — оставляем его!
     return {

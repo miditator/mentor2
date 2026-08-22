@@ -1,70 +1,146 @@
 {
+  "Präsens (Regelmäßige, unregelmäßige & trennbare Verben)": {
+    "type": "mandatory_choice",
+    "markers": ["fährt", "liest", "kauft ... ein", "sieht ... fern", "schläft", "nimmt", "steht ... auf"]
+  },
   "Modalverben (können, müssen, wollen, dürfen)": {
     "type": "mandatory_choice",
-    "markers": ["können", "müssen", "wollen", "dürfen", "sollen", "mögen"]
+    "markers": ["kann", "muss", "will", "darf", "können", "müssen", "wollen", "dürfen"]
+  },
+  "Nominativ und Akkusativ": {
+    "type": "mandatory_choice",
+    "markers": ["den", "einen", "keinen", "mich", "dich"]
   },
   "Possessivartikel": {
     "type": "mandatory_choice",
-    "markers": ["mein", "dein", "sein", "ihr", "unser", "euer", "Ihr"]
+    "markers": ["mein", "dein", "sein", "ihr", "unser", "euer", "meinen", "seinen"]
   },
   "Negation (nicht / kein)": {
     "type": "mandatory_choice",
-    "markers": ["nicht", "kein", "keine", "keinen", "nichts", "niemand"]
+    "markers": ["nicht", "kein", "keine", "keinen", "gar nicht", "überhaupt nicht"]
   },
   "Fragesätze (W-Fragen & Ja/Nein-Fragen)": {
     "type": "mandatory_choice",
-    "markers": ["wer", "was", "wann", "wo", "warum", "wie", "welche", "woher", "wohin"]
+    "markers": ["Wer", "Was", "Wo", "Wann", "Warum", "Wie", "Woher", "Wohin"]
   },
   "Präpositionen mit Akkusativ (für, ohne, gegen)": {
     "type": "mandatory_choice",
-    "markers": ["für", "ohne", "gegen", "durch", "um", "bis", "entlang"]
+    "markers": ["für", "ohne", "gegen", "durch", "um"]
+  },
+
+  "Perfekt (mit haben & sein)": {
+    "type": "mandatory_choice",
+    "markers": ["habe ... gemacht", "ist ... gegangen", "sind ... gefahren", "hat ... gesehen", "bin ... geblieben"]
   },
   "Präteritum (nur sein, haben & Modalverben)": {
     "type": "mandatory_choice",
-    "markers": ["war", "hatte", "musste", "konnte", "wollte", "durfte", "sollte"]
+    "markers": ["war", "waren", "hatte", "hatten", "musste", "konnte", "wollte", "durfte"]
   },
   "Dativ & Präpositionen mit Dativ (aus, bei, mit, nach...)": {
     "type": "mandatory_choice",
-    "markers": ["aus", "bei", "mit", "nach", "seit", "von", "zu", "außer", "gegenüber"]
+    "markers": ["aus", "bei", "mit", "nach", "seit", "von", "zu", "dem", "der"]
   },
   "Wechselpräpositionen (Ort: Wo? vs. Wohin?)": {
     "type": "mandatory_choice",
-    "markers": ["in", "an", "auf", "neben", "hinter", "über", "unter", "vor", "zwischen"]
+    "markers": ["in die", "in der", "auf den", "auf dem", "an die", "an der", "unter den", "unter dem"]
   },
   "Nebensätze (weil, dass, wenn)": {
     "type": "mandatory_choice",
-    "markers": ["weil", "dass", "wenn", "als", "ob", "damit"]
+    "markers": [", weil", ", dass", ", wenn"]
+  },
+  "Komparativ und Superlativ": {
+    "type": "mandatory_choice",
+    "markers": ["besser als", "am besten", "schneller als", "am schnellsten", "mehr als", "am meisten"]
+  },
+  "Reflexive Verben": {
+    "type": "mandatory_choice",
+    "markers": ["mich", "dich", "sich", "uns", "euch", "mir", "dir"]
+  },
+
+  "Präteritum (alle Verben)": {
+    "type": "mandatory_choice",
+    "markers": ["ging", "sagte", "machte", "gab", "kam", "wurde", "sah", "fand"]
+  },
+  "Passiv Präsens & Präteritum": {
+    "type": "mandatory_choice",
+    "markers": ["wird ... gemacht", "wurde ... gebaut", "werden ... verkauft", "wurden ... gefunden", "wird ... geschrieben"]
+  },
+  "Relativsätze": {
+    "type": "mandatory_choice",
+    "markers": [", der", ", die", ", das", ", den", ", dem", ", denen"]
   },
   "Konjunktiv II (Wünsche, Ratschläge, Höflichkeit)": {
     "type": "mandatory_choice",
-    "markers": ["würde", "hätte", "wäre", "sollte", "könnte"]
+    "markers": ["würde", "hätte", "wäre", "könnte", "sollte", "müsste"]
   },
   "Infinitiv mit zu & um...zu": {
     "type": "mandatory_choice",
-    "markers": ["um ... zu", "ohne ... zu", "anstatt ... zu", "zu"]
+    "markers": ["zu machen", "um ... zu", "ohne ... zu", "anstatt ... zu", "zu gehen", "zu helfen"]
+  },
+  "Genitiv": {
+    "type": "mandatory_choice",
+    "markers": ["des", "wegen", "trotz", "während", "innerhalb", "außerhalb"]
+  },
+  "N-Deklination": {
+    "type": "mandatory_choice",
+    "markers": ["den Studenten", "dem Kollegen", "einen Jungen", "den Herrn", "des Menschen"]
   },
   "Konjunktionen (obwohl, trotzdem, deshalb)": {
     "type": "mandatory_choice",
-    "markers": ["obwohl", "trotzdem", "deshalb", "da", "denn", "darum", "deswegen"]
+    "markers": [", obwohl", "trotzdem", "deshalb", "darum", "deswegen", ", da"]
+  },
+
+  "Passiv (alle Zeiten & mit Modalverben)": {
+    "type": "mandatory_choice",
+    "markers": ["muss ... werden", "kann ... werden", "ist ... worden", "war ... worden", "soll ... werden"]
+  },
+  "Konjunktiv II der Vergangenheit (Irreale Bedingungen)": {
+    "type": "mandatory_choice",
+    "markers": ["hätte ... gemacht", "wäre ... gegangen", "hätte ... gehabt", "wäre ... gewesen", "hätte ... gesehen"]
   },
   "Zweiteilige Konnektoren (entweder...oder, weder...noch)": {
     "type": "mandatory_choice",
     "markers": ["entweder ... oder", "weder ... noch", "sowohl ... als auch", "nicht nur ... sondern auch", "zwar ... aber"]
   },
+  "Verben, Adjektive & Nomen mit festen Präpositionen": {
+    "type": "mandatory_choice",
+    "markers": ["warten auf", "interessieren für", "stolz auf", "Angst vor", "denken an", "träumen von", "bitten um"]
+  },
+  "Partizipialattribute (Partizip I & II als Adjektiv)": {
+    "type": "mandatory_choice",
+    "markers": ["der lachende", "die weinende", "das gestohlene", "der reparierte", "die gekaufte", "der fließende"]
+  },
+  "Plusquamperfekt": {
+    "type": "mandatory_choice",
+    "markers": ["hatte ... gemacht", "war ... gegangen", "nachdem", "hatte ... gesehen", "war ... angekommen"]
+  },
   "Relativsätze (mit Präpositionen & 'was/wo')": {
     "type": "mandatory_choice",
-    "markers": ["was", "wo", "wofür", "worüber", "womit", "worauf"]
+    "markers": [", mit dem", ", für den", ", worüber", ", womit", ", was", ", wo"]
   },
+
   "Konjunktiv I (Indirekte Rede)": {
     "type": "mandatory_choice",
-    "markers": ["sei", "habe", "werde", "könne", "müsse"]
+    "markers": ["er sei", "sie habe", "er werde", "sie mache", "er gehe", "sie könne"]
   },
   "Passiversatzformen (sich lassen, -bar, -fähig, sein zu)": {
     "type": "mandatory_choice",
-    "markers": ["sich lassen", "sein zu"]
+    "markers": ["lässt sich", "ist ... zu", "ist lösbar", "ist machbar", "ist erklärbar", "ist zu verstehen"]
+  },
+  "Nominalstil vs. Verbalstil": {
+    "type": "mandatory_choice",
+    "markers": ["aufgrund", "zwecks", "bei Ankunft", "nach Beendigung", "infolge", "zur Verbesserung"]
+  },
+  "Funktionsverbgefüge (z.B. eine Entscheidung treffen)": {
+    "type": "mandatory_choice",
+    "markers": ["eine Entscheidung treffen", "in Anspruch nehmen", "zur Verfügung stehen", "Abschied nehmen", "in Erwägung ziehen"]
   },
   "Subjektive Bedeutung der Modalverben (Er soll krank sein)": {
     "type": "mandatory_choice",
-    "markers": ["soll", "will", "muss", "mag", "kann", "könnte"]
+    "markers": ["soll ... sein", "muss ... gewesen sein", "will ... gesehen haben", "dürfte ... sein", "soll ... haben"]
+  },
+  "Erweiterte Partizipialattribute": {
+    "type": "mandatory_choice",
+    "markers": ["die von ihm geschriebene", "das gestern gekaufte", "der schnell fahrende", "die auf dem Tisch liegende"]
   }
 }
