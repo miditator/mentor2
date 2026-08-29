@@ -5,6 +5,8 @@ from typing import List, Dict, Optional
 DB_NAME = "ai_memory.db"
 
 
+
+
 def get_connection():
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
@@ -95,6 +97,25 @@ def init_live_chat_db():
                        content
                        TEXT,
                        created_at
+                       TIMESTAMP
+                       DEFAULT
+                       CURRENT_TIMESTAMP
+                   )
+                   ''')
+
+    # 4. Состояния чата пользователя (выбранный режим)
+    cursor.execute('''
+                   CREATE TABLE IF NOT EXISTS chat_states
+                   (
+                       chat_id
+                       INTEGER
+                       PRIMARY
+                       KEY,
+                       current_mode
+                       TEXT
+                       DEFAULT
+                       'CHAT',
+                       updated_at
                        TIMESTAMP
                        DEFAULT
                        CURRENT_TIMESTAMP
@@ -211,3 +232,39 @@ def get_recent_chat_history(chat_id: int, limit: int = 6) -> List[Dict]:
     conn.close()
     # Возвращаем в хронологическом порядке
     return [dict(r) for r in reversed(rows)]
+
+
+
+
+
+def set_user_mode(chat_id: int, mode: str):
+    """Сохраняет текущий режим работы бота"""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Больше не используем модуль time, доверяем стандартному CURRENT_TIMESTAMP базы
+    cursor.execute('''
+                   INSERT INTO chat_states (chat_id, current_mode, updated_at)
+                   VALUES (?, ?, CURRENT_TIMESTAMP) ON CONFLICT(chat_id) DO
+                   UPDATE SET
+                       current_mode = excluded.current_mode,
+                       updated_at = CURRENT_TIMESTAMP
+                   ''', (chat_id, mode))
+    conn.commit()
+    conn.close()
+
+
+def get_user_mode(chat_id: int) -> str:
+    """Возвращает текущий режим без автопереключения"""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Теперь мы запрашиваем только сам режим, время нам не нужно
+    cursor.execute("SELECT current_mode FROM chat_states WHERE chat_id = ?", (chat_id,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return "CHAT"
+
+    return row["current_mode"]

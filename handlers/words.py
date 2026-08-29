@@ -30,7 +30,7 @@ SINGLE_WORD_SESSIONS = {}
 
 
 # ==========================================
-# 0. ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК ВЫХОДА
+# 0. ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК ВЫХОДА ИЗ ТРЕНИРОВКИ
 # ==========================================
 @bot.message_handler(func=lambda message: message.text == "🚪 Выход из тренировки")
 def global_exit_word_training(message):
@@ -57,7 +57,7 @@ def global_exit_word_training(message):
 
 
 # ==========================================
-# 1. ОБРАБОТЧИК ВЫБОРА КОЛИЧЕСТВА СЛОВ
+# 1. ЛОГИКА ТРЕНИРОВКИ СЛОВ (ИНТЕРВАЛЬНОЕ ПОВТОРЕНИЕ)
 # ==========================================
 @bot.callback_query_handler(func=lambda call: call.data.startswith("train_count_"))
 def handle_word_count_selection(call):
@@ -85,10 +85,6 @@ def handle_word_count_selection(call):
                 text=f"📊 <b>Выбран лимит сессии: {chosen_count} слов.</b>\nЗапускаю карточки...",
                 reply_markup=None, parse_mode="HTML"
             )
-        except:
-            pass
-
-        try:
             bot.send_message(chat_id, "․\n")
         except:
             pass
@@ -98,9 +94,6 @@ def handle_word_count_selection(call):
         WORDS_INLINE_LOCKS[chat_id] = False
 
 
-# ==========================================
-# 2. ЛОГИКА ТРЕНИРОВКИ СЛОВ
-# ==========================================
 def start_word_training(message_or_id):
     chat_id = message_or_id if isinstance(message_or_id, int) else message_or_id.chat.id
     utils.pause_timer(chat_id)
@@ -156,7 +149,7 @@ def send_next_card(chat_id, is_first_card=False):
             bot.send_message(chat_id, "🚀 Начинаем сессию повторения слов! Используй нижнее меню для подсказок.",
                              reply_markup=keyboard.get_training_reply_menu(), parse_mode="HTML")
 
-    bot.send_message(chat_id, f"{text_to_show}\n\n<i>(Пройдено повторений этого слова: {word_card['streak']}/3)</i>",
+    bot.send_message(chat_id, f"{text_to_show}\n\n<i>(Пройдено повторений: {word_card['streak']}/3)</i>",
                      reply_markup=keyboard.get_training_menu(), parse_mode="HTML")
 
 
@@ -205,7 +198,7 @@ def handle_training_inline(call):
     session = CURRENT_TRAINING.get(chat_id)
     if not session:
         try:
-            bot.answer_callback_query(call.id, "Сессия тренировки не найдена.")
+            bot.answer_callback_query(call.id, "Сессия устарела.")
         except:
             pass
         return
@@ -224,7 +217,7 @@ def handle_training_inline(call):
             "is_rus_to_eng"] else f"🇬🇧 Как переводится: <b>{word_card['en']}</b>?"
         try:
             bot.edit_message_text(chat_id=chat_id, message_id=call.message.message_id,
-                                  text=f"{text_to_show}\n\n<i>(Пройдено повторений этого слова: {word_card['streak']}/3)</i>",
+                                  text=f"{text_to_show}\n\n<i>(Пройдено повторений: {word_card['streak']}/3)</i>",
                                   reply_markup=keyboard.get_training_menu(), parse_mode="HTML")
         except:
             pass
@@ -235,63 +228,36 @@ def handle_training_inline(call):
         except:
             pass
         words = database.get_full_dictionary(chat_id)
-        text = "📖 <b>Твой текущий словарь:</b>\n\n" + "".join(
+        text = "📖 <b>Твой словарь:</b>\n\n" + "".join(
             [f"• {en} — {ru} (<code>{min(score * 20, 100)}%</code>)\n" for en, ru, score in words])
         bot.send_message(chat_id, text, parse_mode="HTML")
 
 
 # ==========================================
-# 3. УНИВЕРСАЛЬНЫЙ ЯДЕРНЫЙ ПРОЦЕССОР ПЕРЕВОДА (ДЛЯ СЛОВ И ТЕКСТОВ)
-# ==========================================
-# ==========================================
-# 3. УНИВЕРСАЛЬНЫЙ ЯДЕРНЫЙ ПРОЦЕССОР ПЕРЕВОДА (ДЛЯ СЛОВ И ТЕКСТОВ)
+# 1. УНИВЕРСАЛЬНЫЙ ПРОЦЕССОР ПЕРЕВОДА (СЛОВА И ТЕКСТЫ)
 # ==========================================
 def process_translation_request(chat_id, text, target_lang, user_id=None):
-    """
-    Универсальная функция перевода.
-    Сама решает: если 1-2 слова -> режим Одиночного слова. Если >2 слов -> режим Текста.
-    """
-
-    # 🔥 Умная проверка языка через ИИ (учитывает слова без умлаутов вроде "warum")
-    try:
-        if target_lang == 'en':
-            lang_check = ask_ai(f"Is this text written in German? Answer ONLY 'yes' or 'no': '{text}'", temperature=0.1,
-                                chat_id=chat_id).strip().lower()
-            if 'yes' in lang_check:
-                bot.send_message(
-                    chat_id,
-                    "⚠️ <b>Это слово на немецком языке!</b>\n"
-                    "В твоих настройках профиля выбран английский язык.",
-                    parse_mode="HTML"
-                )
-                return
-        elif target_lang == 'de':
-            lang_check = ask_ai(f"Is this text written in English? Answer ONLY 'yes' or 'no': '{text}'",
-                                temperature=0.1, chat_id=chat_id).strip().lower()
-            if 'yes' in lang_check:
-                bot.send_message(
-                    chat_id,
-                    "⚠️ <b>Это слово на английском языке!</b>\n"
-                    "В твоих настройках профиля выбран немецкий язык.",
-                    parse_mode="HTML"
-                )
-                return
-    except Exception as e:
-        print(f"⚠️ Ошибка проверки языка: {e}")
-
+    """Сама решает: если 1-2 слова -> режим Карточки. Если >2 слов -> режим Текста."""
     word_count = len(text.split())
     is_russian = bool(re.search(r'[а-яА-ЯёЁ]', text))
-    flag = "🇺🇸" if target_lang == 'en' else "🇩🇪"
+
+
+    lang_name_ru = "английскому" if target_lang == 'en' else "немецкому"
+    flag = "🇬🇧" if target_lang == 'en' else "🇩🇪"
 
     try:
         if word_count <= 2:
-            # -----------------------------------------
-            # ЛОГИКА 1: ОДИНОЧНОЕ СЛОВО ИЛИ ФРАЗОВЫЙ ГЛАГОЛ
-            # -----------------------------------------
+            # --- ЛОГИКА 1: ОДИНОЧНОЕ СЛОВО ---
             result = ai_service.translate_word_ai(text, target_lang, chat_id, is_russian)
 
-            if "error" in result and result["error"] == "nonsense":
-                bot.send_message(chat_id, "⚠️ ИИ не смог распознать это слово. Попробуй исправить опечатку.")
+            # 🔥 БЛОК ЗАЩИТЫ СЛОВАРЯ
+            if "error" in result:
+                if result["error"] == "wrong_language":
+                    bot.send_message(chat_id,
+                                     f"⚠️ <b>Внимание:</b>\nСлово «{text}» не относится к <b>{lang_name_ru}</b> языку!\n",
+                                     parse_mode="HTML")
+                else:
+                    bot.send_message(chat_id, "⚠️ ИИ не смог распознать это слово. Попробуй исправить опечатку.")
                 return
 
             details = result.get("details", {})
@@ -320,22 +286,22 @@ def process_translation_request(chat_id, text, target_lang, user_id=None):
             markup = InlineKeyboardMarkup(row_width=2)
             markup.add(
                 InlineKeyboardButton(text="❌ Отмена", callback_data=f"sw_cancel_{session_id}"),
-                InlineKeyboardButton(text="➕ Добавить", callback_data=f"sw_add_{session_id}")
+                InlineKeyboardButton(text="➕ В словарь", callback_data=f"sw_add_{session_id}")
             )
             bot.send_message(chat_id, msg_text, reply_markup=markup, parse_mode="HTML")
 
         else:
-            # -----------------------------------------
-            # ЛОГИКА 2: РАЗБОР ЦЕЛОГО ТЕКСТА
-            # -----------------------------------------
+            # --- ЛОГИКА 2: РАЗБОР ЦЕЛОГО ТЕКСТА ---
             prompt = aiPrompts.translate_and_extract_text_prompt(text, target_lang)
             full_prompt = (
                 "[Системная инструкция: Верни СТРОГО JSON объект. Без markdown блоков. "
-                "Важно: Для каждого извлеченного слова в поле 'translation' обязательно напиши 2-3 его самых частых значения через запятую (если они есть).]\n\n"
+                f"Важно: Если этот текст написан НЕ на {lang_name_ru} языке (или не на русском), верни пустой JSON: {{\"translation\": \"\", \"words\": []}}. "
+                "Для каждого извлеченного слова в поле 'translation' напиши 2-3 самых частых значения.]\n\n"
                 f"{prompt}"
             )
 
-            raw_ai = ask_ai(full_prompt, temperature=0.3)
+            # Для текстов тоже ставим низкую температуру, чтобы не фантазировал
+            raw_ai = ask_ai(full_prompt, temperature=0.1)
 
             cleaned = re.sub(r'```(?:json)?\s*(\{.*?\})\s*```', r'\1', raw_ai, flags=re.DOTALL).strip()
             start = cleaned.find('{')
@@ -346,8 +312,8 @@ def process_translation_request(chat_id, text, target_lang, user_id=None):
             translated_text = data.get("translation", "")
             words_list = data.get("words", [])
 
-            if not translated_text:
-                bot.send_message(chat_id, "❌ Не удалось перевести текст. Попробуй еще раз.")
+            if not translated_text and not words_list:
+                bot.send_message(chat_id, f"❌ Текст не распознан. Убедись, что он относится к {lang_name_ru} языку.")
                 return
 
             if not words_list:
@@ -365,13 +331,13 @@ def process_translation_request(chat_id, text, target_lang, user_id=None):
 
             bot.send_message(
                 chat_id,
-                f"📖 <b>Перевод текста:</b>\n{translated_text}\n\n<i>Выбери слова (нажимая на них), которые хочешь добавить в свой словарь:</i>",
+                f"📖 <b>Перевод текста:</b>\n{translated_text}\n\n<i>Выбери слова для добавления в словарь:</i>",
                 reply_markup=get_translation_markup(session_id),
                 parse_mode="HTML"
             )
 
     except Exception as e:
-        print(f"Ошибка при универсальном переводе: {e}")
+        print(f"Ошибка при переводе: {e}")
         bot.send_message(chat_id, "⚠️ Произошла ошибка. Либо текст слишком сложный, либо сервер перегружен.")
 
 
@@ -382,22 +348,18 @@ def get_translation_markup(session_id):
 
     for i, w in enumerate(session["words"]):
         icon = "✅" if w["selected"] else "➕"
-        # Обрезаем русский текст, если он слишком длинный, чтобы кнопка Telegram не ломалась
         short_ru = w['ru'][:25] + "..." if len(w['ru']) > 25 else w['ru']
         markup.add(types.InlineKeyboardButton(
             text=f"{icon} {w['foreign']}  —  {short_ru}",
             callback_data=f"tgl_w_{session_id}_{i}"
         ))
 
-    markup.add(types.InlineKeyboardButton(
-        text="💾 Добавить выбранные",
-        callback_data=f"save_w_{session_id}"
-    ))
+    markup.add(types.InlineKeyboardButton(text="💾 Сохранить", callback_data=f"save_w_{session_id}"))
     return markup
 
 
 # ==========================================
-# 4. FSM СТЕЙТЫ И КОЛЛБЭКИ (ДЛЯ ДОБАВЛЕНИЯ СЛОВ И ТЕКСТОВ)
+# 3. FSM РЕЖИМ РУЧНОГО ДОБАВЛЕНИЯ СЛОВ И КОЛЛБЭКИ
 # ==========================================
 def enter_add_word_mode(message):
     chat_id = message.chat.id
@@ -409,7 +371,7 @@ def enter_add_word_mode(message):
         chat_id,
         "⏸ <b>Режим умного переводчика активирован!</b>\n\n"
         "📥 Отправь мне <b>одно слово или абзац текста</b>.\n"
-        "Одиночное слово я приведу к начальной форме, а текст разберу на важные словарные карточки с несколькими значениями.",
+        "Одиночное слово я приведу к начальной форме, а текст разберу на важные словарные карточки.",
         reply_markup=keyboard.get_cancel_word_keyboard(),
         parse_mode="HTML"
     )
@@ -429,7 +391,7 @@ def handle_custom_word_input(message):
             active_task = database.get_active_task(chat_id)
             exit_text = "Режим перевода отключен."
             if active_task:
-                exit_text += f"\n\n⏰ <b>Напоминание:</b> ИИ-Ментор ждет перевод фразы:\n👉 <b>{active_task['phrase']}</b>"
+                exit_text += f"\n\n⏰ <b>Напоминание:</b> Ментор ждет перевод:\n👉 <b>{active_task['phrase']}</b>"
             bot.send_message(chat_id, exit_text, reply_markup=keyboard.get_main_menu(), parse_mode="HTML")
             return
 
@@ -449,12 +411,11 @@ def handle_custom_word_input(message):
 
     user_config = database.get_user_config(chat_id)
     target_lang = user_config.get("source_lang", "en")
-
     bot.send_chat_action(chat_id, 'typing')
     process_translation_request(chat_id, user_text, target_lang, user_id)
 
 
-# --- Коллбэки для ОДИНОЧНЫХ СЛОВ ---
+# --- Коллбэки для сохранений ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith("sw_"))
 def handle_single_word_buttons(call):
     chat_id = call.message.chat.id
@@ -476,17 +437,24 @@ def handle_single_word_buttons(call):
             return
 
         bot.answer_callback_query(call.id, "⏳ Добавляю...")
-        database.add_custom_word(chat_id, data["foreign"], data["ru"], specific_lang=data["target_lang"])
+        foreign, ru, lang = data["foreign"], data["ru"], data["target_lang"]
 
-        # Асинхронно кидаем в семантический граф
-        threading.Thread(target=apply_semantic_markup,
-                         args=(data["foreign"], data["ru"], data["target_lang"], chat_id)).start()
+        is_in_oxford = database.is_word_in_oxford(foreign, lang)
+        is_added = database.add_custom_word(chat_id, foreign, ru, specific_lang=lang)
+
+        if is_added:
+            if not is_in_oxford:
+                def background_bot_discovery():
+                    res = apply_semantic_markup(foreign, ru, lang, chat_id)
+                    tags = res.get("tags", []) if isinstance(res, dict) else []
+                    database.save_discovery(chat_id, foreign, ru, tags)
+
+                threading.Thread(target=background_bot_discovery).start()
+            else:
+                threading.Thread(target=apply_semantic_markup, args=(foreign, ru, lang, chat_id)).start()
 
         bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=None)
-
-        # Просто отправляем текст успеха без несуществующей клавиатуры
-        bot.send_message(chat_id, f"✅ Слово добавлено в словарь!\n<b>{data['foreign']}</b> — {data['ru']}",
-                         parse_mode="HTML")
+        bot.send_message(chat_id, f"✅ Слово добавлено в словарь!\n<b>{foreign}</b> — {ru}", parse_mode="HTML")
 
         del SINGLE_WORD_SESSIONS[session_id]
         try:
@@ -495,7 +463,6 @@ def handle_single_word_buttons(call):
             pass
 
 
-# --- Коллбэки для МАССИВА СЛОВ (ИЗ ТЕКСТА) ---
 @bot.callback_query_handler(func=lambda call: call.data.startswith("tgl_w_"))
 def handle_toggle_translation_word(call):
     parts = call.data.split("_")
@@ -525,29 +492,123 @@ def handle_save_translation_words(call):
         return
 
     saved_list = []
-
     for w in session["words"]:
         if w["selected"]:
-            is_saved = database.add_custom_word(chat_id, w["foreign"], w["ru"], specific_lang=session["target_lang"])
+            foreign, ru, lang = w["foreign"], w["ru"], session["target_lang"]
+            is_in_oxford = database.is_word_in_oxford(foreign, lang)
+            is_saved = database.add_custom_word(chat_id, foreign, ru, specific_lang=lang)
+
             if is_saved:
-                saved_list.append(f"• {w['foreign']} — {w['ru']}")
-                threading.Thread(target=apply_semantic_markup,
-                                 args=(w["foreign"], w["ru"], session["target_lang"], chat_id)).start()
+                saved_list.append(f"• {foreign} — {ru}")
+                if not is_in_oxford:
+                    def bg_multi_discovery(f=foreign, r=ru, l=lang):
+                        res = apply_semantic_markup(f, r, l, chat_id)
+                        tags = res.get("tags", []) if isinstance(res, dict) else []
+                        database.save_discovery(chat_id, f, r, tags)
+
+                    threading.Thread(target=bg_multi_discovery).start()
+                else:
+                    threading.Thread(target=apply_semantic_markup, args=(foreign, ru, lang, chat_id)).start()
 
     try:
+        bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=None)
+        if saved_list:
+            bot.send_message(chat_id, "✅ Сохранено в словарь:\n" + "\n".join(saved_list))
+        else:
+            bot.send_message(chat_id, "Ничего не выбрано.")
+        del TRANSLATION_SESSIONS[session_id]
         bot.delete_state(call.from_user.id, chat_id)
     except:
         pass
 
-    if saved_list:
-        bot.answer_callback_query(call.id, f"Сохранено {len(saved_list)} слов!")
 
-        # Формируем чистый текст успеха и убираем inline-клавиатуру
-        success_text = "✅ <b>Успешно добавлено в словарь:</b>\n" + "\n".join(saved_list)
-        try:
-            bot.edit_message_text(chat_id=chat_id, message_id=call.message.message_id, text=success_text,
-                                  reply_markup=None, parse_mode="HTML")
-        except:
-            pass
-    else:
-        bot.answer_callback_query(call.id, "Ты не выбрал ни одного слова (или они уже есть).", show_alert=True)
+# ==========================================
+# 4. ОБРАБОТКА И РАЗБОР КАРТИНОК (С ЛОГАМИ)
+# ==========================================
+def process_image_request(chat_id, base64_image, target_lang):
+    """Отправляет картинку в Vision AI и генерирует чекбоксы ТОЛЬКО для новых слов."""
+    import uuid
+    try:
+        bot.send_chat_action(chat_id, 'typing')
+        print(f"\n⚙️ [PROCESS IMAGE] Начало разбора картинки для {chat_id}")
+
+        # 1. Получаем сырые данные от ИИ
+        data = ai_service.extract_words_from_image_ai(base64_image, target_lang, chat_id)
+
+        original_text = data.get("original", "")
+        translated_text = data.get("translation", "")
+        ai_words_list = data.get("words", [])
+
+        # Проверяем, есть ли перевод или слова для вывода
+        if not translated_text and not ai_words_list:
+            bot.send_message(chat_id, "❌ Не удалось распознать или перевести текст на картинке.")
+            return
+
+        # 2. Фильтрация известных слов
+        existing_words_raw = database.get_full_dictionary(chat_id) or []
+        existing_foreign = set()
+
+        for w in existing_words_raw:
+            if isinstance(w, (list, tuple)) and len(w) > 0:
+                existing_foreign.add(str(w[0]).lower().strip())
+            elif isinstance(w, dict) and "foreign" in w:
+                existing_foreign.add(w["foreign"].lower().strip())
+
+        filtered_words = []
+        for ai_word in ai_words_list:
+            # Ищем слово по ключу 'foreign' или 'word'
+            word_str = ai_word.get("foreign", ai_word.get("word", "")).lower().strip()
+            if word_str and word_str not in existing_foreign:
+                filtered_words.append(ai_word)
+
+        print(f"⚙️ [PROCESS IMAGE] После фильтрации словаря осталось {len(filtered_words)} новых слов.")
+
+        # Случай 1: Слова найдены на картинке, но все уже есть в словаре
+        if len(ai_words_list) > 0 and len(filtered_words) == 0:
+            bot.send_message(
+                chat_id,
+                f"🇷🇺 <b>Перевод:</b>\n{translated_text}\n\n🧠 <b>Ты уже всё знаешь!</b>\nВсе найденные на фото объекты или слова уже есть в твоем словаре.",
+                parse_mode="HTML"
+            )
+            return
+
+        # Случай 2: На картинке не было отдельных слов (или они отфильтровались), есть только перевод текста
+        if not filtered_words:
+            bot.send_message(chat_id, f"🇷🇺 <b>Перевод:</b>\n{translated_text}", parse_mode="HTML")
+            return
+
+        # 3. Создаем сессию с ЖЕЛЕЗОБЕТОННЫМ извлечением ключей
+        session_words = []
+        for w in filtered_words:
+            # Достаем иностранное слово (пробуем разные ключи)
+            f_word = w.get("foreign", w.get("word", "")).strip()
+            # Достаем перевод (пробуем разные ключи)
+            r_word = w.get("ru", w.get("translation", "")).strip()
+
+            print(f"   👉 Формируем кнопку: {f_word} — {r_word}")
+
+            if f_word and r_word:  # Добавляем только если оба поля не пустые
+                session_words.append({"foreign": f_word, "ru": r_word, "selected": False})
+
+        session_id = str(uuid.uuid4())[:8]
+        TRANSLATION_SESSIONS[session_id] = {
+            "chat_id": chat_id,
+            "target_lang": target_lang,
+            "words": session_words
+        }
+
+        # Случай 3: Выводим перевод и меню с новыми словами
+        bot.send_message(
+            chat_id,
+            f"🇷🇺 <b>Перевод:</b>\n{translated_text}\n\n<i>📸 Найдено {len(session_words)} новых слов:</i>",
+            reply_markup=get_translation_markup(session_id),
+            parse_mode="HTML"
+        )
+    except Exception as e:
+        import traceback
+        err_details = traceback.format_exc()
+        print(f"❌ [PROCESS IMAGE] Критическая ошибка: {e}\n{err_details}", flush=True)
+        bot.send_message(chat_id, f"⚠️ Ошибка: {str(e)}")
+
+
+

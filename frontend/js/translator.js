@@ -193,14 +193,14 @@ function renderSingleWordResult(originalWord, details) {
 // ➕ Переключение состояния кнопки сохранения для одного слова
 // ➕ Переключение состояния кнопки сохранения для одного слова
 // ➕ Переключение состояния кнопки сохранения для одного слова
+// ➕ Переключение состояния кнопки сохранения для одного слова
 function toggleSingleWordSave(btn, word, translation) {
-    // Сохраняем исходные размеры и текст кнопки, чтобы плашка встала ровно на её место
     const originalWidth = btn.offsetWidth;
     const originalHeight = btn.offsetHeight;
 
     btn.style.width = `${originalWidth}px`;
     btn.style.height = `${originalHeight}px`;
-    btn.innerHTML = '⏳';
+    btn.innerHTML = '⏳ Анализирую...';
     btn.style.pointerEvents = 'none';
 
     apiFetch('/words/add', {
@@ -211,12 +211,21 @@ function toggleSingleWordSave(btn, word, translation) {
         if (data.success) {
             window.syncRealWordCount();
 
-            // 🔥 ПРЕВРАЩАЕМ САМУ КНОПКУ В АККУРАТНУЮ ПЛАШКУ НА ЕЁ МЕСТЕ
             if (data.added) {
                 btn.innerHTML = '✅ Успешно';
                 btn.style.background = 'rgba(16, 185, 129, 0.25)';
                 btn.style.borderColor = 'rgba(16, 185, 129, 0.5)';
                 btn.style.color = '#a7f3d0';
+
+                // 🔥 ЕСЛИ ЭТО РЕДКАЯ НАХОДКА (НЕТ В ОКСФОРДЕ) — ВЫВОДИМ ПЛАШКУ!
+                if (data.is_new_discovery && data.semantic_tags && data.semantic_tags.length > 0) {
+                    setTimeout(() => {
+                        if (typeof showSemanticDiscoveryModal === 'function') {
+                            showSemanticDiscoveryModal(word, translation, data.semantic_tags);
+                        }
+                    }, 400);
+                    return; // Прерываем стандартный возврат, ждем закрытия плашки
+                }
 
             } else {
                 btn.innerHTML = '⚠️ Уже в словаре';
@@ -225,33 +234,15 @@ function toggleSingleWordSave(btn, word, translation) {
                 btn.style.color = '#ff9f0a';
             }
 
-            // 🔥 ВЫВОД СЕМАНТИКИ В КОНСОЛЬ ДЛЯ ДЕБАГА
-            if (data.semantic_tags && data.semantic_tags.length > 0) {
-                const logObj = {
-                    [data.word_id]: data.semantic_tags
-                };
-
-                console.log(`%c[SEMANTIC GRAPH] Разметка нового слова:`, 'color: #8b5cf6; font-weight: bold;');
-                console.log(`%cID ${data.word_id}: "${word}" (Translation: ${translation})`, 'color: #34d399; font-weight: bold;');
-                console.log(JSON.stringify(logObj, null, 2));
-                console.log(`%c✅ Успешно вшито в семантическую базу!`, 'color: #34c759;');
-            }
-
-            // Ждем 1.2 секунды и возвращаемся в читалку (если пришли оттуда)
+            // Стандартный возврат, если слово уже было в словаре или Оксфорде
             setTimeout(() => {
                 if (window.returnToReader) {
                     window.returnToReader = false;
-
                     const translatorInput = document.getElementById('quick-translator-input');
                     if (translatorInput) translatorInput.value = "";
-
-                    if (typeof loadBookLocally === 'function') {
-                        loadBookLocally();
-                    }
+                    if (typeof loadBookLocally === 'function') loadBookLocally();
                 } else {
-                    if (typeof exitToMainMenu === 'function') {
-                        exitToMainMenu();
-                    }
+                    if (typeof exitToMainMenu === 'function') exitToMainMenu();
                 }
             }, 1200);
 
@@ -413,13 +404,11 @@ function saveSelectedWords() {
     }).then(data => {
         if (data.success) {
             window.syncRealWordCount();
-            // 🔥 ПРЕВРАЩАЕМ КНОПКУ В ЗЕЛЕНУЮ ПЛАШКУ (Центрального уведомления больше нет)
+
             saveBtn.innerHTML = '✅ Успешно сохранено!';
             saveBtn.style.background = 'rgba(16, 185, 129, 0.25)';
             saveBtn.style.borderColor = 'rgba(16, 185, 129, 0.5)';
             saveBtn.style.color = '#a7f3d0';
-
-
 
             selectedBtns.forEach(btn => {
                 btn.onclick = null;
@@ -433,32 +422,26 @@ function saveSelectedWords() {
                 btn.onclick = null;
             });
 
-            // 🔥 Вывод семантики для списка слов
-            if (data.semantic_logs && Object.keys(data.semantic_logs).length > 0) {
-                console.log(`%c[SEMANTIC GRAPH] Массовая разметка ${data.added_count} слов:`, 'color: #8b5cf6; font-weight: bold;');
-
-                for (const [id, info] of Object.entries(data.semantic_logs)) {
-                    const logObj = { [id]: info.tags };
-                    console.log(`%cID ${id}: "${info.word}"`, 'color: #34d399; font-weight: bold;');
-                    console.log(JSON.stringify(logObj, null, 2));
-                }
-                console.log(`%c✅ Все слова успешно вшиты в семантическую базу!`, 'color: #34c759;');
+            // 🔥 ЕСЛИ СРЕДИ МАССИВА БЫЛИ ОТКРЫТИЯ — ПОКАЗЫВАЕМ ПЛАШКУ!
+            if (data.discoveries && data.discoveries.length > 0) {
+                setTimeout(() => {
+                    // Передаем массив напрямую в нашу новую функцию
+                    if (typeof showSemanticDiscoveryModal === 'function') {
+                        showSemanticDiscoveryModal(data.discoveries, null, null);
+                    }
+                }, 500);
+                return; // Прерываем таймер стандартного выхода
             }
 
-            // 🔥 ЛОГИКА ВОЗВРАТА (Ждем 1.2 секунды и возвращаемся в читалку или меню)
+            // Стандартный возврат, если открытий не было
             setTimeout(() => {
                 if (window.returnToReader) {
                     window.returnToReader = false;
                     const translatorInput = document.getElementById('quick-translator-input');
                     if (translatorInput) translatorInput.value = "";
-
-                    if (typeof loadBookLocally === 'function') {
-                        loadBookLocally();
-                    }
+                    if (typeof loadBookLocally === 'function') loadBookLocally();
                 } else {
-                    if (typeof exitToMainMenu === 'function') {
-                        exitToMainMenu();
-                    }
+                    if (typeof exitToMainMenu === 'function') exitToMainMenu();
                 }
             }, 1200);
 
@@ -499,4 +482,89 @@ function showToast(message) {
         setTimeout(() => { toast.style.display = 'none'; }, 250);
     }, 1200);
 }
+
+// ==========================================
+// 🔥 АНИМИРОВАННАЯ КАРТОЧКА ОТКРЫТИЯ (Генерируется динамически)
+// ==========================================
+// ==========================================
+// 🔥 АНИМИРОВАННАЯ КАРТОЧКА ОТКРЫТИЯ (Генерируется динамически)
+// ==========================================
+window.showSemanticDiscoveryModal = function(word, translation, tags) {
+    const overlay = document.createElement('div');
+    overlay.className = 'semantic-overlay';
+
+    let contentHtml = '';
+
+    // Если передали массив слов (массовое добавление из текста)
+    if (Array.isArray(word)) {
+        contentHtml = `
+            <div class="semantic-modal-icon">🌌</div>
+            <div class="semantic-modal-title">Массовое открытие!</div>
+            <div class="semantic-modal-text">
+                Вы пополнили глобальную базу новыми словами: <br><br>
+                <b class="semantic-word-highlight">${word.join(', ')}</b><br><br>
+                ИИ уже приступил к их глубокому анализу в фоновом режиме!
+            </div>
+            <button onclick="closeSemanticModal(this)" class="btn-glass semantic-modal-btn">Шикарно!</button>
+        `;
+    }
+    // Если передали одно слово с готовыми тегами
+    else {
+        const tagsHtml = tags && tags.length > 0
+            ? tags.map(t => `<span class="semantic-tag">#${t}</span>`).join('')
+            : `<span style="color: rgba(255,255,255,0.5);">Анализируется...</span>`;
+
+        contentHtml = `
+            <div class="semantic-modal-icon">🌌</div>
+            <div class="semantic-modal-title">Редкая находка!</div>
+            <div class="semantic-modal-text">
+                Слово <span class="semantic-word-highlight">${word}</span> впервые добавлено в нейросетевую базу! ИИ проанализировал его и связал со следующими сферами:
+            </div>
+            <div class="semantic-tag-container">
+                ${tagsHtml}
+            </div>
+            <button onclick="closeSemanticModal(this)" class="btn-glass semantic-modal-btn">Потрясающе!</button>
+        `;
+    }
+
+    overlay.innerHTML = `
+        <div class="semantic-modal-content">
+            ${contentHtml}
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        overlay.firstElementChild.style.transform = 'scale(1)';
+    });
+};
+
+// Функция закрытия плашки
+window.closeSemanticModal = function(btnElement) {
+    const modalBox = btnElement.parentElement;
+    const overlayEl = modalBox.parentElement;
+
+    overlayEl.style.opacity = '0';
+    modalBox.style.transform = 'scale(0.9)';
+
+    setTimeout(() => {
+        overlayEl.remove();
+
+        // Проверяем: если на экране больше не осталось открытий, тогда возвращаемся
+        const remainingModals = document.querySelectorAll('.semantic-overlay');
+
+        if (remainingModals.length === 0) {
+            if (window.returnToReader) {
+                window.returnToReader = false;
+                const translatorInput = document.getElementById('quick-translator-input');
+                if (translatorInput) translatorInput.value = "";
+                if (typeof loadBookLocally === 'function') loadBookLocally();
+            } else {
+                if (typeof exitToMainMenu === 'function') exitToMainMenu();
+            }
+        }
+    }, 300);
+};
 

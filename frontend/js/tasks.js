@@ -7,38 +7,28 @@ let taskState = {
     helpClicks: 0,
     phrase: "",
     rule: "",
-    targetWord: "" // Целевое слово
+    targetWord: ""
 };
 
-// 🎯 Функция для отрисовки карточки задания (компактные отступы, чтобы карточка была выше)
-// 🎯 Функция для отрисовки карточки задания (поддерживает компактный и просторный режимы)
-function showTaskCard(htmlContent, buttonsHtml = '', isSpacious = false) {
-
-    // 🔥 ПЕРЕХВАТЧИК ЛИМИТОВ
-    if (window.isRateLimitError(htmlContent)) {
-        return window.showLimitCard();
-    }
-    const chatContainer = document.getElementById('chat-messages');
-
-    let minHeight = isSpacious ? '260px' : '200px';
-    let padding = isSpacious ? '25px 20px' : '16px 16px';
-    let marginTop = isSpacious ? '15px' : '5px';
-
-    chatContainer.innerHTML = `
-        <div style="display: flex; flex-direction: column; width: 100%; margin-top: ${marginTop}; margin-bottom: auto;">
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: ${minHeight}; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: ${padding}; position: relative; box-sizing: border-box; width: 100%; text-align: center;">
+// 🔥 ЕДИНЫЙ ПРЕМИАЛЬНЫЙ ШАБЛОН (как в renderTaskCard)
+function wrapInPremiumCard(contentHtml, buttonsHtml = '') {
+    return `
+        <div style="display: flex; flex-direction: column; width: 100%; margin-top: 15px; margin-bottom: auto;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: 260px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px 20px; position: relative; box-sizing: border-box; width: 100%; text-align: center;">
                 <div style="width: 100%;">
-                    ${htmlContent}
+                    ${contentHtml}
                 </div>
-                
                 ${buttonsHtml ? `<div style="display: flex; gap: 10px; width: 100%; margin-top: 20px;">${buttonsHtml}</div>` : ''}
             </div>
-        </div>`;
+        </div>
+    `;
 }
 
-// Вспомогательная функция для просторной карточки результатов
-function showSpaciousTaskCard(htmlContent, buttonsHtml = '') {
-    showTaskCard(htmlContent, buttonsHtml, true);
+// Вспомогательная функция для простых системных сообщений
+function showTaskCard(htmlContent, buttonsHtml = '') {
+    if (window.isRateLimitError(htmlContent)) return window.showLimitCard();
+    const chatContainer = document.getElementById('chat-messages');
+    chatContainer.innerHTML = wrapInPremiumCard(htmlContent, buttonsHtml);
 }
 
 // 🔥 Запрос новой фразы
@@ -79,9 +69,8 @@ function showNewTaskMode(forceNew = true) {
     const lang = window.userProfile?.language || 'en';
     const userDifficulty = window.userProfile?.difficulty || 'A1';
 
-    // 🔥 ИЗМЕНЕНИЕ ЗДЕСЬ: Мы удалили весь блок выбора randomRule!
-    // Теперь мы жестко передаем rule=random, а бэкенд сам решит, дать слабое место или случайное правило.
     const url = `/grammar/new-lego?chat_id=${user.id}&rule=random&pattern_tag=default_mix&difficulty=${userDifficulty}&only_my_vocab=false${forceNew ? '&force=true' : ''}`;
+
     apiFetch(url)
         .then(data => {
             if (window.currentAppMode !== 'task') return;
@@ -90,14 +79,14 @@ function showNewTaskMode(forceNew = true) {
                 taskState.targetWord = data.target_word || "базовое слово";
 
                 let warningHtml = '';
-               if (data.warning) {
-                warningHtml = `
-                    <div style="background: rgba(255, 159, 10, 0.12); border: 1px solid rgba(255, 159, 10, 0.3); padding: 10px 14px; border-radius: 12px; text-align: left; margin-bottom: 14px; width: 100%; box-sizing: border-box;">
-                        <div style="font-size: 13px; color: #ff9f0a; line-height: 1.4;">
-                            ${data.warning}
-                        </div>
-                    </div>`;
-}
+                if (data.warning) {
+                    warningHtml = `
+                        <div style="background: rgba(255, 159, 10, 0.12); border: 1px solid rgba(255, 159, 10, 0.3); padding: 10px 14px; border-radius: 12px; text-align: left; margin-bottom: 14px; width: 100%; box-sizing: border-box;">
+                            <div style="font-size: 13px; color: #ff9f0a; line-height: 1.4;">
+                                ${data.warning}
+                            </div>
+                        </div>`;
+                }
 
                 const langName = lang === 'de' ? 'немецкий' : 'английский';
                 let finalRule = data.rule || "General Grammar";
@@ -123,29 +112,9 @@ function showNewTaskMode(forceNew = true) {
                     <button onclick="showNewTaskMode(true)" onmousedown="event.preventDefault()" class="btn-glass-secondary" style="flex: 1;">Поменять</button>
                 `;
 
-                showTaskCard(`
-                    <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 14px; word-wrap: break-word; line-height: 1.3;">${data.phrase}</div>
-                    
-                    <!-- 🔥 Выводим плашку с предупреждением о замене слова, если она есть -->
-                    ${warningHtml}
-                    
-                    <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                        <div class="task-word-badge">
-                            <b style="font-size: 15px;">Слово:</b> <i>${taskState.targetWord.split('(')[0].trim()}</i>
-                        </div>
-                        
-                        <div class="task-rule-badge" onmousedown="event.preventDefault()" onclick="showTaskRuleTooltip('${taskState.rule.replace(/'/g, "\\'")}')">
-                            <span><b style="font-size: 15px;">Тема:</b> <i>${taskState.rule}</i></span>
-                            <div class="info-pulse-badge">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M12 16v-4"></path>
-                                    <path d="M12 8h.01"></path>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                `, buttons);
+                if (typeof renderTaskCard === 'function') {
+                    renderTaskCard(data.phrase, taskState.targetWord, taskState.rule, data.xray, buttons, warningHtml);
+                }
 
                 if (userInput) userInput.focus();
             } else {
@@ -155,21 +124,15 @@ function showNewTaskMode(forceNew = true) {
         .catch(err => {
             showTaskCard(`<div style="font-size: 32px; margin-bottom: 8px;">⚠️</div><div>Ошибка связи с сервером.</div>`);
         })
-      .finally(() => {
-        // 🔥 Плавное скрытие анимированного бабла мыслей
-        window.hideAiLoader();
-    });
+        .finally(() => {
+            window.hideAiLoader();
+        });
 }
-
-
 
 function showTaskHelp() {
     taskState.helpClicks++;
     let step = taskState.helpClicks;
 
-    // 🔥 Убрали блок с "🤖 ИИ готовит подсказку...", чтобы карточка не мигала
-
-    // Прячем поле ввода ТОЛЬКО если это кнопка "Сдаюсь" (шаг 2).
     if (step > 1) {
         document.getElementById('text-input-row').style.display = 'none';
     }
@@ -194,21 +157,18 @@ function showTaskHelp() {
                     <button onclick="showNewTaskMode(true)" onmousedown="event.preventDefault()" class="btn-glass-secondary" style="flex: 1;">Поменять</button>
                 `;
                 showTaskCard(`
-                    <!-- 🔥 Текст задания с повышенной жирностью -->
                     <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 14px; word-wrap: break-word;">${taskState.phrase}</div>
-                    
                     <div style="background: rgba(255, 159, 10, 0.1); border: 1px solid rgba(255, 159, 10, 0.3); padding: 12px; border-radius: 10px; text-align: left; margin-bottom: 5px; width: 100%; box-sizing: border-box;">
                         <div style="font-size: 14px; font-weight: bold; color: #ff9f0a; margin-bottom: 4px;">💡 Подсказка:</div>
                         <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
                     </div>
                 `, buttons);
                 document.getElementById('text-input-row').style.display = 'flex';
-                // Фокус останется на месте автоматически
             } else {
                 let btnNext = `<button onclick="showNewTaskMode(true)" class="btn-glass btn-glass-green" style="width: 100%; height: 46px;">🔄 Ещё 1 фразу</button>`;
                 showTaskCard(`
-                    <div style="font-size: 11px; color: var(--hint-color); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">Исходная фраза:</div>
-                    <div style="font-size: 21px; font-weight: bold; color: var(--text-color); margin-bottom: 12px; word-wrap: break-word;">${taskState.phrase}</div>
+                    <div style="font-size: 11px; color: var(--hint-color); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; text-align: left;">Исходная фраза:</div>
+                    <div style="font-size: 21px; font-weight: bold; color: var(--text-color); margin-bottom: 12px; word-wrap: break-word; text-align: left;">${taskState.phrase}</div>
                     
                     <div style="background: rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3); padding: 12px; border-radius: 10px; text-align: left; width: 100%; box-sizing: border-box;">
                         <div style="font-size: 14px; font-weight: bold; color: #34c759; margin-bottom: 4px;">📖 Правильный ответ:</div>
@@ -223,9 +183,7 @@ function showTaskHelp() {
     }).catch(err => {
         showTaskCard(`<div style="font-size: 32px; margin-bottom: 8px;">⚠️</div><div>Ошибка сети.</div>`);
         document.getElementById('text-input-row').style.display = 'flex';
-    })
-    .finally(() => {
-        // 🔥 Плавное скрытие анимированного бабла мыслей
+    }).finally(() => {
         window.hideAiLoader();
     });
 }
@@ -244,15 +202,14 @@ function handleTaskInput(text) {
     }).then(data => {
         if (window.currentAppMode !== 'task') return;
         if (data.success) {
-            let btnNext = `<button onclick="showNewTaskMode(true)" class="btn-glass btn-glass-blue" style="width: 100%; height: 46px;">🔄 Ещё 1 фразу</button>`;
-            let middleContent = '';
-
-            let oldPercent = 0;
-            let newPercent = 0;
-            const langCode = window.userProfile?.language || 'en';
-            const pbTitle = langCode === 'de' ? 'Grammatik üben' : 'Тренировка фраз';
+            let btnNext = `<button onclick="showNewTaskMode(true)" class="btn-glass btn-glass-${data.is_correct ? 'green' : 'secondary'}" style="width: 100%; height: 46px;">🔄 Ещё 1 фразу</button>`;
+            let contentHtml = '';
 
             if (data.is_correct) {
+                let oldPercent = 0;
+                let newPercent = 0;
+                const langCode = window.userProfile?.language || 'en';
+                const pbTitle = langCode === 'de' ? 'Grammatik üben' : 'Тренировка фраз';
                 const previousPhrases = window.userProfile ? (window.userProfile.phrases_today || 0) : 0;
                 const goal = window.userProfile?.phrases_per_day || 10;
 
@@ -260,11 +217,9 @@ function handleTaskInput(text) {
                 const newPhrases = previousPhrases + 1;
                 newPercent = Math.min(Math.round((newPhrases / goal) * 100), 100);
 
-                if (window.userProfile) {
-                    window.userProfile.phrases_today = newPhrases;
-                }
+                if (window.userProfile) window.userProfile.phrases_today = newPhrases;
 
-                middleContent = `
+                contentHtml = `
                     <div class="pb-main-container" style="flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-bottom: 15px; padding: 20px 15px;">
                         <div class="pb-avatar" style="margin: 0 auto 15px auto; width: 76px; height: 76px;">
                             <img src="frontend/img/mentor.jpg" alt="Mentor" style="width: 100%; height: 100%; object-fit: cover;">
@@ -280,62 +235,14 @@ function handleTaskInput(text) {
                         </div>
                     </div>
 
-                    <div style="font-size: 11px; color: #34c759; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">✅ Перевод принят:</div>
+                    <div style="font-size: 11px; color: #34c759; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; text-align: left;">✅ Перевод принят:</div>
                     <div style="background: rgba(52, 199, 89, 0.1); padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(52, 199, 89, 0.3); text-align: left; width: 100%; box-sizing: border-box;">
                         <div style="font-size: 15px; color: var(--text-color); font-weight: 500; word-wrap: break-word;">${text}</div>
                     </div>
                 `;
-            } else {
-                // Экранируем кавычки для обеих строк
-                const safePhraseAttr = taskState.phrase.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                const safeAnswerAttr = text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
-                // Достаем правильную фразу (как в тренировке грамматики)
-                const correctVariant = data.correct_phrase || data.correct_answer || data.correct_variant;
+                showTaskCard(contentHtml, btnNext);
 
-                middleContent = `
-                    <div style="font-size: 11px; color: #ff3b30; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">❌ Твой ответ:</div>
-                    <div style="background: rgba(255, 59, 48, 0.1); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255, 59, 48, 0.3); text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 12px;">
-                        <div style="font-size: 15px; color: var(--text-color);">${text}</div>
-                    </div>
-
-                    <div style="font-size: 11px; color: var(--hint-color); font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">Разбор ошибки:</div>
-                    <div style="background: rgba(255, 255, 255, 0.05); padding: 12px 16px; border-radius: 10px; border-left: 4px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: ${correctVariant ? '12px' : '15px'};">
-                        <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
-                    </div>
-                `;
-
-                // 🔥 НОВЫЙ БЛОК: Показываем эталонный ответ
-                if (correctVariant) {
-                    middleContent += `
-                        <div style="font-size: 11px; color: #34c759; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px;">✅ Как нужно было сказать:</div>
-                        <div style="background: rgba(52, 199, 89, 0.1); padding: 12px 16px; border-radius: 10px; border-left: 4px solid #34c759; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 15px;">
-                            <div style="font-size: 14px; font-weight: 600; color: var(--text-color); line-height: 1.4; word-wrap: break-word;">${correctVariant}</div>
-                        </div>
-                    `;
-                }
-
-                // Кнопка вызова чата с ИИ
-                middleContent += `
-                    <!-- 🔥 Встроенное поле для чата с ИИ -->
-                    <div style="width: 100%; margin-bottom: 5px; position: relative;">
-                        <input type="text" id="inline-error-chat-input" onkeypress="if(event.key==='Enter') triggerInlineErrorChat('${safePhraseAttr}', '${safeAnswerAttr}')" placeholder="Спросить ИИ об ошибке..." style="width: 100%; height: 46px; padding: 0 45px 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-size: 14px; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
-                        <button onclick="triggerInlineErrorChat('${safePhraseAttr}', '${safeAnswerAttr}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; background: var(--button-color); border: none; border-radius: 10px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                        </button>
-                    </div>
-                `;
-            }
-
-            showSpaciousTaskCard(`
-                <div style="font-size: 11px; color: var(--hint-color); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">Задание:</div>
-                <div style="font-size: 16px; font-weight: bold; color: var(--text-color); margin-bottom: 6px; word-wrap: break-word;">${taskState.phrase}</div>
-                <div style="font-size: 11px; color: var(--hint-color); margin-bottom: 12px;">Тема: ${taskState.rule}</div>
-                
-                ${middleContent}
-            `, btnNext);
-
-            if (data.is_correct) {
                 setTimeout(() => {
                     const bar = document.getElementById('task-pb-fill');
                     if (bar) bar.style.width = `${newPercent}%`;
@@ -348,16 +255,49 @@ function handleTaskInput(text) {
                         const elapsed = currentTime - startTime;
                         const progress = Math.min(elapsed / duration, 1);
                         const easeProgress = 1 - Math.pow(1 - progress, 3);
-
                         const currentVal = Math.round(oldPercent + (newPercent - oldPercent) * easeProgress);
                         if (valueEl) valueEl.innerText = `${currentVal}%`;
-
-                        if (progress < 1) {
-                            requestAnimationFrame(updateCounter);
-                        }
+                        if (progress < 1) requestAnimationFrame(updateCounter);
                     }
                     requestAnimationFrame(updateCounter);
                 }, 100);
+
+            } else {
+                // Экранируем данные для чата
+                const safePhraseAttr = taskState.phrase.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeAnswerAttr = text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const correctVariant = data.correct_phrase || data.correct_answer || data.correct_variant;
+
+                contentHtml = `
+                    <div style="font-size: 11px; color: var(--hint-color); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; text-align: left;">Задание:</div>
+                    <div style="font-size: 18px; font-weight: bold; color: var(--text-color); margin-bottom: 15px; word-wrap: break-word; text-align: left;">${taskState.phrase}</div>
+
+                    <div style="font-size: 11px; color: #ff3b30; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; text-align: left;">❌ Твой ответ:</div>
+                    <div style="background: rgba(255, 59, 48, 0.1); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255, 59, 48, 0.3); text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 12px;">
+                        <div style="font-size: 15px; color: var(--text-color);">${text}</div>
+                    </div>
+
+                    ${correctVariant ? `
+                    <div style="font-size: 11px; color: #34c759; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; text-align: left;">✅ Как нужно было сказать:</div>
+                    <div style="background: rgba(52, 199, 89, 0.1); padding: 12px 16px; border-radius: 10px; border-left: 4px solid #34c759; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 12px;">
+                        <div style="font-size: 14px; font-weight: 600; color: var(--text-color); line-height: 1.4; word-wrap: break-word;">${correctVariant}</div>
+                    </div>` : ''}
+
+                    <div style="font-size: 11px; color: var(--hint-color); font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; text-align: left;">Разбор ошибки:</div>
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 12px 16px; border-radius: 10px; border-left: 4px solid #ff3b30; text-align: left; width: 100%; box-sizing: border-box; margin-bottom: 20px;">
+                        <div style="font-size: 13px; color: var(--text-color); line-height: 1.4;">${data.feedback}</div>
+                    </div>
+
+                    <!-- 🔥 ВОЗВРАЩЕННОЕ ПОЛЕ ЧАТА С МЕНТОРОМ -->
+                    <div style="width: 100%; margin-bottom: 5px; position: relative;">
+                        <input type="text" id="inline-error-chat-input" onkeypress="if(event.key==='Enter') triggerInlineErrorChat('${safePhraseAttr}', '${safeAnswerAttr}')" placeholder="Спросить ИИ об ошибке..." style="width: 100%; height: 46px; padding: 0 45px 0 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-size: 14px; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
+                        <button onclick="triggerInlineErrorChat('${safePhraseAttr}', '${safeAnswerAttr}')" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; background: var(--button-color); border: none; border-radius: 10px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        </button>
+                    </div>
+                `;
+
+                showTaskCard(contentHtml, btnNext);
             }
 
         } else {
@@ -379,10 +319,9 @@ function showTaskRuleTooltip(ruleName) {
     const title = document.getElementById('task-rule-tooltip-title');
     const content = document.getElementById('task-rule-tooltip-content');
 
-    // 🔥 Тот же фикс для Фраз и Интенсива
     const keepFocus = function(event) {
         if (event.target === modal) {
-            event.preventDefault(); // Клавиатура остается на месте!
+            event.preventDefault();
         }
     };
     modal.onmousedown = keepFocus;
@@ -409,8 +348,7 @@ function closeTaskRuleTooltip() {
     }
 }
 
-// 🔥 Рендер уже существующего (активного) задания из базы без повторного запроса к ИИ
-// 🔥 Рендер уже существующего (активного) задания из базы без повторного запроса к ИИ
+// 🔥 Рендер уже существующего задания
 function showExistingTask(activeTask) {
     window.currentAppMode = 'task';
     setAppHeader('Фраза для тренировки', true);
@@ -440,37 +378,14 @@ function showExistingTask(activeTask) {
         userInput.placeholder = "Напиши перевод...";
     }
 
-    const lang = window.userProfile?.language || 'en';
-    const langName = lang === 'de' ? 'немецкий' : 'английский';
-
     let buttons = `
         <button onclick="showTaskHelp()" onmousedown="event.preventDefault()" class="btn-glass-orange-soft" style="flex: 1;">Подсказка</button>
         <button onclick="showNewTaskMode(true)" onmousedown="event.preventDefault()" class="btn-glass-secondary" style="flex: 1;">Поменять</button>
     `;
 
-    showTaskCard(`
-        <!-- 🔥 ИСПРАВЛЕНО: Используем taskState.phrase вместо data.phrase -->
-        <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 16px; word-wrap: break-word; line-height: 1.3;">${taskState.phrase}</div>
-        
-        <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-            <div class="task-word-badge">
-                <b style="font-size: 15px;">Слово:</b> <i>${taskState.targetWord.split('(')[0].trim()}</i>
-            </div>
-            
-            <!-- 🔥 ИНТЕРАКТИВНОЕ ПРАВИЛО -->
-            <div class="task-rule-badge" onmousedown="event.preventDefault()" onclick="showTaskRuleTooltip('${taskState.rule.replace(/'/g, "\\'")}')">
-                <span><b style="font-size: 15px;">Тема:</b> <i>${taskState.rule}</i></span>
-                <div class="info-pulse-badge">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <path d="M12 16v-4"></path>
-                        <path d="M12 8h.01"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    `, buttons);
+    if (typeof renderTaskCard === 'function') {
+        renderTaskCard(taskState.phrase, taskState.targetWord, taskState.rule, null, buttons);
+    }
 
     if (userInput) userInput.focus();
 }
-

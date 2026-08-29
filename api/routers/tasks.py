@@ -111,19 +111,27 @@ def get_lego_grammar_task(chat_id: int, rule: str = "random", pattern_tag: str =
         lang_name = "английском" if target_lang == "en" else "немецком"
 
         final_difficulty = difficulty if difficulty else user_config.get("difficulty", "A1")
+        # 🔥 Убедимся, что формат уровня чистый (A1, A2, B1 и т.д.)
+        clean_level = final_difficulty.strip().upper().replace("А", "A").replace("+", "")
 
-        # 🔥 УМНЫЙ ВЫБОР ПРАВИЛА (СЛАБЫЕ МЕСТА ИЛИ СЛУЧАЙНОЕ)
+        # 🔥 УМНЫЙ ВЫБОР ПРАВИЛА СТРОГО ПО УРОВНЮ
         final_rule = rule
         if not rule or rule.lower() == "random":
-            lang_markers = api.content_engine.MARKERS_DB.get(target_lang, {})
-            all_rules = list(lang_markers.keys())
+
+            # Выбираем список правил из content_engine.GRAMMAR_RULES_BY_LEVEL
+            lang_rules = api.content_engine.GRAMMAR_RULES_BY_LEVEL.get(target_lang, {})
+            all_rules = lang_rules.get(clean_level, [])
+
+            # Фолбэк на случай, если правил для уровня нет
+            if not all_rules:
+                all_rules = list(api.content_engine.MARKERS_DB.get(target_lang, {}).keys())
+
             weaknesses = database.get_active_weaknesses(chat_id)
 
             if all_rules:
-                # С вероятностью 70% даем правило из слабых мест (если они есть)
                 if weaknesses and random.random() < 0.70:
                     weak_topics = [w["topic"] for w in weaknesses]
-                    # Фильтруем, чтобы правило точно существовало в базе маркеров
+                    # 🔥 ФИЛЬТР: Слабое место ДОЛЖНО принадлежать к ТЕКУЩЕМУ уровню ученика
                     valid_weak_topics = [t for t in weak_topics if t in all_rules]
 
                     if valid_weak_topics:
@@ -131,7 +139,6 @@ def get_lego_grammar_task(chat_id: int, rule: str = "random", pattern_tag: str =
                     else:
                         final_rule = random.choice(all_rules)
                 else:
-                    # 30% шанс (или если слабых мест нет) — случайное новое правило
                     final_rule = random.choice(all_rules)
             else:
                 final_rule = "General Grammar"
@@ -185,7 +192,8 @@ def get_lego_grammar_task(chat_id: int, rule: str = "random", pattern_tag: str =
             "phrase": ru_phrase,
             "target_word": target_word,
             "rule": final_rule,
-            "warning": warning_message
+            "warning": warning_message,
+            "xray": task_data.get("xray", {})  # 🔥 Передаем рентген на фронтенд!
         }
     except Exception as e:
         return {"success": False, "error": str(e)}

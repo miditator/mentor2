@@ -53,9 +53,19 @@ def start_intensity(data: IntensityStartData):
         # 2. Выбираем текущее значение на основе шага
         target_meaning = meanings[data.step % len(meanings)] if meanings else None
 
-        # 3. УМНЫЙ ВЫБОР ПРАВИЛА (СЛАБЫЕ МЕСТА ИЛИ СЛУЧАЙНОЕ)
-        lang_markers = api.content_engine.MARKERS_DB.get(target_lang, {})
-        all_rules = list(lang_markers.keys())
+        # =========================================================
+        # 3. УМНЫЙ ВЫБОР ПРАВИЛА СТРОГО ПО УРОВНЯМ (ОБНОВЛЕНО)
+        # =========================================================
+        # Очищаем уровень от лишних символов (например, "A2" вместо "A2+")
+        clean_level = data.difficulty.strip().upper().replace("А", "A").replace("+", "")
+
+        # Достаем список правил строго для текущего языка и уровня
+        lang_rules = api.content_engine.GRAMMAR_RULES_BY_LEVEL.get(target_lang, {})
+        all_rules = lang_rules.get(clean_level, [])
+
+        # Фолбэк, если для уровня почему-то нет правил (берем все из базы)
+        if not all_rules:
+            all_rules = list(api.content_engine.MARKERS_DB.get(target_lang, {}).keys())
 
         weaknesses = database.get_active_weaknesses(data.chat_id)
 
@@ -64,7 +74,7 @@ def start_intensity(data: IntensityStartData):
             # С вероятностью 70% даем правило из слабых мест (если они есть)
             if weaknesses and random.random() < 0.70:
                 weak_topics = [w["topic"] for w in weaknesses]
-                # Фильтруем, чтобы правило точно существовало в базе маркеров
+                # 🔥 ФИЛЬТР: Слабое место ДОЛЖНО принадлежать к ТЕКУЩЕМУ уровню ученика
                 valid_weak_topics = [t for t in weak_topics if t in all_rules]
 
                 if valid_weak_topics:
@@ -72,9 +82,10 @@ def start_intensity(data: IntensityStartData):
                 else:
                     current_rule = random.choice(all_rules)
             else:
-                # 30% шанс (или если слабых мест нет) — случайное новое правило
+                # 30% шанс (или если слабых мест нет) — случайное правило из ТЕКУЩЕГО уровня
                 current_rule = random.choice(all_rules)
 
+        # Вызов ИИ для генерации фразы
         task_data = ai_service.generate_lego_grammar_task_ai(
             lang_name=lang_name,
             target_word=data.word,
@@ -85,7 +96,6 @@ def start_intensity(data: IntensityStartData):
             lang=target_lang,
             chat_id=data.chat_id
         )
-
         if "Error" in task_data.get("foreign_phrase", "") or not task_data.get("foreign_phrase"):
             return {"success": False, "error": "ИИ не смог сгенерировать фразу. Попробуйте другое слово."}
 
@@ -94,7 +104,9 @@ def start_intensity(data: IntensityStartData):
             "task": {
                 "phrase": task_data.get("foreign_phrase", ""),
                 "translation": task_data.get("russian_phrase", ""),
-                "rule": current_rule
+                "rule": current_rule,
+                "xray": task_data.get("xray", {})  # 🔥 Передаем рентген на фронтенд!
+
             },
             "meanings": meanings  # 🔥 ВОЗВРАЩАЕМ МАССИВ ЗНАЧЕНИЙ НА ФРОНТЕНД!
         }
@@ -161,14 +173,35 @@ def help_intensity_task(data: IntensityHelpData):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+
 @router.post("/intensity/finish")
 def finish_intensity(data: IntensityFinishData):
     try:
-        result = database.update_word_intensity_progress(data.chat_id, data.word, data.score)
+        conn = database.get_connection()
+        cursor = conn.cursor()
+        user_config = database.get_user_config(data.chat_id)
+        current_lang = user_config.get("source_lang", "en") if user_config else "en"
+
+        # 1. Ищем ID слова в словаре по тексту
+        cursor.execute(
+            "SELECT id FROM user_dictionary WHERE chat_id = ? AND lang = ? AND LOWER(word_foreign) = LOWER(?)",
+            (data.chat_id, current_lang, data.word.strip()))
+        row = cursor.fetchone()
+        conn.close()
+
+        updated = False
+        if row:
+            word_id = row[0]
+            # 2. Если набрали 3 из 5 баллов — засчитываем успешное повторение
+            is_correct = data.score >= 3
+            database.update_word_progress(data.chat_id, word_id, is_correct, mode="review", source="user")
+            updated = True
+
+        # 3. Начисляем статистику выполненных заданий для прогресс-бара
         if data.score > 0:
             for _ in range(data.score):
                 database.add_successful_completion(data.chat_id)
-        database.add_to_history(data.chat_id, f"Интенсив: {data.word}")
-        return {"success": True, "updated": result["updated"]}
+
+        return {"success": True, "updated": updated}
     except Exception as e:
         return {"success": False, "error": str(e)}

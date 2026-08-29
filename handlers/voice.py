@@ -7,9 +7,11 @@ import asyncio
 import edge_tts
 from loader import bot
 import database
+import live_chat_database
 import ai_service
 import aiPrompts
 from ai_service import ask_ai
+from handlers.chat import process_live_mentor_chat
 from handlers.words import TRANSLATION_SESSIONS, get_translation_markup, process_translation_request
 
 
@@ -36,6 +38,9 @@ async def generate_user_voice(text: str, target_lang: str, output_path: str, use
 # ==========================================
 # 1. ОБРАБОТЧИК ГОЛОСОВЫХ СООБЩЕНИЙ
 # ==========================================
+# ==========================================
+# 1. ОБРАБОТЧИК ГОЛОСОВЫХ СООБЩЕНИЙ
+# ==========================================
 @bot.message_handler(content_types=['voice', 'audio'])
 def handle_voice_message(message):
     chat_id = message.chat.id
@@ -48,7 +53,8 @@ def handle_voice_message(message):
     user_voice = user_config.get(f"tts_voice_{target_lang}")
     tts_rate = user_config.get("tts_rate", "-15%")
 
-    bot.send_chat_action(chat_id, 'typing')
+    # 🔥 Получаем текущий режим юзера
+    current_mode = live_chat_database.get_user_mode(chat_id)
 
     file_path = f"temp_voice_{chat_id}_{uuid.uuid4().hex[:6]}.ogg"
 
@@ -61,7 +67,38 @@ def handle_voice_message(message):
         with open(file_path, 'wb') as new_file:
             new_file.write(downloaded_file)
 
-        # 🔥 2. РАСШИФРОВКА В ТЕКСТ (Whisper)
+            # ===================================================
+            # 🔥 РЕЖИМ ПРОИЗНОШЕНИЯ (Обход Whisper, сразу в Google)
+            # ===================================================
+            # ===================================================
+            # 🔥 РЕЖИМ ПРОИЗНОШЕНИЯ (Обход Whisper, сразу в Google)
+            # ===================================================
+            if current_mode == "PRONUNCIATION":
+                bot.send_chat_action(chat_id, 'typing')
+                bot.send_message(chat_id, "Слушаю и анализирую произношение... ⏳")
+
+                analysis_data = ai_service.analyze_audio_pronunciation_gemini(file_path, "[Анализ аудио напрямую]",
+                                                                              target_lang, chat_id)
+
+                recognized_text = analysis_data.get('recognized_text', 'Не распознано')
+                ru_translation = analysis_data.get('ru_translation', '')
+                feedback = analysis_data.get('feedback', '').replace("*", "")  # Двойная зачистка звезд
+
+                text_msg = (
+                    f"🗣 <b>Распознано:</b> {recognized_text}\n"
+                    f"🇷🇺 <b>Перевод:</b> {ru_translation}\n\n"
+                    f"🎙 <b>Разбор:</b> {feedback}"
+                )
+                bot.send_message(chat_id, text_msg, parse_mode="HTML")
+
+
+
+
+                return
+
+        # ===================================================
+        # 🔥 СТАНДАРТНЫЕ РЕЖИМЫ (Расшифровка через Whisper)
+        # ===================================================
         bot.send_chat_action(chat_id, 'typing')
         transcript = ai_service.transcribe_audio_ai(file_path)
 
@@ -69,13 +106,30 @@ def handle_voice_message(message):
             bot.send_message(chat_id, "⚠️ Не удалось распознать речь.")
             return
 
-        # 🔥 3. ЕДИНЫЙ ТЕКСТОВЫЙ РОУТЕР
+        # --- РЕЖИМ ГРАММАТИКИ (Напрямую в чат) ---
+
+            # --- РЕЖИМ ГРАММАТИКИ (Голос -> Текст -> Чат + Анализ) ---
+        if current_mode == "GRAMMAR":
+            bot.send_chat_action(chat_id, 'typing')
+
+            # 1. Тихонько проверяем грамматику по тексту из Whisper для базы
+            analysis_data = ai_service.analyze_text_grammar_ai(transcript, target_lang, chat_id)
+            detected_weakness = analysis_data.get('detected_weakness')
+            if detected_weakness:
+                database.add_or_update_weakness(chat_id, detected_weakness)
+
+            # 2. Ведем полноценный живой диалог
+            reply = process_live_mentor_chat(chat_id, transcript)
+
+            bot.send_message(chat_id, reply, parse_mode="HTML")
+            return
+
+        # --- СТАНДАРТНЫЙ РЕЖИМ ЧАТА (Умный роутер) ---
         bot.send_chat_action(chat_id, 'typing')
         router_data = ai_service.analyze_text_intent(chat_id, transcript, target_lang)
         intent = router_data.get("intent")
         clean_text = router_data.get("clean_text", transcript)
 
-        # 🔥 4. ВЫПОЛНЕНИЕ ДЕЙСТВИЙ
         if intent == "VOICE_OVER":
             bot.send_chat_action(chat_id, 'record_audio')
             prompt = f"Переведи эту фразу на {lang_name} язык. Выдай ТОЛЬКО чистый перевод, без лишних слов, кавычек и пояснений:\n{clean_text}"
@@ -95,28 +149,46 @@ def handle_voice_message(message):
 
         elif intent == "CHAT":
             bot.send_chat_action(chat_id, 'typing')
-            reply = ai_service.process_live_mentor_chat(chat_id, clean_text)
+            reply = process_live_mentor_chat(chat_id, clean_text)
             bot.send_message(chat_id, reply, parse_mode="HTML")
 
+
         elif intent == "ANALYSIS":
-            # 🔥 ВОЗВРАЩАЕМ ПОЛНОЦЕННЫЙ АНАЛИЗАТОР GEMINI С АУДИОФАЙЛОМ
+
+            print(f"\n" + "🎯" * 30)
+
+            print(f"🎯 [VOICE ANALYSIS TRIGGERED] Аудио попало в режим анализа для chat_id: {chat_id}")
+
+            print(f"   • Распознанный текст от Whisper: '{clean_text}'")
+
+            print(f"   • Целевой язык: {target_lang}")
+
             bot.send_chat_action(chat_id, 'typing')
 
-            # Передаем сам файл .ogg в Google!
             analysis_data = ai_service.analyze_audio_grammar_gemini(file_path, clean_text, target_lang, chat_id)
 
             ru_translation = analysis_data.get('ru_translation', '')
-            feedback = analysis_data.get('feedback', '')
-            detected_weakness = analysis_data.get('detected_weakness')
 
-            if detected_weakness:
-                database.add_or_update_weakness(chat_id, detected_weakness)
+            feedback = analysis_data.get('feedback', '')
+
+            print(f"   ✅ Анализ успешно получен от Gemini.")
+
+            print(f"   • Перевод: {ru_translation}")
+
+            print(f"   • Отзыв/Разбор: {feedback}")
+
+            print("🎯" * 30 + "\n")
 
             text_msg = (
+
                 f"🗣 <b>Оригинал:</b>\n{clean_text}\n\n"
+
                 f"🇷🇺 <b>Перевод:</b>\n{ru_translation}\n\n"
-                f"💡 <b>Разбор произношения и грамматики:</b>\n{feedback}"
+
+                f"💡 <b>Разбор грамматики:</b>\n{feedback}"
+
             )
+
             bot.send_message(chat_id, text_msg, parse_mode="HTML")
 
     except Exception as e:
@@ -125,7 +197,6 @@ def handle_voice_message(message):
         bot.send_message(chat_id, f"⚠️ Ошибка обработки аудио: {str(e)}")
 
     finally:
-        # 🔥 ФАЙЛ УДАЛЯЕТСЯ ТОЛЬКО ЗДЕСЬ (когда всё уже точно выполнено)
         if os.path.exists(file_path):
             os.remove(file_path)
 

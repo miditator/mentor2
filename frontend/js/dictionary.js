@@ -278,21 +278,32 @@ function startSelectedTraining() {
     if (selectedDictWords.size === 0) return;
 
     let wordsToTrain = dictionaryWords.filter(w => {
-        let foreign = w.word_foreign || w.foreign || w[0];
+        let foreign = w.word_foreign || w.foreign || (typeof w[0] === 'number' ? w[1] : w[0]);
         return selectedDictWords.has(foreign);
     });
 
+    // 🔥 Собираем объекты точь-в-точь в том формате, который ожидает тренировка
     let trainingWords = wordsToTrain.map(w => {
         return {
-            id: w.id,
-            foreign: w.word_foreign || w.foreign || w[0],
-            ru: w.word_ru || w.ru || w[1],
+            id: w.id !== undefined ? w.id : (typeof w[0] === 'number' ? w[0] : null),
+            foreign: w.word_foreign || w.foreign || (typeof w[0] === 'number' ? w[1] : w[0]),
+            ru: w.word_ru || w.ru || (typeof w[0] === 'number' ? w[2] : w[1]),
+            // КРИТИЧЕСКИ ВАЖНО: Добавляем score, иначе ломается отрисовка звездочек прогресса!
+            score: w.score !== undefined ? w.score : (typeof w[0] === 'number' ? w[3] : w[2] || 0),
             correctGuesses: 0
         };
     });
 
     window.currentAppMode = 'training';
-    setAppHeader('Выбранные слова', true); // 🔥 Динамический заголовок
+    setAppHeader('Выбранные слова', true);
+
+    // Плавно прячем панель выбора из словаря
+    const panel = document.getElementById('dict-selection-panel');
+    if (panel) {
+        panel.style.opacity = '0';
+        panel.style.pointerEvents = 'none';
+        setTimeout(() => panel.style.display = 'none', 300);
+    }
 
     document.getElementById('input-container').style.display = 'flex';
     document.getElementById('text-input-row').style.display = 'flex';
@@ -311,14 +322,22 @@ function startSelectedTraining() {
         trainingState.totalWords = trainingWords.length;
         trainingState.completedWords = 0;
 
-        // 🔥 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Жестко задаем режим конкретных слов
+        // 🔥 КРИТИЧЕСКИ ВАЖНО: Указываем источник, чтобы бэкенд понимал, чьи это слова
         trainingState.mode = 'specific';
+        trainingState.source = 'user';
 
         const chatContainer = document.getElementById('chat-messages');
-        chatContainer.innerHTML = '';
-        showCurrentWord();
+        if (chatContainer) chatContainer.innerHTML = '';
+
+        // Запускаем классическую тренировку
+        if (typeof showCurrentWord === 'function') {
+            showCurrentWord();
+        }
+    } else {
+        console.error("trainingState не определен!");
     }
 
+    // Очищаем выбранные слова в фоне, чтобы словарь был чистым при возврате
     selectedDictWords.clear();
 }
 

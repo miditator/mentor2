@@ -1,7 +1,7 @@
 {
   "Präsens (Regelmäßige, unregelmäßige & trennbare Verben)": {
     "type": "mandatory_choice",
-    "markers": ["fährt", "liest", "kauft ... ein", "sieht ... fern", "schläft", "nimmt", "steht ... auf"]
+    "markers": ["regelmäßiges Verb", "unregelmäßiges Verb mit Vokalwechsel", "trennbares Verb"]
   },
   "Modalverben (können, müssen, wollen, dürfen)": {
     "type": "mandatory_choice",
@@ -9,7 +9,7 @@
   },
   "Nominativ und Akkusativ": {
     "type": "mandatory_choice",
-    "markers": ["den", "einen", "keinen", "mich", "dich"]
+    "markers": ["bestimmter Artikel im Akkusativ", "unbestimmter Artikel im Akkusativ", "Personalpronomen im Akkusativ"]
   },
   "Possessivartikel": {
     "type": "mandatory_choice",
@@ -30,7 +30,7 @@
 
   "Perfekt (mit haben & sein)": {
     "type": "mandatory_choice",
-    "markers": ["habe ... gemacht", "ist ... gegangen", "sind ... gefahren", "hat ... gesehen", "bin ... geblieben"]
+    "markers": ["Perfekt mit haben", "Perfekt mit sein (Bewegung / Zustandsänderung)", "Perfekt mit trennbarem Verb"]
   },
   "Präteritum (nur sein, haben & Modalverben)": {
     "type": "mandatory_choice",
@@ -42,7 +42,7 @@
   },
   "Wechselpräpositionen (Ort: Wo? vs. Wohin?)": {
     "type": "mandatory_choice",
-    "markers": ["in die", "in der", "auf den", "auf dem", "an die", "an der", "unter den", "unter dem"]
+    "markers": ["Wechselpräposition mit Dativ (Wo?)", "Wechselpräposition mit Akkusativ (Wohin?)"]
   },
   "Nebensätze (weil, dass, wenn)": {
     "type": "mandatory_choice",
@@ -50,7 +50,7 @@
   },
   "Komparativ und Superlativ": {
     "type": "mandatory_choice",
-    "markers": ["besser als", "am besten", "schneller als", "am schnellsten", "mehr als", "am meisten"]
+    "markers": ["Komparativ mit Umlaut", "Superlativ mit am ...-sten", "unregelmäßige Steigerung (gut/viel/gern)"]
   },
   "Reflexive Verben": {
     "type": "mandatory_choice",
@@ -59,11 +59,11 @@
 
   "Präteritum (alle Verben)": {
     "type": "mandatory_choice",
-    "markers": ["ging", "sagte", "machte", "gab", "kam", "wurde", "sah", "fand"]
+    "markers": ["regelmäßiges Verb im Präteritum", "unregelmäßiges Verb im Präteritum"]
   },
   "Passiv Präsens & Präteritum": {
     "type": "mandatory_choice",
-    "markers": ["wird ... gemacht", "wurde ... gebaut", "werden ... verkauft", "wurden ... gefunden", "wird ... geschrieben"]
+    "markers": ["Präsens Passiv (wird gemacht)", "Präteritum Passiv (wurde gemacht)"]
   },
   "Relativsätze": {
     "type": "mandatory_choice",
@@ -83,7 +83,7 @@
   },
   "N-Deklination": {
     "type": "mandatory_choice",
-    "markers": ["den Studenten", "dem Kollegen", "einen Jungen", "den Herrn", "des Menschen"]
+    "markers": ["Berufsbezeichnung auf -e", "Nationalität", "Nomen auf -ent / -ist"]
   },
   "Konjunktionen (obwohl, trotzdem, deshalb)": {
     "type": "mandatory_choice",
@@ -92,11 +92,11 @@
 
   "Passiv (alle Zeiten & mit Modalverben)": {
     "type": "mandatory_choice",
-    "markers": ["muss ... werden", "kann ... werden", "ist ... worden", "war ... worden", "soll ... werden"]
+    "markers": ["Passiv mit Modalverb (muss gemacht werden)", "Perfekt Passiv (ist gemacht worden)", "Präteritum Passiv mit Modalverb"]
   },
   "Konjunktiv II der Vergangenheit (Irreale Bedingungen)": {
     "type": "mandatory_choice",
-    "markers": ["hätte ... gemacht", "wäre ... gegangen", "hätte ... gehabt", "wäre ... gewesen", "hätte ... gesehen"]
+    "markers": ["irreale Bedingung mit 'hätte'", "irreale Bedingung mit 'wäre'"]
   },
   "Zweiteilige Konnektoren (entweder...oder, weder...noch)": {
     "type": "mandatory_choice",
@@ -108,7 +108,7 @@
   },
   "Partizipialattribute (Partizip I & II als Adjektiv)": {
     "type": "mandatory_choice",
-    "markers": ["der lachende", "die weinende", "das gestohlene", "der reparierte", "die gekaufte", "der fließende"]
+    "markers": ["Partizip I (Gleichzeitigkeit)", "Partizip II (Vorzeitigkeit / Passiv)"]
   },
   "Plusquamperfekt": {
     "type": "mandatory_choice",
@@ -141,6 +141,6 @@
   },
   "Erweiterte Partizipialattribute": {
     "type": "mandatory_choice",
-    "markers": ["die von ihm geschriebene", "das gestern gekaufte", "der schnell fahrende", "die auf dem Tisch liegende"]
+    "markers": ["erweitertes Partizip I mit Ergänzungen", "erweitertes Partizip II mit Ergänzungen"]
   }
 }

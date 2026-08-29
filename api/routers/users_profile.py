@@ -29,6 +29,8 @@ def get_user_profile(chat_id: int):
     words_per_day = config_data.get("words_per_day", 5)
     phrases_per_day = config_data.get("phrases_per_day", 10)
 
+    discoveries = database.get_and_clear_discoveries(chat_id)
+
     return {
         "success": True,
         "is_new_user": False,
@@ -45,7 +47,9 @@ def get_user_profile(chat_id: int):
         # 🔥 ДОБАВЛЯЕМ ПЕРЕДАЧУ НОВЫХ НАСТРОЕК ВО ФРОНТЕНД
         "tts_voice_en": config_data.get("tts_voice_en"),
         "tts_voice_de": config_data.get("tts_voice_de"),
-        "tts_rate": config_data.get("tts_rate", "-15%")
+        "tts_rate": config_data.get("tts_rate", "-15%"),
+
+        "discoveries": discoveries
     }
 
 

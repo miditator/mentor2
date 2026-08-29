@@ -393,25 +393,22 @@ apiFetch(`/profile?chat_id=${user.id}&username=${telegramName}`)
             switchScreen('screen-onboarding');
         } else {
             updateProfileUI(data);
+            // 1. СНАЧАЛА ВСЕГДА ЗАГРУЖАЕМ ГЛАВНОЕ МЕНЮ
+            switchScreen('screen-main');
+            setAppHeader(`${window.currentUsername}! 👋`, false);
 
-            // 🔥 Проверяем, пришли ли по ссылке задания из бота
-            const urlParams = new URLSearchParams(window.location.search);
-            const targetPage = urlParams.get('page');
-
-            if (targetPage === 'task' && data.active_task && data.active_task.phrase) {
-                console.log("🔥 Активируем экран и запускаем задачу из базы");
-
-                // 1. Сначала делаем основной экран видимым и активным
-                switchScreen('screen-main');
-
-                // 2. Затем отрисовываем саму карточку задания штатным методом
-                showExistingTask(data.active_task);
-            } else {
-                // Обычный запуск главного меню
-                switchScreen('screen-main');
-                setAppHeader(`${window.currentUsername}! 👋`, false);
+            // 2. А ТЕПЕРЬ ПРОВЕРЯЕМ ЗАНАЧКУ И ВЫВОДИМ ПЛАШКИ ПОВЕРХ МЕНЮ!
+            if (data.discoveries && data.discoveries.length > 0) {
+                data.discoveries.forEach((disc, index) => {
+                    setTimeout(() => {
+                        if (typeof showSemanticDiscoveryModal === 'function') {
+                            showSemanticDiscoveryModal(disc.word, disc.translation, disc.tags);
+                        }
+                    }, 800 + (index * 600)); // Вылетят по очереди с красивой задержкой
+                });
             }
         }
+
     })
     .catch(err => console.error(err));
 
@@ -587,94 +584,146 @@ function animateMainProgress(type) {
     }
 }
 
-// ==========================================
-// 🔥 АНИМИРОВАННЫЙ БАБЛ МЫСЛЕЙ ИИ
-// ==========================================
+
 
 // ==========================================
-// 🔥 ГЛОБАЛЬНЫЙ ИНДИКАТОР ЗАГРУЗКИ ИИ
+// 🔥 ГЛОБАЛЬНЫЙ ИНДИКАТОР ЗАГРУЗКИ ИИ (КОНТЕКСТНЫЙ)
 // ==========================================
+window.aiLoaderInterval = null;
 
-window.showAiLoader = function(text = "ИИ думает...") {
+window.showAiLoader = function(customText) {
     let loader = document.getElementById('ai-floating-loader');
 
-    // Если элемента еще нет на странице — создаем его
     if (!loader) {
-        // 1. Добавляем стили анимаций
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes ai-brain-pulse {
-                0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.4)); }
-                50% { transform: scale(1.15); filter: drop-shadow(0 0 15px rgba(56, 189, 248, 1)); }
-                100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.4)); }
-            }
-            @keyframes ai-signal-blink {
-                0%, 100% { opacity: 0.2; transform: scale(0.8); }
-                50% { opacity: 1; transform: scale(1.2); background: #38bdf8; box-shadow: 0 0 8px #38bdf8; }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // 2. Создаем сам блок
         loader = document.createElement('div');
         loader.id = 'ai-floating-loader';
-        loader.style.cssText = `
-            position: fixed;
-            top: 70px; /* Появляется прямо под шапкой, над карточками */
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: linear-gradient(135deg, rgba(20, 30, 45, 0.95), rgba(10, 15, 22, 0.98));
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            border-radius: 18px;
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 15px rgba(56, 189, 248, 0.1);
-            z-index: 5000;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        `;
-
-        // 3. Наполняем контентом (Пульсирующий мозг + бегающие точки)
+        loader.className = 'ai-floating-loader';
         loader.innerHTML = `
-            <div style="font-size: 26px; animation: ai-brain-pulse 1.5s infinite;">🧠</div>
-            <div style="display: flex; flex-direction: column; justify-content: center;">
-                <span id="ai-loader-text" style="color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; margin-bottom: 4px; letter-spacing: 0.3px;">${text}</span>
-                <div style="display: flex; gap: 5px;">
-                    <div style="width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%; animation: ai-signal-blink 1s infinite 0s;"></div>
-                    <div style="width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%; animation: ai-signal-blink 1s infinite 0.2s;"></div>
-                    <div style="width: 6px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 50%; animation: ai-signal-blink 1s infinite 0.4s;"></div>
+            <div class="ai-loader-brain">🧠</div>
+            <div class="ai-loader-text-wrapper">
+                <span id="ai-loader-text" class="ai-loader-text"></span>
+                <div class="ai-loader-dots">
+                    <div class="ai-loader-dot"></div>
+                    <div class="ai-loader-dot"></div>
+                    <div class="ai-loader-dot"></div>
                 </div>
             </div>
         `;
         document.body.appendChild(loader);
     }
 
-    // Меняем текст (если нужно) и плавно показываем
-    document.getElementById('ai-loader-text').innerText = text;
-    loader.style.display = 'flex';
+    const textElement = document.getElementById('ai-loader-text');
+    clearInterval(window.aiLoaderInterval);
 
-    // Небольшая задержка для срабатывания CSS transition
-    setTimeout(() => {
-        loader.style.opacity = '1';
-        loader.style.transform = 'translateX(-50%) translateY(0)';
-    }, 10);
+    let phrases = [];
+
+    // 🔥 РАЗДЕЛЕНИЕ ПО КОНТЕКСТУ
+    const textToCheck = (customText || "").toLowerCase();
+
+    if (textToCheck.includes("подсказк") || textToCheck.includes("помощ")) {
+        // Контекст для подсказок
+        phrases = [
+            "💡 Анализирую твое задание...",
+            "🕵️‍♂️ Подбираю грамматическую наводку...",
+            "✨ Формулирую подсказку..."
+        ];
+    } else if (!customText || textToCheck.includes("составляет") || textToCheck.includes("задание")) {
+        // Контекст для генерации нового задания
+        phrases = [
+            "🔍 Ищу твои слабые места...",
+            "🕸️ Читаю семантический граф...",
+            "🧩 Синтезирую правило грамматики...",
+            "✨ Вплетаю маркеры и генерирую..."
+        ];
+    } else {
+        // Статичный текст (например, "Сохраняем настройки...")
+        textElement.innerText = customText;
+        loader.style.display = 'flex';
+        void loader.offsetWidth;
+        loader.classList.add('visible');
+        return;
+    }
+
+    let i = 0;
+    textElement.innerText = phrases[0];
+
+    window.aiLoaderInterval = setInterval(() => {
+        i++;
+        if (i < phrases.length) {
+            textElement.style.opacity = 0;
+            setTimeout(() => {
+                textElement.innerText = phrases[i];
+                textElement.style.opacity = 1;
+            }, 200);
+        }
+    }, 1200);
+
+    loader.style.display = 'flex';
+    void loader.offsetWidth;
+    loader.classList.add('visible');
 };
 
 window.hideAiLoader = function() {
+    clearInterval(window.aiLoaderInterval);
     const loader = document.getElementById('ai-floating-loader');
     if (loader) {
-        // Плавно скрываем
-        loader.style.opacity = '0';
-        loader.style.transform = 'translateX(-50%) translateY(-20px)';
-
-        // Убираем из DOM-потока после завершения анимации
+        loader.classList.remove('visible');
         setTimeout(() => loader.style.display = 'none', 300);
     }
+};
+
+// ==========================================
+// 🔥 ОКНО РЕНТГЕНА ЗАДАНИЯ (ВИЗУАЛИЗАЦИЯ)
+// ==========================================
+window.showXRayModal = function(xrayDataStr) {
+    const data = JSON.parse(decodeURIComponent(xrayDataStr));
+
+    const overlay = document.createElement('div');
+    overlay.className = 'xray-overlay';
+
+    overlay.innerHTML = `
+        <div class="xray-modal-content">
+            <button onclick="closeXRayModal(this)" class="xray-close-btn">✕</button>
+            
+            <div class="xray-title-row">
+                <div class="xray-title-icon">🧠</div>
+                <div class="xray-title-text">Рентген генерации</div>
+            </div>
+            
+            <div class="xray-list">
+                <div class="xray-item">
+                    <span class="xray-label">[1] Целевое слово:</span><br>
+                    <span class="xray-value-word">${data.target_word || '-'}</span>
+                </div>
+                <div class="xray-item">
+                    <span class="xray-label">[2] Тема из семант. графа:</span><br>
+                    <span class="xray-value-theme">${data.theme || '-'}</span>
+                </div>
+                <div class="xray-item">
+                    <span class="xray-label">[3] Фоновые слова:</span><br>
+                    <span class="xray-value-bg">${data.bg_words && data.bg_words.length > 0 ? data.bg_words.join(', ') : 'автоматический подбор'}</span>
+                </div>
+                <div class="xray-item">
+                    <span class="xray-label">[4] Ориентир (маркер):</span><br>
+                    <span class="xray-value-marker">${data.marker || 'отсутствует'}</span>
+                </div>
+                
+                <div class="xray-footer">
+                    ⏱️ Синтезировано нейросетью за <b>${data.time || '0.0'} сек.</b>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+    void overlay.offsetWidth;
+    overlay.classList.add('visible');
+};
+
+window.closeXRayModal = function(btnElement) {
+    const overlay = btnElement.closest('.xray-overlay');
+    overlay.classList.remove('visible');
+    setTimeout(() => overlay.remove(), 300);
 };
 
 // ==========================================
@@ -785,3 +834,84 @@ function selectDifficulty(diff) {
         }
     });
 }
+
+// ==========================================
+// 🔥 УНИВЕРСАЛЬНЫЙ ШАБЛОН КАРТОЧКИ ЗАДАНИЯ (ЕДИНАЯ ТОЧКА РЕНДЕРА)
+// ==========================================
+window.renderTaskCard = function(phraseText, targetWord, ruleName, xrayData, buttonsHtml, warningHtml = '') {
+    const chatContainer = document.getElementById('chat-messages');
+    if (!chatContainer) return;
+
+    // Безопасно экранируем данные для кнопки рентгена
+    const xraySafe = encodeURIComponent(JSON.stringify(xrayData || {}));
+    const cleanWord = targetWord ? targetWord.split('(')[0].trim() : "слово";
+    const safeRule = ruleName ? ruleName.replace(/'/g, "\\'") : "Общая грамматика";
+
+    chatContainer.innerHTML = `
+        <div style="display: flex; flex-direction: column; width: 100%; margin-top: 15px; margin-bottom: auto;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: 260px; background: linear-gradient(135deg, rgba(20, 30, 45, 0.95) 0%, rgba(8, 12, 18, 0.98) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px 20px; position: relative; box-sizing: border-box; width: 100%; text-align: center;">
+                
+                <div style="width: 100%;">
+                    <!-- Основной текст задания (вопрос / фраза) -->
+                    <div style="font-size: 22px; font-weight: 900; color: var(--text-color); margin-bottom: 16px; word-wrap: break-word; line-height: 1.3;">
+                        ${phraseText}
+                    </div>
+                    
+                    <!-- Опциональное предупреждение (например, о подмене слова) -->
+                    ${warningHtml}
+                    
+                    <!-- Информационные плашки: Целевое слово с Рентгеном + Тема -->
+                    <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                        
+                        <div style="display: flex; gap: 8px;">
+                            <div class="task-word-badge" style="flex: 2; display: flex; flex-direction: column; justify-content: center;">
+                                <span><b style="font-size: 15px;">Слово:</b> <i>${cleanWord}</i></span>
+                            </div>
+                        <div onclick="showXRayModal('${xraySafe}')" onmousedown="event.preventDefault()" class="xray-btn-trigger" style="cursor: pointer;">
+                            <span style="font-size: 16px; margin-bottom: 2px; pointer-events: none;">🧠</span> Рентген
+                        </div>
+                        </div>
+                        
+                        <div class="task-rule-badge" onmousedown="event.preventDefault()" onclick="explainRule('${safeRule}')">
+                            <span><b style="font-size: 15px;">Тема:</b> <i>${ruleName}</i></span>
+                            <div class="info-pulse-badge">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 16v-4"></path>
+                                    <path d="M12 8h.01"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!-- Кнопки управления (Подсказка, Сдаюсь, Поменять и т.д.) -->
+                ${buttonsHtml ? `<div style="display: flex; gap: 10px; width: 100%; margin-top: 20px;">${buttonsHtml}</div>` : ''}
+                
+            </div>
+        </div>
+    `;
+};
+
+// ==========================================
+// 🔥 ЦЕНТРАЛИЗОВАННАЯ ЗАЩИТА КЛАВИАТУРЫ (ФИНАЛЬНЫЙ ЧИСТЫЙ ФИКС)
+// ==========================================
+document.addEventListener('mousedown', function(e) {
+    const activeEl = document.activeElement;
+
+    // 1. Проверяем, открыта ли сейчас клавиатура (находится ли фокус в поле ввода)
+    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+
+        // 2. Если клик пришелся ПО ДРУГОМУ инпуту — ничего не делаем, позволяем переключить фокус
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            return;
+        }
+
+        // 3. Для всех остальных элементов (пустой фон, карточки, любые кнопки):
+        // Отменяем стандартное поведение mousedown.
+        // Это ЗАПРЕЩАЕТ браузеру снимать фокус с поля ввода (клавиатура не пропадает),
+        // но при этом событие 'click' по кнопке или карточке отработает как положено!
+        e.preventDefault();
+    }
+}, { capture: true, passive: false });

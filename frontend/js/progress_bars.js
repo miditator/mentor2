@@ -2,6 +2,10 @@
 // ФАЙЛ: frontend/js/progress_bars.js
 // ==========================================
 
+// ==========================================
+// ФАЙЛ: frontend/js/progress_bars.js
+// ==========================================
+
 function initProgressBars() {
     const containerEl = document.getElementById('progress-banner-block');
     if (!containerEl) return;
@@ -48,6 +52,12 @@ function initProgressBars() {
                 <div id="mentor-3d-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;">
                     <div id="mentor-3d-container" style="width: 100%; height: 100%; position: relative;"></div>
                 </div>
+
+                <!-- 🔥 КНОПКА "КАРТА СЛОВ" (Использует класс из style.css) -->
+                <button onclick="openSemanticMap()" class="semantic-map-btn">
+                    <span class="semantic-map-icon">🌌</span>
+                    <span class="semantic-map-text">Карта слов</span>
+                </button>
 
                 <!-- 🔥 КЛИКАБЕЛЬНЫЕ ЗОНЫ -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex;">
@@ -116,6 +126,15 @@ function initProgressBars() {
         document.getElementById('pb-fill-2').style.width = `${phrasesPercent}%`;
     }
 }
+
+window.triggerInteraction = function(target) {
+    if (target === 'home' && typeof checkMentorIdentity === 'function') {
+        checkMentorIdentity();
+    }
+    if (window.characterInstance) {
+        window.characterInstance.command(target);
+    }
+};
 
 window.triggerInteraction = function(target) {
     if (target === 'home' && typeof checkMentorIdentity === 'function') {

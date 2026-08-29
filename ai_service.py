@@ -15,60 +15,98 @@ from api import content_engine
 import live_chat_database
 
 
-def ask_ai(prompt: str, temperature: float = 0.7, chat_id: int = None) -> str:
+def ask_ai(prompt: str, temperature: float = 0.7, chat_id: int = None, use_search: bool = False,
+           override_model: str = None) -> str:
     """
     Универсальная точка запроса к ИИ.
-    Сейчас работает на Gemini (из config.ACTIVE_LLM_PROVIDER),
-    но сохраняет логику переключения для будущих обновлений.
+    use_search=True включает доступ в Google Поиск для Gemini.
+    override_model позволяет принудительно использовать быструю модель (например, для роутера).
     """
-    # По умолчанию берем глобальный провайдер из config.py
+    import config
     user_provider = config.ACTIVE_LLM_PROVIDER
 
-    # Если в будущем захотим снова включить выбор для пользователей,
-    # этот блок автоматически подхватит их настройки из базы:
     if chat_id:
         user_config = database.get_user_config(chat_id)
         if user_config and user_config.get("ai_provider"):
-            # Раскомментируй строку ниже, когда решишь вернуть выбор провайдера:
-            # user_provider = user_config.get("ai_provider")
             pass
 
     provider_config = config.LLM_PROVIDERS.get(user_provider, config.LLM_PROVIDERS[config.ACTIVE_LLM_PROVIDER])
     api_type = provider_config["type"]
-    model_name = provider_config["models"]
-    api_key = provider_config["api_key"]
 
-    print(f"\n🚀 [AI ROUTER] Запрос от chat_id: {chat_id} | Нейросеть: {user_provider.upper()} ({model_name}) 🚀\n")
+    # 🔥 Строгая привязка модели: берем override_model, если передан, иначе из конфига провайдера
+    model_name = override_model if override_model else provider_config["models"]
+    api_key = provider_config["api_key"]
 
     try:
         answer = ""
         if api_type == "openai":
             from openai import OpenAI
             client = OpenAI(api_key=api_key, base_url=provider_config.get("base_url"))
-            response = client.chat.completions.create(model=model_name, messages=[{"role": "user", "content": prompt}], temperature=temperature)
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=temperature
+            )
             answer = response.choices[0].message.content.strip()
+
         elif api_type == "gemini":
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            client = genai.GenerativeModel(model_name)
-            response = client.generate_content(prompt, generation_config={"temperature": temperature})
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=api_key)
+
+            # Формируем конфигурацию вызова
+            gen_config = {"temperature": temperature}
+
+            # 🔥 Включаем Google Search ТОЛЬКО если use_search=True
+            if use_search:
+                gen_config["tools"] = [types.Tool(google_search=types.GoogleSearch())]
+
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(**gen_config)
+            )
             answer = response.text.strip()
 
         return answer.replace("*", "")
+
     except Exception as e:
-        print(f"❌ Ошибка в ask_ai (Провайдер: {user_provider}): {e}")
-        raise e
+        error_msg = str(e)
+        print(f"❌ Ошибка в ask_ai (Провайдер: {user_provider}, Модель: {model_name}): {error_msg}")
+
+        # 🔥 Мягкий перехват лимитов Gemini (429)
+        if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+            return '{"reply": "⚠️ <b>Превышен лимит запросов к ИИ.</b> Google Gemini требует подождать пару минут, прежде чем продолжить.", "translation": "⚠️ Лимит запросов ИИ", "words": [], "is_correct": false}'
+
+        return '{"reply": "⚠️ Произошла непредвиденная ошибка при обращении к ИИ.", "translation": "Ошибка ИИ", "words": [], "is_correct": false}'
 
 
-vision_model = loader.vision_model
+
 
 
 def translate_word_ai(word: str, target_lang: str, chat_id: int, is_russian: bool = False):
-    prompt = aiPrompts.word_translation_from_ru_prompt(word, target_lang) if is_russian else aiPrompts.word_translation_from_foreign_prompt(word, target_lang)
-    answer = ask_ai(prompt, temperature=0.3, chat_id=chat_id)
+    import re
+    import aiPrompts
 
+    lang_name = "АНГЛИЙСКОМУ" if target_lang == 'en' else "НЕМЕЦКОМУ"
+
+    # 1. Формируем промпт с жестким запретом на чужие языки
+    if is_russian:
+        prompt = aiPrompts.word_translation_from_ru_prompt(word, target_lang)
+    else:
+        base_prompt = aiPrompts.word_translation_from_foreign_prompt(word, target_lang)
+        # 🔥 Добавляем "Анти-Полиглот" броню прямо к промпту
+        prompt = f"{base_prompt}\n\n[КРИТИЧЕСКОЕ ПРАВИЛО]: Если слово '{word}' объективно НЕ существует в {lang_name} языке (например, это слово из другого языка вроде 'warum' для английского), ты ОБЯЗАН вернуть ровно одну строку: ERROR_WRONG_LANGUAGE"
+
+    # Снижаем температуру до 0.1, чтобы ИИ был максимально строгим словарем
+    answer = ask_ai(prompt, temperature=0.1, chat_id=chat_id)
+
+    # 2. Аккуратно перехватываем ошибки и возвращаем их текстом
+    if answer.strip() == "ERROR_WRONG_LANGUAGE":
+        return {"error": "wrong_language"}
     if answer.strip() == "ERROR_NONSENSE":
-        raise Exception("Это слово не существует или содержит слишком много опечаток. Проверьте правильность написания! 🕵️‍♂️")
+        return {"error": "nonsense"}
 
     is_typo = False
     if answer.startswith("TYPO ||"):
@@ -120,6 +158,15 @@ def check_translation_ai(original_phrase: str, reference_phrase: str, user_answe
 
     raw_text = ask_ai(prompt, temperature=0.2, chat_id=chat_id)
 
+    print(f"\n" + "=" * 60)
+    print(f"🕵️‍♂️ [RULE AUDIT LOG] Проверка перевода для chat_id: {chat_id}")
+    print(f"   • Правило (тема): '{rule}'")
+    print(f"   • Исходное задание: '{original_phrase}'")
+    print(f"   • Ответ пользователя: '{user_answer}'")
+    print(f"------------------------------------------------------------")
+    print(f"🤖 Сырой ответ ИИ (включая <think>):\n{raw_text}")
+    print(f"=" * 60 + "\n")
+
     cleaned = re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
     code_block_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', cleaned, re.DOTALL)
     if code_block_match:
@@ -135,21 +182,29 @@ def check_translation_ai(original_phrase: str, reference_phrase: str, user_answe
     try:
         parsed_data = json.loads(json_str)
 
-        # 🔥 МАГИЯ СЛАБЫХ МЕСТ: Автоматическая диагностика и лечение
         if chat_id and rule and rule != "General Grammar":
-            if parsed_data.get("is_correct"):
-                # Ученик ответил верно -> лечим слабое место
+            is_correct = parsed_data.get("is_correct", False)
+            rule_followed = parsed_data.get("rule_followed", True)
+
+            print(f"📊 [WEAKNESS ANALYZER RESULTS]")
+            print(f"   • Общий вердикт (is_correct): {is_correct}")
+            print(f"   • Аудит правила (rule_followed): {rule_followed}")
+            print(f"   • Комментарий (feedback): {parsed_data.get('feedback')}")
+
+            if is_correct:
                 database.heal_weakness(chat_id, rule)
+                print(f"   💊 [HEAL] Слабое место '{rule}' подлечено.")
             else:
-                # Ученик ошибся -> записываем в слабые места
-                database.add_or_update_weakness(chat_id, rule)
+                if not rule_followed:
+                    database.add_or_update_weakness(chat_id, rule)
+                    print(f"   ⚠️ [WEAKNESS ADDED] Ошибка в самом правиле! Слабое место зафиксировано.")
+                else:
+                    print(f"   🛡️ [PROTECTION] Ошибка в лексике, но правило соблюдено. Слабое место НЕ ухудшено.")
 
         return parsed_data
     except json.JSONDecodeError as e:
         print(f"❌ Ошибка парсинга JSON в check_translation_ai: {e}\nОтвет ИИ: {json_str}")
         return {"is_correct": False, "feedback": "Произошла ошибка при анализе ответа. Попробуйте еще раз."}
-
-
 
 
 
@@ -161,26 +216,23 @@ def get_unified_help_ai(russian_phrase: str, foreign_phrase: str, lang_name: str
     return ask_ai(prompt, temperature=0.3, chat_id=chat_id)
 
 
-
-
-
-
-
-
-
-
 def extract_words_from_image_ai(base64_image: str, target_lang: str, chat_id: int = None) -> dict:
-
+    from google import genai
+    import config
+    import aiPrompts
 
     prompt = aiPrompts.extract_words_from_image_prompt(target_lang)
     image_bytes = base64.b64decode(base64_image)
     image = PIL.Image.open(io.BytesIO(image_bytes))
     if image.mode != 'RGB': image = image.convert('RGB')
 
-    response = vision_model.generate_content([prompt, image])
+    # 🔥 Используем новый SDK (как и во всем остальном проекте)
+    client = genai.Client(api_key=config.GEMINI_KEY)
+    response = client.models.generate_content(
+        model=config.VISION_MODEL,
+        contents=[prompt, image]
+    )
     ai_text = response.text.strip()
-
-
 
     if ai_text.startswith("```json"): ai_text = ai_text[7:]
     if ai_text.startswith("```"): ai_text = ai_text[3:]
@@ -427,7 +479,19 @@ def generate_lego_grammar_task_ai(lang_name: str, target_word: str, difficulty: 
                 database.track_grammar_usage(chat_id, bg_id, "background")
 
         print(f"⏱️ [TIMING] ✨ ИТОГО (Создатель + Валидатор): {time.time() - total_start_time:.4f} сек.\n")
+        
+        # 🔥 ДОБАВЛЯЕМ СТАТИСТИКУ ДЛЯ "РЕНТГЕНА ЗАДАНИЯ"
+        final_json["xray"] = {
+            "rule": payload["rule_name"],
+            "target_word": t_word,
+            "theme": task_theme,
+            "bg_words": bg_words,
+            "marker": marker,
+            "time": round(time.time() - total_start_time, 2)
+        }
+
         return final_json
+
 
     except Exception as e:
         print(f"❌ Ошибка в generate_lego_grammar_task_ai: {e}")
@@ -456,82 +520,97 @@ def classify_word_semantic_ai(word: str, translation: str, chat_id: int = None) 
 # ДОБАВИТЬ В ai_service.py
 # ==========================================
 
+def get_web_context(query: str, max_results: int = 3) -> str:
+    """Ищет информацию в DuckDuckGo и возвращает сжатый текст для Gemini."""
+    if not query or query.lower() == "none" or query.lower() == "null":
+        return ""
+    try:
+        from ddgs import DDGS
+        print(f"🌍 [WEB SEARCH] Ищу в DuckDuckGo: '{query}'")
+        with DDGS() as ddgs:
+            results = list(ddgs.text(query, max_results=max_results))
+
+        if not results:
+            return ""
+
+        context = "СВЕЖАЯ ИНФОРМАЦИЯ ИЗ ИНТЕРНЕТА (Используй её для ответа, если она релевантна):\n"
+        for r in results:
+            context += f"- {r.get('body')}\n"
+        return context + "\n"
+    except Exception as e:
+        print(f"❌ [WEB SEARCH ERROR] Ошибка поиска: {e}")
+        return ""
+
 # ==========================================
 # ЖИВОЙ ЧАТ С ИИ-МЕНТОРОМ
 # ==========================================
 
-def process_live_mentor_chat(chat_id: int, user_text: str) -> str:
-    # 1. Достаем все текущие темы пользователя из НОВОЙ базы
-    existing_topics = live_chat_database.get_all_user_topics(chat_id)
 
-    # 2. Быстро определяем тему сообщения через роутер
+def analyze_chat_topic(user_text: str, existing_topics: list) -> dict:
+
+
+
+    router_start = time.time()
     router_prompt = aiPrompts.dynamic_topic_router_prompt(user_text, existing_topics)
-    raw_route = ask_ai(f"[Верни СТРОГО JSON]\n{router_prompt}", temperature=0.1, chat_id=chat_id)
+
+    raw_route = ask_ai(
+        f"[Верни СТРОГО JSON]\n{router_prompt}",
+        temperature=0.1,
+        override_model=config.ROUTER_MODEL
+    )
+    print(f"   ⏱ [Тайминг] Роутер: {time.time() - router_start:.4f} сек.", flush=True)
 
     clean_route = re.sub(r'<think>.*?</think>', '', raw_route, flags=re.DOTALL).strip()
     match = re.search(r'\{.*\}', clean_route, re.DOTALL)
 
-    # По умолчанию ставим needs_stats = False
-    route_json = json.loads(match.group(0)) if match else {"topic": "General", "is_new": False, "needs_stats": False}
+    if match:
+        return json.loads(match.group(0))
+    return {"topic": "General", "is_new": False, "needs_stats": False, "search_query": None, "wants_new_rule": False}
 
-    topic_title = route_json.get("topic", "General")
-    needs_stats = route_json.get("needs_stats", False)
 
-    # 🔥 3. ДОСТАЕМ СТАТИСТИКУ ТОЛЬКО ЕСЛИ ИИ РЕШИЛ, ЧТО ОНА НУЖНА
-    user_stats = None
-    if needs_stats:
-        print(f"📊 [LIVE CHAT] Пользователь запросил стату. Идем в базу database.get_user_daily_stats()")
-        user_stats = database.get_user_daily_stats(chat_id)  # Твоя функция из предыдущего шага
+def generate_mentor_reply(user_text: str, topic_data: dict, nodes: list, history: list,
+                          user_stats: dict = None, active_weaknesses: list = None,
+                          suggested_rules: list = None, web_context: str = "") -> dict:
 
-    # 4. Загружаем или инициализируем тему
-    topic_data = live_chat_database.get_topic_by_title(chat_id, topic_title)
-    if not topic_data:
-        topic_id = live_chat_database.upsert_user_topic(chat_id, topic_title, "Начало изучения темы",
-                                                        "Первое обсуждение")
-        topic_data = {"id": topic_id, "title": topic_title, "summary": "Начало темы",
-                      "last_checkpoint": "Первое обсуждение"}
-    else:
-        topic_id = topic_data["id"]
+    from google import genai
+    from google.genai import types
 
-    nodes = live_chat_database.get_topic_nodes(topic_id)
-    history = live_chat_database.get_recent_chat_history(chat_id, limit=6)
+    chat_prompt = aiPrompts.dynamic_mentor_chat_prompt(
+        user_text, topic_data, nodes, history, user_stats, active_weaknesses, suggested_rules
+    )
 
-    # 5. Генерируем ответ Ментора, передавая (или не передавая) статистику
-    chat_prompt = aiPrompts.dynamic_mentor_chat_prompt(user_text, topic_data, nodes, history, user_stats)
-    raw_response = ask_ai(f"[Верни СТРОГО JSON]\n{chat_prompt}", temperature=0.6, chat_id=chat_id)
+    if web_context:
+        chat_prompt = f"{web_context}\n{chat_prompt}"
+
+    llm_start = time.time()
+    try:
+        print(f"🧠 [LLM REQUEST] Отправка запроса ИИ-ментору...", flush=True)
+        client = genai.Client(api_key=config.GEMINI_KEY)
+        response = client.models.generate_content(
+            model=config.LIVE_CHAT_MODEL,
+            contents=f"[Верни СТРОГО JSON]\n{chat_prompt}",
+            config=types.GenerateContentConfig(temperature=0.6)
+        )
+        raw_response = response.text.replace("*", "")
+    except Exception as e:
+        print(f"❌ [LIVE CHAT ERROR] {e}", flush=True)
+        if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+            return {"reply": "⚠️ <b>Превышен лимит запросов к ИИ.</b> Подожди пару минут."}
+        return {"reply": "⚠️ Извини, небольшая заминка с сетью. Можешь повторить?"}
+
+    print(f"   ⏱ [Тайминг] Основной ИИ: {time.time() - llm_start:.4f} сек.", flush=True)
 
     clean_resp = re.sub(r'<think>.*?</think>', '', raw_response, flags=re.DOTALL).strip()
     match_resp = re.search(r'\{.*\}', clean_resp, re.DOTALL)
 
     if match_resp:
-        data = json.loads(match_resp.group(0))
-        mentor_reply = data.get("reply", "Интересная мысль! Расскажи подробнее.")
-        new_summary = data.get("updated_summary", topic_data.get("summary"))
-        new_checkpoint = data.get("new_checkpoint", topic_data.get("last_checkpoint"))
-        new_node = data.get("new_node")
-
-        # 5. Асинхронно/в базе обновляем состояние темы и чекпоинт
-        live_chat_database.upsert_user_topic(chat_id, topic_title, new_summary, new_checkpoint)
-        if new_node and isinstance(new_node, dict) and new_node.get("concept"):
-            live_chat_database.add_topic_node(
-                topic_id=topic_id,
-                concept=new_node.get("concept"),
-                status=new_node.get("status", "in_progress"),
-                details=new_node.get("details", "")
-            )
-    else:
-        mentor_reply = clean_resp
-
-    # 6. Сохраняем сообщения в историю
-    live_chat_database.save_chat_message(chat_id, "user", user_text)
-    live_chat_database.save_chat_message(chat_id, "assistant", mentor_reply)
-
-    return mentor_reply
+        return json.loads(match_resp.group(0))
+    return {"reply": clean_resp}
 
 
 def analyze_text_intent(chat_id: int, user_text: str, target_lang: str) -> dict:
     import live_chat_database
-    import re
+
 
     clean_text = user_text.strip()
 
@@ -581,7 +660,10 @@ def analyze_text_intent(chat_id: int, user_text: str, target_lang: str) -> dict:
     prompt = aiPrompts.get_text_intent_prompt(clean_text, chat_history_str, target_lang)
 
     try:
-        raw_response = ask_ai(prompt, temperature=0.1, chat_id=chat_id)
+        import config
+        # 🔥 Используем быструю модель для роутера
+        raw_response = ask_ai(prompt, temperature=0.1, chat_id=chat_id, override_model=config.ROUTER_MODEL)
+
         clean_json = re.sub(r'<think>.*?</think>', '', raw_response, flags=re.DOTALL).strip()
         clean_json = clean_json.replace("```json", "").replace("```", "").strip()
 
@@ -605,7 +687,7 @@ def analyze_audio_grammar_gemini(file_path: str, transcript: str, target_lang: s
     # Жестко используем Gemini, так как нам нужна его мультимодальность (умение слушать аудио)
     provider_config = config.LLM_PROVIDERS.get("gemini")
     api_key = provider_config["api_key"]
-    model_name = "gemini-2.5-flash"  # Оптимальная модель для аудио
+    model_name = config.ANALYZE_AUDIO_MODEL  # Оптимальная модель для аудио
 
     client = genai.Client(api_key=api_key)
     lang_name = "английском" if target_lang == "en" else "немецком"
@@ -645,9 +727,141 @@ def analyze_audio_grammar_gemini(file_path: str, transcript: str, target_lang: s
 
         return json.loads(cleaned_text)
     except Exception as e:
-        print(f"❌ Ошибка в analyze_audio_grammar_gemini: {e}")
+        import traceback
+        print(f"❌ [CRITICAL AUDIO ERROR] Ошибка в analyze_audio_grammar_gemini: {e}")
+        traceback.print_exc()  # Выведет точную строку и причину в консоль
         return {
             "ru_translation": transcript,
-            "feedback": "Не удалось проанализировать аудио через Gemini.",
+            "feedback": f"Ошибка связи с Gemini: {str(e)}",
             "detected_weakness": None
         }
+
+# 🔥 Быстрая оперативная память для сравнения произношения (не засоряет БД)
+PRONUNCIATION_MEMORY = {}
+
+
+
+
+
+def analyze_audio_pronunciation_gemini(file_path: str, transcript: str, target_lang: str, chat_id: int = None) -> dict:
+    from google import genai
+    from google.genai import types
+
+
+    print(f"\n" + "🎙️" * 30)
+    print(f"🎙️ [PRONUNCIATION LOG] НАЧАЛО АНАЛИЗА ДЛЯ chat_id: {chat_id}")
+
+    # 1. Достаем краткий список прошлых ошибок из ОЗУ
+    past_errors = PRONUNCIATION_MEMORY.get(chat_id, "")
+    print(f"   • Ошибки из прошлой попытки (память): {past_errors if past_errors else '[Нет прошлой памяти / Первая попытка]'}")
+
+    provider_config = config.LLM_PROVIDERS.get("gemini")
+    api_key = provider_config["api_key"]
+    model_name = config.ANALYZE_AUDIO_MODEL
+
+    client = genai.Client(api_key=api_key)
+    lang_name = "английском" if target_lang == "en" else "немецком"
+
+    prompt = aiPrompts.pronunciation_analysis_prompt(transcript, lang_name, past_errors)
+    print(f"   • Сгенерированный промпт отправлен в модель {model_name}")
+
+    try:
+        uploaded_file = client.files.upload(file=file_path)
+
+        response = client.models.generate_content(
+            model=model_name,
+            contents=[prompt, uploaded_file],
+            config=types.GenerateContentConfig(temperature=0.2)
+        )
+
+        raw_resp = response.text
+        print(f"   • Сырой ответ от Gemini:\n{raw_resp}")
+
+        clean_response_text = raw_resp.replace("*", "")
+
+        cleaned_text = re.sub(r'```(?:json)?\s*(\{.*?\})\s*```', r'\1', clean_response_text, flags=re.DOTALL).strip()
+        start = cleaned_text.find('{')
+        end = cleaned_text.rfind('}')
+        if start != -1 and end != -1:
+            cleaned_text = cleaned_text[start:end + 1]
+
+        data = json.loads(cleaned_text)
+
+        # 2. Сохраняем новые ошибки в память
+        new_core_errors = data.get('core_errors', '')
+        if chat_id:
+            PRONUNCIATION_MEMORY[chat_id] = new_core_errors
+            print(f"   ✅ Новые ошибки записаны в память для chat_id {chat_id}: {new_core_errors}")
+
+        print(f"🎙️ [PRONUNCIATION LOG] АНАЛИЗ УСПЕШНО ЗАВЕРШЕН")
+        print("🎙️" * 30 + "\n")
+
+        return data
+    except Exception as e:
+        print(f"❌ Ошибка в analyze_audio_pronunciation_gemini: {e}")
+        print("🎙️" * 30 + "\n")
+        return {
+            "recognized_text": "-",
+            "ru_translation": transcript,
+            "feedback": "Не удалось проанализировать произношение через Gemini.",
+            "core_errors": ""
+        }
+
+def analyze_text_grammar_ai(text: str, target_lang: str, chat_id: int = None) -> dict:
+            import json
+            import re
+            import aiPrompts
+
+            # 🔥 Генерируем промпт через наш генератор
+            prompt = aiPrompts.text_grammar_analysis_prompt(text, target_lang)
+
+            raw_text = ask_ai(prompt, temperature=0.2, chat_id=chat_id)
+
+            cleaned_text = re.sub(r'```(?:json)?\s*(\{.*?\})\s*```', r'\1', raw_text, flags=re.DOTALL).strip()
+            start = cleaned_text.find('{')
+            end = cleaned_text.rfind('}')
+            if start != -1 and end != -1:
+                cleaned_text = cleaned_text[start:end + 1]
+
+            try:
+                return json.loads(cleaned_text)
+            except Exception as e:
+                print(f"❌ Ошибка в analyze_text_grammar_ai: {e}")
+                return {"ru_translation": text, "feedback": "Не удалось проанализировать грамматику.",
+                        "detected_weakness": None}
+
+
+def batch_classify_semantic_ai(words_data: list, chat_id: int = None) -> dict:
+    """Массово классифицирует неразмеченные слова по макро-кластерам."""
+    import config
+    import json
+    import re
+    import time
+    import aiPrompts
+
+    # Формируем список: "apple (яблоко), run (бежать)"
+    words_list_str = ", ".join([f"{item['word']} ({item['translation']})" for item in words_data])
+
+    prompt = aiPrompts.batch_semantic_classification_prompt(words_list_str)
+
+    print(f"\n🧠 [BATCH AI] Отправляем {len(words_data)} слов на ИИ-сортировку...", flush=True)
+    print(f"   • Модель: {config.ROUTER_MODEL}", flush=True)
+    start_time = time.time()
+
+    try:
+        # Используем быструю модель-роутер для мгновенной сортировки
+        raw_text = ask_ai(f"[Верни СТРОГО JSON]\n{prompt}", temperature=0.1, chat_id=chat_id,
+                          override_model=config.ROUTER_MODEL)
+
+        clean_json = re.sub(r'<think>.*?</think>', '', raw_text, flags=re.DOTALL).strip()
+        clean_json = clean_json.replace("```json", "").replace("```", "").strip()
+
+        result = json.loads(clean_json)
+
+        print(f"   ⏱ [Тайминг] AI-сортировка завершена за {time.time() - start_time:.4f} сек.", flush=True)
+        print(f"   ✅ [BATCH AI] Успешно размечено слов: {len(result)}", flush=True)
+
+        return result
+    except Exception as e:
+        print(f"   ❌ [BATCH AI ERROR] Ошибка: {e}", flush=True)
+        return {}

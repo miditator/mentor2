@@ -10,6 +10,7 @@ from .debug import router as debug_router
 from .chat import router as chat_router
 from .books import router as books_router
 from .users_profile import router as users_router
+from .semanticMap import router as semanticmap_router
 
 all_routers = [
     users_router,
@@ -23,5 +24,6 @@ all_routers = [
     settings_router,
     tasks_router,
     training_router,
+    semanticmap_router,
     translator_router
 ]

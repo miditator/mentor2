@@ -462,3 +462,100 @@ background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100
 .task-rule-badge .info-pulse-badge::after {
     border: 1px solid rgba(233, 213, 255, 0.4);
 }
+
+/* ==========================================
+   АНИМИРОВАННАЯ КАРТОЧКА ОТКРЫТИЯ (СЕМАНТИКА)
+   ========================================== */
+.semantic-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.semantic-modal-content {
+    background: linear-gradient(135deg, rgba(30, 25, 45, 0.95), rgba(15, 10, 25, 0.98));
+    border: 1px solid rgba(168, 129, 243, 0.4);
+    border-radius: 24px;
+    padding: 30px 20px;
+    width: 85%;
+    max-width: 340px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(168, 129, 243, 0.2);
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.semantic-modal-icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 20px rgba(168, 129, 243, 0.8));
+}
+
+.semantic-modal-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+.semantic-modal-text {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+/* 🔥 СТИЛЬ ДЛЯ ВЫДЕЛЕНИЯ ГЛАВНОГО СЛОВА */
+.semantic-word-highlight {
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0 4px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.semantic-tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 25px;
+}
+
+.semantic-tag {
+    background: rgba(168, 129, 243, 0.15);
+    border: 1px solid rgba(168, 129, 243, 0.5);
+    color: #dfcbf7;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(168, 129, 243, 0.2);
+}
+
+.semantic-modal-btn {
+    background: rgba(168, 129, 243, 0.2);
+    color: #ffffff;
+    width: 100%;
+    border-radius: 14px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    border: 1px solid rgba(168, 129, 243, 0.5);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}

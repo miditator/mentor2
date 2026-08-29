@@ -12,9 +12,11 @@ TOKEN = os.getenv("TOKEN")
 TASK_INTERVAL = 7200
 
 # Второстепенные модели (если нужны точечно для задач вроде аудио или зрения)
-VISION_MODEL = "gemini-2.5-flash"
+VISION_MODEL = "gemini-3.5-flash-lite"
+ANALYZE_AUDIO_MODEL = "gemini-3.5-flash-lite"
 AUDIO_MODEL = "whisper-large-v3"
-LIVE_CHAT_MODEL = "gemini-2.5-flash-lite" # Можно использовать gemini-2.5-pro, если нужен более глубокий анализ
+LIVE_CHAT_MODEL = "gemini-3.5-flash-lite" # Можно использовать gemini-2.5-pro, если нужен более глубокий анализ
+ROUTER_MODEL = "gemini-3.5-flash-lite"
 temperature = 0.5
 
 # 🔥 ЕДИНЫЙ ПУЛЬТ УПРАВЛЕНИЯ ПРОВАЙДЕРАМИ
@@ -55,3 +57,9 @@ MODEL = active_provider_config["models"]
 API_KEY = active_provider_config["api_key"]
 API_TYPE = active_provider_config["type"]
 BASE_URL = active_provider_config.get("base_url")
+
+print("========================================")
+print(f"📝 ЛОГ CONFIG: GEMINI_KEY загружен? -> {bool(GEMINI_KEY)}")
+if GEMINI_KEY:
+    print(f"📝 ЛОГ CONFIG: Первые символы ключа: {GEMINI_KEY[:10]}...")
+print("========================================")

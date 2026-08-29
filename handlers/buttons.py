@@ -9,7 +9,7 @@ from telebot import types
 from loader import bot
 from ai_service import ask_ai
 # 🔥 ОБНОВЛЕННЫЙ ИМПОРТ:
-from handlers.words import start_word_training, enter_add_word_mode, process_translation_request
+from handlers.words import enter_add_word_mode, process_translation_request
 import json
 import re
 import uuid # 🔥 Добавили
@@ -17,6 +17,13 @@ from api.routers.translator import apply_semantic_markup
 import ai_service
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import time
+import live_chat_database
+
+BTN_PRON = "Произношение"
+
+BTN_CHAT = "Чат"
+
+BTN_LEARN = "Обучение"
 
 SEPARATOR = "___"
 BUTTONS_LOCKS = {}
@@ -27,6 +34,8 @@ def show_settings(message):
     markup = keyboard.get_settings_menu()
     bot.send_message(chat_id, "⚙️ <b>Настройки профиля</b>\n\nВыбери уровень сложности и целевой язык:",
                      reply_markup=markup, parse_mode="HTML")
+
+
 
 
 def seed_initial_words_via_ai(chat_id, target_lang="en"):
@@ -170,28 +179,33 @@ def handle_global_quiz_actions(call):
 
     try:
         if action == "add_dict":
+            word_foreign = None
+
+            # 1. Достаем иностранное слово из памяти или БД
             pending = utils.PENDING_QUIZ.get(chat_id)
             if pending and pending.get("word_id") == word_id:
                 word_foreign = pending["word"]
-                word_ru = pending["ru_word"]
             else:
                 word_data = database.get_global_word_by_id(word_id)
                 if not word_data:
                     bot.answer_callback_query(call.id, "❌ Ошибка: слово не найдено.", show_alert=True)
                     return
                 word_foreign = word_data["foreign"]
-                word_ru = "[Переведи меня]"
 
-            is_added = database.add_custom_word(chat_id, word_foreign, word_ru)
-            if is_added:
-                bot.answer_callback_query(call.id, f"✅ Слово '{word_foreign}' добавлено в словарь!")
-            else:
-                bot.answer_callback_query(call.id, "⚠️ Это слово уже есть в словаре!")
+            bot.answer_callback_query(call.id, "⏳ Готовлю перевод...")
+
+            # 2. Вызываем идеальную функцию перевода из чата!
+            user_config = database.get_user_config(chat_id)
+            target_lang = user_config.get("source_lang", "en") if user_config else "en"
+
+            # Передаем слово в штатный обработчик (он всё переведет и сохранит)
+            process_translation_request(chat_id, word_foreign, target_lang, call.from_user.id)
 
         elif action == "hide_word":
             database.hide_global_word(chat_id, word_id)
             bot.answer_callback_query(call.id, "🚫 Слово скрыто.")
 
+        # Очищаем викторину и удаляем сообщение
         utils.clear_pending_quiz(chat_id)
         try:
             bot.delete_message(chat_id, message_id)
@@ -281,6 +295,82 @@ def handle_task_help_callback(call):
             bot.send_message(chat_id, ai_text, parse_mode="HTML")
     except Exception as e:
         bot.send_message(chat_id, f"Ошибка ИИ: {e}")
+
+
+
+
+# ==========================================
+# 🔥 МЕНЮ РЕЖИМОВ ЧАТА
+# ==========================================
+
+def get_chat_mode_keyboard(chat_id: int = None):
+    """Создает три кнопки в ряд, выделяя активный режим симметричными точками"""
+    current_mode = live_chat_database.get_user_mode(chat_id) if chat_id else "CHAT"
+
+    # Используем обычный текстовый символ (Alt+7 на numpad), он не ломает верстку
+    chat_label = f"• {BTN_CHAT} •" if current_mode == "CHAT" else BTN_CHAT
+    grammar_label = f"• {BTN_LEARN} •" if current_mode == "GRAMMAR" else BTN_LEARN
+    pronun_label = f"• {BTN_PRON} •" if current_mode == "PRONUNCIATION" else BTN_PRON
+
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
+    markup.add(
+        types.KeyboardButton(chat_label),
+        types.KeyboardButton(grammar_label),
+        types.KeyboardButton(pronun_label)
+    )
+    return markup
+
+
+# Гибкий перехватчик: реагирует на текст с кружком и без него
+@bot.message_handler(func=lambda message: message.text and any(m in message.text for m in [BTN_CHAT, BTN_LEARN, BTN_PRON]))
+def handle_mode_switch(message):
+    chat_id = message.chat.id
+    text = message.text
+
+    if BTN_CHAT in text:
+        live_chat_database.set_user_mode(chat_id, "CHAT")
+        ai_service.PRONUNCIATION_MEMORY.pop(chat_id, None)
+        bot.send_message(
+            chat_id,
+            "💬 <b>Режим 'Чат' активирован!</b>\n\n"
+            "Доступные возможности:\n"
+            "• 🤖 Свободное общение с ИИ на любые темы\n"
+            "• 📖 Перевод слов и текста\n"
+            "• 📸 Перевод текста на фото\n"
+            "• 🔊 Озвучка текста (начни сообщение с символа <code>!</code>)\n"
+            "• 🎧 Аудиоперевод на изучаемый язык по ключу (<i>«Озвучь фразу...»</i> или <i>«Переведи...»</i>)\n"
+            "• 🎙️ Перевод и анализ аудио на изучаемом языке",
+            reply_markup=get_chat_mode_keyboard(chat_id),
+            parse_mode="HTML"
+        )
+
+    elif BTN_LEARN in text:
+        live_chat_database.set_user_mode(chat_id, "GRAMMAR")
+        ai_service.PRONUNCIATION_MEMORY.pop(chat_id, None)
+        bot.send_message(
+            chat_id,
+            "🎯 <b>Режим 'Грамматика' активирован!</b>\n\n"
+            "• Обучение с ментором в живом чате\n"
+            "<i>(Озвучка и перевод слов в этом режиме недоступны)</i>",
+            reply_markup=get_chat_mode_keyboard(chat_id),
+            parse_mode="HTML")
+
+    elif BTN_PRON in text:
+        live_chat_database.set_user_mode(chat_id, "PRONUNCIATION")
+        ai_service.PRONUNCIATION_MEMORY.pop(chat_id, None)
+        bot.send_message(
+            chat_id,
+            "🎙️ <b>Режим 'Произношение' активирован!</b>\n\n"
+            "• Отправляй голосовые сообщения\n"
+            "• Получай анализ через Google AI",
+            reply_markup=get_chat_mode_keyboard(chat_id),
+            parse_mode="HTML"
+        )
+
+
+
+
+
 
 
 

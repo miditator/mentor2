@@ -12,6 +12,7 @@ from loader import bot
 import keyboard
 from ai_service import ask_ai
 
+
 GENERATION_LOCKS = {}
 TIMER_STATES = {}
 LAST_TASK_TIME = {}
@@ -111,14 +112,14 @@ def send_question_timer_loop(chat_id):
             pending = PENDING_QUIZ.get(chat_id)
 
             # 🔥 БЛОК 1: УТРЕННИЙ ПЛАН (ПРОВЕРЯЕМ ПЕРВЫМ ДЕЛОМ)
-            # Вынесли в самый верх! Теперь ничто не заблокирует 10:00.
-            if current_hour >= 10 and LAST_PLAN_DATE.get(chat_id) != current_date:
+            if current_hour == 10 and LAST_PLAN_DATE.get(chat_id) != current_date:
+                # 🛑 СТАВИМ ОТМЕТКУ СРАЗУ, чтобы не было бесконечного цикла при ошибке
+                LAST_PLAN_DATE[chat_id] = current_date
+
                 if not GENERATION_LOCKS.get(chat_id):
                     GENERATION_LOCKS[chat_id] = True
                     try:
-                        success = send_morning_plan(chat_id)
-                        if success:
-                            LAST_PLAN_DATE[chat_id] = current_date
+                        send_morning_plan(chat_id)
                     finally:
                         GENERATION_LOCKS[chat_id] = False
                         LAST_TASK_TIME[chat_id] = time.time()
@@ -239,12 +240,32 @@ def send_quiz_task(chat_id):
     btn_hide = InlineKeyboardButton(text="🚫 Не показывать", callback_data=f"hide_word_{target_id}")
     markup.row(btn_add, btn_hide)
 
+    try:
+        from handlers.buttons import get_chat_mode_keyboard
+        bot.send_message(
+            chat_id,
+            "🔔 Новое слово:",
+            reply_markup=get_chat_mode_keyboard(chat_id)
+        )
+    except Exception as e:
+        print(f"Ошибка обновления меню: {e}")
+
+        # 🔥 ШАГ 2: Сразу следом отправляем саму викторину
     bot.send_message(
         chat_id,
-        f"⏱ <b>Минутка для перевода:</b>\nКак переводится слово <b>«{target_foreign}»</b>?",
+        f"⏱ Как переводится <b>«{target_foreign}»</b>?",
         reply_markup=markup,
         parse_mode="HTML"
     )
+
+    PENDING_QUIZ[chat_id] = {
+        "time": time.time(),
+        "word": target_foreign,
+        "ru_word": target_ru,
+        "word_id": target_id,
+        "reminded": False
+    }
+    return True
 
     PENDING_QUIZ[chat_id] = {
         "time": time.time(),
